@@ -1,0 +1,39 @@
+<div class="manager-shell">
+  <aside class="sidebar" aria-label="Primary navigation">
+    <div class="brand-lockup"><span class="brand-mark">T</span><span class="brand-name">TheCart</span></div>
+    <div class="workspace-switcher"><span class="workspace-avatar">RS</span><span class="workspace-copy"><strong>Reseller space</strong><small>Personal workspace</small></span><span class="workspace-chevron">⌄</span></div>
+
+    <nav class="navigation">
+      <a routerLink="/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+      <p class="nav-label">Tools</p>
+      <a class="nested-link" routerLink="/address-extract" routerLinkActive="is-active"><span class="nav-icon">✣</span><span>Address Extractor</span></a>
+      <a routerLink="/products" routerLinkActive="is-active"><span class="nav-icon">▣</span><span>Products</span></a>
+      <a routerLink="/shipments" routerLinkActive="is-active"><span class="nav-icon">▰</span><span>Shipments</span></a>
+      <a routerLink="/profit-loss" routerLinkActive="is-active"><span class="nav-icon">◒</span><span>Profit &amp; Loss</span></a>
+      <a routerLink="/settings" routerLinkActive="is-active"><span class="nav-icon">⚙</span><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="tip-card"><span class="tip-icon">✦</span><strong>Small steps,<br />more orders.</strong><p>Your shipping desk,<br />nicely organised.</p></div>
+      <div class="profile"><span class="profile-avatar">TC</span><span><strong>TheCart</strong><small>TheCart account</small></span><span class="profile-more">•••</span></div>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="mobile-brand"><span class="brand-mark">T</span><span class="brand-name">TheCart</span></div>
+      <div class="breadcrumb"><span>Workspace</span><b>/</b><strong>Seller desk</strong></div>
+      <div class="topbar-actions"><button class="icon-button" aria-label="Notifications">♧<i></i></button><button class="help-button">? <span>Help centre</span></button></div>
+    </header>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a routerLink="/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"><span>⌂</span>Home</a>
+      <a routerLink="/address-extract" routerLinkActive="is-active"><span>✣</span>Extract</a>
+      <a routerLink="/products" routerLinkActive="is-active"><span>▣</span>Products</a>
+      <a routerLink="/shipments" routerLinkActive="is-active"><span>▰</span>Ship</a>
+      <a routerLink="/settings" routerLinkActive="is-active"><span>⚙</span>More</a>
+    </nav>
+
+    <main class="content-area"><router-outlet></router-outlet></main>
+  </div>
+</div>

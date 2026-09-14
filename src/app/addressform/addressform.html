@@ -1,0 +1,77 @@
+<section class="dispatch-card">
+  <header class="dispatch-card__header">
+    <h1>Dispatch slip extractor</h1>
+    <p>Paste the order note as it came in. Get back a clean shipping label.</p>
+  </header>
+
+  <div class="dispatch-card__intake">
+    <label for="raw-note">Order note</label>
+    <textarea
+      id="raw-note"
+      rows="6"
+      [ngModel]="rawText()"
+      (ngModelChange)="rawText.set($event)"
+      placeholder="Rajesh. M&#10;Kochu puthean parambu.&#10;Ambalapuzha.&#10;Alappuzha.&#10;Pin. 688561.&#10;No.6238122933."
+    ></textarea>
+
+    <div class="dispatch-card__actions">
+      <button
+        type="button"
+        class="btn btn--primary"
+        [class.is-loading]="loading()"
+        [disabled]="loading()"
+        (click)="extract()"
+      >
+        <span class="btn__scan" *ngIf="loading()"></span>
+        <span>{{ loading() ? 'Reading note' : 'Extract details' }}</span>
+      </button>
+
+      <p class="dispatch-card__error" *ngIf="error()">{{ error() }}</p>
+    </div>
+  </div>
+
+  <div class="perforation" *ngIf="hasResult()" aria-hidden="true">
+    <span *ngFor="let dot of perforationDots"></span>
+  </div>
+
+  <div class="dispatch-card__label" *ngIf="hasResult()">
+    <ul class="label-lines">
+      <li
+        class="label-line"
+        *ngFor="let field of fields(); let i = index"
+        [style.animation-delay.ms]="i * 60"
+      >
+        <div class="label-line__text">
+          <label [attr.for]="'field-' + field.key">{{ field.label }}</label>
+          <input
+            [id]="'field-' + field.key"
+            type="text"
+            [ngModel]="field.value"
+            (ngModelChange)="updateField(field.key, $event)"
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn--icon"
+          [class.is-copied]="field.copied"
+          (click)="copyField(field)"
+          [attr.aria-label]="'Copy ' + field.label"
+        >
+          {{ field.copied ? '✓' : '⧉' }}
+        </button>
+      </li>
+    </ul>
+
+    <footer class="dispatch-card__footer">
+      <span>Ready to paste in</span>
+      <button
+        type="button"
+        class="btn btn--ghost"
+        [class.is-copied]="allCopied()"
+        (click)="copyAll()"
+      >
+        {{ allCopied() ? 'Copied' : 'Copy all' }}
+      </button>
+    </footer>
+  </div>
+</section>
