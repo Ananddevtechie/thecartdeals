@@ -1,0 +1,98 @@
+import { Component, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { productOffer } from '../product-details/product-offer';
+
+interface CheckoutDraft {
+  [key: string]: FormDataEntryValue | number | undefined;
+  fullName?: string;
+  mobile?: string;
+  alternateMobile?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  pin?: string;
+  city?: string;
+  state?: string;
+  landmark?: string;
+  quantity?: number;
+}
+
+@Component({
+  selector: 'app-checkout',
+  standalone: true,
+  imports: [RouterLink],
+  templateUrl: './checkout.html',
+  styleUrl: './checkout.scss',
+})
+export class Checkout {
+  private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly product = productOffer;
+  readonly checkoutDraft = this.readCheckoutDraft();
+  readonly indianStates = [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+  ];
+  quantity = Math.max(1, Math.min(10, Number(this.checkoutDraft?.quantity) || 1));
+  orderMessage = '';
+
+  get total(): number {
+    return this.product.price * this.quantity;
+  }
+
+  changeQuantity(amount: number): void {
+    this.quantity = Math.max(1, Math.min(10, this.quantity + amount));
+  }
+
+  continueToPayment(event: SubmitEvent): void {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    if (!form.reportValidity()) return;
+
+    const formData = new FormData(form);
+    const checkout = Object.fromEntries(formData.entries());
+    void this.router.navigateByUrl('/payment', {
+      state: {
+        checkout: {
+          ...checkout,
+          quantity: this.quantity,
+          productId: this.product.id,
+        },
+      },
+    });
+  }
+
+  private readCheckoutDraft(): CheckoutDraft | null {
+    const navigationDraft = this.router.getCurrentNavigation()?.extras.state?.['checkout'] as CheckoutDraft | undefined;
+    if (navigationDraft) return navigationDraft;
+    if (!isPlatformBrowser(this.platformId)) return null;
+    return window.history.state?.['checkout'] as CheckoutDraft | null;
+  }
+}

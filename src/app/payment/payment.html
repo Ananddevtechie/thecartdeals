@@ -1,0 +1,67 @@
+<main class="payment-page">
+  <div class="payment-decoration" aria-hidden="true"></div>
+  <header class="payment-header">
+    <button class="back-checkout" type="button" (click)="backToCheckout()"><span aria-hidden="true">←</span> Back to Checkout</button>
+    <a class="payment-brand" routerLink="/product-details" aria-label="TheCart home"><span class="brand-mark">T</span><span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a>
+    <span class="secure-header"><span aria-hidden="true">⌑</span> Secure Checkout</span>
+  </header>
+
+  <section class="payment-shell" aria-labelledby="payment-title">
+    <nav class="progress-steps" aria-label="Checkout progress">
+      <span class="step-done"><b>✓</b> Details</span><i aria-hidden="true">→</i>
+      <span class="step-done"><b>✓</b> Delivery</span><i aria-hidden="true">→</i>
+      <span class="step-current" aria-current="step"><b>3</b> Payment</span><i aria-hidden="true">→</i>
+      <span class="step-upcoming"><b>4</b> Confirmation</span>
+    </nav>
+
+    @if (!stateResolved) {
+      <div class="session-alert loading-state" role="status"><span class="loading-spinner" aria-hidden="true"></span><div><strong>Preparing your payment summary</strong><p>Loading your checkout details securely.</p></div></div>
+    } @else if (!checkout) {
+      <div class="session-alert" role="alert"><span class="alert-icon">!</span><div><strong>Checkout details not found</strong><p>Return to checkout and submit your delivery details before continuing.</p><button type="button" (click)="backToCheckout()">Return to checkout <span>→</span></button></div></div>
+    } @else {
+      <div class="payment-layout">
+        <section class="methods-column" aria-labelledby="payment-title">
+          <div class="section-intro"><span class="eyebrow">STEP 03 <i>·</i> PAYMENT</span><h1 id="payment-title">Choose payment method</h1><p>Select how you’d like to pay for your order.</p></div>
+
+          <div class="method-list" role="radiogroup" aria-label="Payment method">
+            <button class="method-card" type="button" role="radio" [attr.aria-checked]="selectedMethod === 'online'" [class.is-selected]="selectedMethod === 'online'" (click)="selectMethod('online')">
+              <span class="method-radio"><i></i></span><span class="method-copy"><span class="method-title">Pay Online <small class="coming-tag">SETUP REQUIRED</small></span><span class="method-description">Payment methods will be shown here after a provider is configured.</span><span class="method-tags"><span>Hosted checkout</span><span>No credentials collected here</span></span></span><span class="method-symbol" aria-hidden="true">↗</span>
+            </button>
+
+            <button class="method-card" type="button" role="radio" [attr.aria-checked]="selectedMethod === 'cod'" [class.is-selected]="selectedMethod === 'cod'" (click)="selectMethod('cod')">
+              <span class="method-radio"><i></i></span><span class="method-copy"><span class="method-title">Cash on Delivery</span><span class="method-description">Pay when your order arrives</span></span><span class="method-symbol cod-symbol" aria-hidden="true">₹</span>
+            </button>
+          </div>
+
+          @if (notice()) { <div class="payment-notice" role="alert"><span>!</span><p>{{ notice() }}</p></div> }
+
+          <div class="payment-trust" aria-label="Checkout information">
+            <span><i>⌑</i> Server verification required</span><span><i>↗</i> Delivery details secured</span><span><i>♡</i> Customer support</span>
+          </div>
+        </section>
+
+        <aside class="summary-column" aria-label="Order and delivery summary">
+          <section class="summary-card">
+            <div class="summary-card-body">
+              <div class="summary-heading"><div><span class="eyebrow">YOUR ORDER</span><h2>Order summary</h2></div><span class="summary-lock" aria-hidden="true">⌑</span></div>
+              <div class="product-line"><div class="product-art" aria-hidden="true"><span>g.</span></div><div class="product-title"><strong>{{ product.title }}</strong><small>Everyday edit <i>·</i> Qty {{ quantity }}</small></div></div>
+              <div class="price-lines"><div><span>Listing price × {{ quantity }}</span><strong>{{ product.currency }}{{ product.mrp * quantity }}</strong></div><div><span>Offer discount</span><strong class="discount-value">−{{ product.currency }}{{ previewSavings }}</strong></div><div><span>Shipping</span><strong class="quote-pending">Awaiting quote</strong></div><div><span>Tax</span><strong class="quote-pending">Awaiting quote</strong></div></div>
+              <div class="total-line"><span>Preview total</span><strong>{{ product.currency }}{{ previewTotal }}</strong></div>
+              <p class="quote-disclaimer">Preview only. Final price, shipping, tax and eligible payment methods must be confirmed by the server before an order can be placed.</p>
+              <div class="delivery-summary"><div class="delivery-title"><strong>Delivery to</strong><button type="button" (click)="backToCheckout()">Edit details <span>↗</span></button></div><strong>{{ checkout.fullName }}</strong><p>{{ maskedMobile }} <span>·</span> {{ checkout.addressLine1 }}{{ checkout.addressLine2 ? ', ' + checkout.addressLine2 : '' }}{{ checkout.landmark ? ', near ' + checkout.landmark : '' }}, {{ checkout.city }}, {{ checkout.state }} {{ checkout.pin }}</p></div>
+            </div>
+          </section>
+
+          <section class="policy-card" id="policies"><span class="policy-icon" aria-hidden="true">⌑</span><p><strong>Secure by design</strong><br />Payment credentials should be entered only in an authorized provider’s hosted checkout. This application does not collect card details, CVV, UPI PINs or OTPs.</p></section>
+          <p class="terms-copy">By continuing, you agree to our <a href="#policies">Terms &amp; Conditions</a>, <a href="#policies">Privacy Policy</a>, <a href="#policies">Shipping Policy</a> and <a href="#policies">Cancellation / Refund Policy</a>.</p>
+        </aside>
+      </div>
+
+      <footer class="payment-footer">
+        <div class="trust-row"><span><i>⌑</i> Secure checkout</span><span><i>₹</i> Payment options subject to verification</span><span><i>↗</i> Support when you need it</span></div><button class="payment-cta" type="button" (click)="placeCodOrder()" [disabled]="isSubmitting()"><span>{{ isSubmitting() ? 'Sending order details…' : selectedMethod === 'online' ? 'Continue to online payment' : 'Place COD · ' + product.currency + previewTotal }}</span><span aria-hidden="true">{{ isSubmitting() ? '…' : '→' }}</span></button><p class="provider-note">{{ selectedMethod === 'cod' ? 'Your COD details will be sent to the store by email.' : 'Online payment requires a configured gateway.' }}</p>
+      </footer>
+    }
+  </section>
+
+  @if (checkout) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UNVERIFIED PREVIEW' }}</small></div><button type="button" (click)="placeCodOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'PAY SECURELY' : 'PLACE COD' }} <span>→</span></button></div> }
+</main>

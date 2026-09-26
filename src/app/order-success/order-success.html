@@ -1,0 +1,46 @@
+<main class="success-page">
+  <div class="success-decoration" aria-hidden="true"></div>
+  <header class="success-header">
+    <a class="success-brand" routerLink="/product-details" aria-label="TheCart home"><span class="brand-mark">T</span><span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a>
+    <a class="secure-label" routerLink="/product-details"><span aria-hidden="true">⌑</span> Secure checkout</a>
+  </header>
+
+  <section class="success-content" aria-labelledby="success-title">
+    <nav class="progress-steps" aria-label="Checkout progress">
+      <span class="step-done"><b>✓</b> Details</span><i aria-hidden="true">→</i>
+      <span class="step-done"><b>✓</b> Delivery</span><i aria-hidden="true">→</i>
+      <span class="step-done"><b>✓</b> Payment</span><i aria-hidden="true">→</i>
+      <span class="step-current" aria-current="step"><b>4</b> Confirmation</span>
+    </nav>
+
+    @if (!stateResolved) {
+      <div class="success-card loading-state" role="status"><span class="success-spinner" aria-hidden="true"></span><strong>Loading your order confirmation…</strong></div>
+    } @else if (!order) {
+      <div class="success-card missing-order" role="alert"><span class="success-mark">!</span><h1 id="success-title">Order details unavailable</h1><p>We could not find this confirmation in this browser session. Please check your email or contact support with your order reference.</p><button type="button" (click)="continueShopping()">Continue shopping</button></div>
+    } @else {
+      <article class="success-card">
+        <div class="success-check" aria-hidden="true">✓</div>
+        <span class="eyebrow">ORDER CONFIRMED</span>
+        <h1 id="success-title">Order placed successfully</h1>
+        <p class="success-lead">Please keep the payable amount ready when it arrives.</p>
+
+        <div class="order-reference"><span>ORDER ID</span><strong>{{ order.order_id }}</strong></div>
+        <div class="order-details">
+          <div class="detail-row"><span>Product</span><strong>{{ order.product_title }} × {{ order.quantity }}</strong></div>
+          <div class="detail-row"><span>SKU</span><strong>{{ order.product_sku }}</strong></div>
+          <div class="detail-row"><span>Payment method</span><strong>Cash on Delivery</strong></div>
+          <div class="detail-row"><span>Payment status</span><strong class="pending-status">{{ order.payment_status }}</strong></div>
+          <div class="detail-row"><span>Amount payable</span><strong class="amount">{{ order.currency }} {{ formatMoney(order.total) }}</strong></div>
+          <div class="detail-row"><span>Expected delivery</span><strong>{{ order.expected_delivery_range }}</strong></div>
+        </div>
+
+        @if (delivery) {
+          <section class="delivery-card"><div class="delivery-heading"><strong>Delivery address</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p><p>{{ delivery.addressLine1 }}, {{ delivery.addressLine2 }}{{ delivery.landmark ? ', near ' + delivery.landmark : '' }}, {{ delivery.city }}, {{ delivery.state }} {{ delivery.pin }}</p></section>
+        }
+
+        <div class="success-actions"><button type="button" class="continue-button" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button></div>
+        <p class="whatsapp-note">Order and delivery details will be shared via WhatsApp within 30 minutes.</p>
+      </article>
+    }
+  </section>
+</main>

@@ -5,13 +5,10 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 export interface ExtractedAddress {
   name: string;
-  mobile: string;
-  house: string;
   address: string;
-  area: string;
-  city: string;
-  state: string;
+  district: string;
   pin: string;
+  mobile: string;
 }
 
 interface AddressField {
@@ -23,13 +20,10 @@ interface AddressField {
 
 const FIELD_DEFS: { key: keyof ExtractedAddress; label: string }[] = [
   { key: 'name', label: 'Name' },
-  { key: 'mobile', label: 'Mobile number' },
-  { key: 'house', label: 'House / flat no.' },
   { key: 'address', label: 'Full address' },
-  { key: 'area', label: 'Area / locality' },
-  { key: 'city', label: 'City' },
-  { key: 'state', label: 'State' },
+  { key: 'district', label: 'District' },
   { key: 'pin', label: 'PIN code' },
+  { key: 'mobile', label: 'Mobile number' },
 ];
 
 @Component({

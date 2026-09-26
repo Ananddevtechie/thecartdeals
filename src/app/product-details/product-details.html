@@ -1,0 +1,129 @@
+<div class="storefront">
+  <div class="announcement" role="note">
+    <span><i>✦</i> A LITTLE EXTRA OFF, FOR A LIMITED TIME</span>
+    <span><i>↗</i> DELIVERY ACROSS INDIA</span>
+    <span><i>◉</i> CASH ON DELIVERY, WHERE AVAILABLE</span>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="The Good Edit home">
+      <span class="brand-mark">T</span>
+      <span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
+    </a>
+    <nav class="header-links" aria-label="Page navigation">
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#support">Support</a>
+    </nav>
+    <button class="header-order" type="button" (click)="navigateToCheckout()">Order now <span>↗</span></button>
+  </header>
+
+  <main id="top">
+    <section class="hero section-wrap" aria-labelledby="product-title">
+      <div class="gallery-column">
+        <div class="gallery-card">
+          <div class="gallery-topline"><span>THE EVERYDAY EDIT</span><span class="gallery-count">0{{ selectedMedia + 1 }} <i>/</i> 0{{ media.length }}</span></div>
+          <button class="main-image" type="button" [class.is-zoomed]="zoomed" (click)="zoomed = !zoomed" [attr.aria-label]="zoomed ? 'Zoom out of product image' : 'Zoom in on product image'">
+            <img [src]="media[selectedMedia].src" [alt]="media[selectedMedia].alt" />
+            <span class="image-caption">{{ media[selectedMedia].label }}</span>
+            <span class="zoom-hint">{{ zoomed ? '−' : '+' }}</span>
+          </button>
+          <div class="thumbnail-row" aria-label="Product images">
+            @for (item of media; track item.src; let i = $index) {
+              <button class="thumbnail" type="button" [class.is-selected]="selectedMedia === i" (click)="selectMedia(i)" [attr.aria-label]="'View image ' + (i + 1) + ': ' + item.label">
+                <img [src]="item.src" [alt]="item.alt" />
+              </button>
+            }
+          </div>
+        </div>
+        <p class="gallery-note"><span>✧</span> Thoughtful details. Made for everyday.</p>
+      </div>
+
+      <div class="product-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span>{{ product.eyebrow }}</div>
+        <h1 id="product-title">{{ product.title }}<span>.</span></h1>
+        <p class="hero-description">{{ product.description }}</p>
+
+        <div class="rating-line" id="reviews">
+          <span class="rating-stars" aria-label="No reviews yet">☆☆☆☆☆</span>
+          <span class="rating-copy">Be the first to review</span>
+          <span class="rating-divider"></span>
+          <span class="rating-proof">Thoughtfully picked for you</span>
+        </div>
+
+        <div class="price-block">
+          <div class="price-row"><span class="price-now">{{ product.currency }}{{ product.price }}</span><span class="price-mrp">MRP <s>{{ product.currency }}{{ product.mrp }}</s></span><span class="save-pill">SAVE {{ product.currency }}{{ savings }}</span></div>
+          <p class="offer-copy"><span>✳</span> A little upgrade for a little less.</p>
+          <p class="offer-footnote">Introductory offer · Price may change</p>
+        </div>
+
+        <button class="primary-button hero-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span class="cta-price">{{ product.currency }}{{ product.price }} <b>→</b></span></button>
+        <div class="checkout-reassurance"><span>⌑ Secure checkout</span><span>◉ COD where available</span><span>↗ India-wide delivery</span></div>
+        <a class="message-link" href="https://wa.me/?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer"><span class="message-icon">◔</span> Have a question? Message our team <span class="link-arrow">↗</span></a>
+        <div class="stock-note"><span class="stock-indicator"></span>{{ product.stockLabel }} <span>·</span> Ships across India</div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Shopping benefits">
+      <div class="trust-inner">
+        <article class="trust-item"><span class="trust-icon">↗</span><div><strong>DELIVERY ACROSS INDIA</strong><small>Estimated at checkout</small></div></article>
+        <article class="trust-item"><span class="trust-icon">◉</span><div><strong>CASH ON DELIVERY</strong><small>Where available</small></div></article>
+        <article class="trust-item"><span class="trust-icon">⌑</span><div><strong>SECURE CHECKOUT</strong><small>Your details stay private</small></div></article>
+        <article class="trust-item"><span class="trust-icon">♡</span><div><strong>HERE TO HELP</strong><small>Real support when you need it</small></div></article>
+      </div>
+    </section>
+
+    <section class="benefits-section section-wrap">
+      <div class="section-heading"><span class="section-kicker">A BETTER EVERYDAY</span><h2>Small upgrade.<br /><em>Big difference.</em></h2><p>Everything you need for a simpler everyday experience.</p></div>
+      <div class="benefit-grid">
+        @for (benefit of product.benefits; track benefit.title; let i = $index) {
+          <article class="benefit-card" [class.benefit-featured]="i === 0"><span class="benefit-number">0{{ i + 1 }}</span><span class="benefit-icon">{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.copy }}</p></article>
+        }
+      </div>
+    </section>
+
+    <section class="details-section">
+      <div class="section-wrap details-layout">
+        <div class="details-intro"><span class="section-kicker">THE DETAILS MATTER</span><h2>Thought through,<br /><em>down to the details.</em></h2><p>Useful by design, with no unnecessary fuss.</p><div class="details-image"><img [src]="media[2].src" [alt]="media[2].alt" /><span>EVERYDAY, ELEVATED</span></div></div>
+        <div class="details-content">
+          <div class="feature-list"><h3>Product features</h3>@for (feature of product.features; track feature) { <div class="feature-row"><span>✦</span><p>{{ feature }}</p></div> }</div>
+          <div class="spec-list"><h3>Specifications</h3>
+            @if (product.specifications.length) {
+              @for (spec of product.specifications; track spec.label) { <div class="spec-row"><span>{{ spec.label }}</span><strong>{{ spec.value }}</strong></div> }
+            } @else {
+              <div class="spec-pending"><span>i</span><p>Verified material, dimensions, weight and color information will be added to this listing when available.</p></div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reviews-section section-wrap">
+      <div class="reviews-top"><div><span class="section-kicker">KIND WORDS, WHEN THEY COME</span><h2>Loved by customers.</h2><p>Honest experiences make a better community.</p></div><div class="reviews-count"><strong>—</strong><span>REVIEWS</span></div></div>
+      <div class="reviews-empty"><div class="empty-stars">☆☆☆☆☆</div><strong>Be the first to share your experience.</strong><p>Verified customer reviews will show here after they’re collected.</p></div>
+    </section>
+
+    <section class="final-offer">
+      <div class="section-wrap final-offer-inner">
+        <div class="final-offer-copy"><span class="section-kicker">YOUR EVERYDAY, UPGRADED</span><h2>Ready for a little<br /><em>more ease?</em></h2><p>A thoughtful everyday pick, at a thoughtful price.</p></div>
+        <div class="final-offer-card"><div class="final-price"><span>MRP <s>{{ product.currency }}{{ product.mrp }}</s></span><strong>{{ product.currency }}{{ product.price }} <small>TODAY</small></strong><span class="save-pill">SAVE {{ product.currency }}{{ savings }}</span></div><p class="final-limited"><span>✳</span> Introductory offer · Price may change</p><button class="primary-button final-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button><div class="final-perks"><span>◉ COD where available</span><span>↗ India-wide delivery</span><span>⌑ Secure checkout</span></div></div>
+      </div>
+    </section>
+
+    <section class="faq-section section-wrap" id="faq">
+      <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="#support">Talk to our team <span>↗</span></a></div>
+      <div class="faq-list">
+        @for (faq of faqs; track faq.question; let i = $index) {
+          <article class="faq-item" [class.is-open]="openFaq === i"><button type="button" class="faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="openFaq === i"><span>{{ faq.question }}</span><span class="faq-toggle">{{ openFaq === i ? '−' : '+' }}</span></button>@if (openFaq === i) { <p class="faq-answer">{{ faq.answer }}</p> }</article>
+        }
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="support">
+    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><span class="brand-mark">T</span><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="#support">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/" target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
+    <div class="section-wrap footer-bottom"><span>© {{ product.title }} · TheCart</span><span>Thoughtfully picked. Happily used.</span></div>
+  </footer>
+
+  <div class="mobile-sticky-cta"><div class="sticky-price"><strong>{{ product.currency }}{{ product.price }}</strong><small>TODAY</small></div><button type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button></div>
+</div>

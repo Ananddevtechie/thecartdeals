@@ -1,0 +1,50 @@
+<main class="checkout-page">
+  <div class="checkout-glow" aria-hidden="true"></div>
+  <header class="checkout-header">
+    <a class="checkout-brand" routerLink="/product-details" aria-label="Back to TheCart product page">
+      <span class="brand-mark">T</span>
+      <span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
+    </a>
+    <a class="back-link" routerLink="/product-details"><span>←</span> Back to product</a>
+  </header>
+
+  <section class="checkout-content" aria-labelledby="checkout-title">
+    <div class="checkout-heading">
+      <span class="eyebrow"><i></i> SECURE CHECKOUT</span>
+      <h1 id="checkout-title">Complete your order</h1>
+      <p>A few details and this thoughtful pick is on its way.</p>
+    </div>
+
+    <form class="checkout-card" (submit)="continueToPayment($event)">
+      <div class="card-heading">
+        <div><span class="step-label">01 <i>—</i> DELIVERY DETAILS</span><h2>Where should we send it?</h2></div>
+        <span class="lock-icon" aria-label="Secure form">⌑</span>
+      </div>
+      <div class="form-grid">
+        <label class="form-field field-wide"><span>Full name <b class="required-mark" aria-label="required">*</b></span><input name="fullName" autocomplete="name" placeholder="Your name" [value]="checkoutDraft?.fullName ?? ''" required minlength="2" /></label>
+        <label class="form-field"><span>Mobile number <b class="required-mark" aria-label="required">*</b></span><span class="input-prefix"><b>+91</b><input name="mobile" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="10-digit number" [value]="checkoutDraft?.mobile ?? ''" pattern="[6-9][0-9]{9}" title="Enter a valid 10-digit Indian mobile number" required /></span></label>
+        <label class="form-field"><span>Alternate mobile number <small>(optional)</small></span><span class="input-prefix"><b>+91</b><input name="alternateMobile" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="10-digit number" [value]="checkoutDraft?.alternateMobile ?? ''" pattern="[6-9][0-9]{9}" title="Enter a valid 10-digit Indian mobile number" /></span></label>
+        <label class="form-field field-wide"><span>House no. / building name / house name / flat name <b class="required-mark" aria-label="required">*</b></span><input name="addressLine1" autocomplete="address-line1" placeholder="House, building or flat details" [value]="checkoutDraft?.addressLine1 ?? ''" required /></label>
+        <label class="form-field field-wide"><span>Road name / area / colony <b class="required-mark" aria-label="required">*</b></span><input name="addressLine2" autocomplete="address-line2" placeholder="Street, area or colony" [value]="checkoutDraft?.addressLine2 ?? ''" required /></label>
+        <label class="form-field"><span>PIN code <b class="required-mark" aria-label="required">*</b></span><input name="pin" autocomplete="postal-code" inputmode="numeric" placeholder="6-digit PIN code" [value]="checkoutDraft?.pin ?? ''" pattern="[0-9]{6}" title="Enter a 6-digit PIN code" required /></label>
+        <label class="form-field"><span>City <b class="required-mark" aria-label="required">*</b></span><input name="city" autocomplete="address-level2" placeholder="Your city" [value]="checkoutDraft?.city ?? ''" required /></label>
+        <label class="form-field"><span>State <b class="required-mark" aria-label="required">*</b></span><select name="state" autocomplete="address-level1" required><option value="" disabled [selected]="!checkoutDraft?.state">Select your state</option>@for (state of indianStates; track state) { <option [value]="state" [selected]="checkoutDraft?.state === state">{{ state }}</option> }</select></label>
+        <label class="form-field"><span>Landmark <small>(optional)</small></span><input name="landmark" placeholder="Nearby landmark" [value]="checkoutDraft?.landmark ?? ''" /></label>
+        <label class="form-field"><span>Quantity</span><span class="quantity-control"><button type="button" (click)="changeQuantity(-1)" aria-label="Decrease quantity">−</button><output>{{ quantity }}</output><button type="button" (click)="changeQuantity(1)" aria-label="Increase quantity">+</button></span></label>
+      </div>
+
+      <div class="summary-heading"><span class="step-label">02 <i>—</i> ORDER SUMMARY</span></div>
+      <div class="order-summary">
+        <div><span>{{ product.title }} <small>× {{ quantity }}</small></span><strong>{{ product.currency }}{{ total }}</strong></div>
+        <div><span>Delivery</span><strong class="free-delivery">Free*</strong></div>
+        <div class="summary-total"><span>Total</span><strong>{{ product.currency }}{{ total }}</strong></div>
+        <small class="delivery-disclaimer">*Delivery availability and charges, if any, are confirmed by PIN code.</small>
+      </div>
+      <button class="place-order" type="submit"><span>Continue to payment</span><span>{{ product.currency }}{{ total }} <b>→</b></span></button>
+      @if (orderMessage) { <p class="order-message" role="alert">{{ orderMessage }}</p> }
+      <p class="secure-note"><span>⌑</span> Your information is secure and never shared.</p>
+    </form>
+
+    <div class="checkout-reassurance"><span>◉ Cash on Delivery, where available</span><span>↗ Delivery across India</span></div>
+  </section>
+</main>

@@ -6,19 +6,18 @@ html,
 body {
 	min-height: 100%;
 	margin: 0;
+	scroll-behavior: smooth;
 }
 
 body {
-	background: linear-gradient(155deg, #20352b 0%, #182721 56%, #122019 100%);
+	background: #fff;
+	color: #11172c;
+	font-family: Inter, 'Avenir Next', Avenir, sans-serif;
 }
 
 button,
 a {
 	-webkit-tap-highlight-color: transparent;
-}
-
-.manager-page {
-	animation: manager-page-in 450ms ease both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -30,24 +29,4 @@ a {
 		scroll-behavior: auto !important;
 		transition-duration: 0.01ms !important;
 	}
-}
-
-.manager-page .page-kicker {
-	margin: 0 0 14px;
-	color: #d36b4e;
-	font: 800 0.67rem/1 'DM Sans', 'Trebuchet MS', sans-serif;
-	letter-spacing: 0.15em;
-	text-transform: uppercase;
-}
-
-.manager-page h1 {
-	margin: 0;
-	color: #f4faf5;
-	font: 500 clamp(2.8rem, 5vw, 5rem)/0.95 Georgia, serif;
-	letter-spacing: -0.05em;
-}
-
-@keyframes manager-page-in {
-	from { opacity: 0; transform: translateY(14px); }
-	to { opacity: 1; transform: translateY(0); }
 }
