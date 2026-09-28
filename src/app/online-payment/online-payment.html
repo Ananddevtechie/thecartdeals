@@ -1,0 +1,97 @@
+<main class="online-payment-page">
+  <header class="online-payment-header">
+    <a class="online-payment-brand" routerLink="/product-details" aria-label="TheCart home">
+      <span class="brand-mark">T</span>
+      <span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
+    </a>
+    <span class="secure-label"><span aria-hidden="true">⌑</span> Secure checkout</span>
+  </header>
+
+  <section class="online-payment-content" aria-live="polite">
+    <nav class="progress-steps" aria-label="Checkout progress">
+      <span class="step-done"><b>✓</b> Details</span><i aria-hidden="true">→</i>
+      <span class="step-done"><b>✓</b> Delivery</span><i aria-hidden="true">→</i>
+      <span class="step-current" aria-current="step"><b>3</b> Payment</span>
+    </nav>
+
+    @if (!stateResolved) {
+      <div class="payment-card loading-state" role="status"><span class="payment-spinner" aria-hidden="true"></span>Loading payment details…</div>
+    } @else if (!checkout) {
+      <article class="payment-card result-card" role="alert">
+        <span class="eyebrow">PAYMENT</span>
+        <h1 id="online-payment-title">Payment details unavailable</h1>
+        <p>Your checkout details have expired. Return to checkout to continue.</p>
+        <button class="primary-action" type="button" (click)="backToCheckout()">Back to Checkout <span aria-hidden="true">→</span></button>
+      </article>
+    } @else if (screen() === 'selection') {
+      <article class="payment-card selection-card" aria-labelledby="online-payment-title">
+        <div class="screen-heading">
+          <span class="eyebrow">SECURE PAYMENT</span>
+          <h1 id="online-payment-title">Choose Payment Method</h1>
+          <p>Pay securely using UPI</p>
+        </div>
+
+        <div class="amount-summary" aria-label="Total payable">
+          <span>Total Payable</span>
+          <strong>{{ product.currency }}{{ formattedTotal }}</strong>
+        </div>
+
+        <section class="upi-card" aria-labelledby="upi-title">
+          <header class="upi-card-heading">
+            <span class="upi-symbol" aria-hidden="true">↗</span>
+            <div><h2 id="upi-title">UPI</h2><p>Pay instantly using your preferred UPI app</p></div>
+          </header>
+          <div class="upi-grid" role="radiogroup" aria-label="Preferred UPI app">
+            @for (app of upiApps; track app.id) {
+              <label class="upi-option" [class.is-selected]="selectedApp() === app.id">
+                <input type="radio" name="upi-app" [value]="app.id" [checked]="selectedApp() === app.id" (change)="selectApp(app.id)" />
+                <span class="app-mark" [attr.data-brand]="app.style" aria-hidden="true">{{ app.mark }}</span>
+                <span class="app-name">{{ app.name }}</span>
+                <span class="app-radio" aria-hidden="true"></span>
+              </label>
+            }
+          </div>
+        </section>
+
+        @if (notice()) { <div class="payment-notice" role="alert">{{ notice() }}</div> }
+        <p class="razorpay-security"><span aria-hidden="true">🔒</span> Secure payment powered by <strong>Razorpay</strong></p>
+        <button class="primary-action" type="button" (click)="payNow()" [disabled]="isSubmitting()">
+          <span>{{ isSubmitting() ? 'Preparing secure payment…' : 'Pay ' + product.currency + formattedTotal }}</span>
+          @if (isSubmitting()) { <span class="button-spinner" aria-hidden="true"></span> } @else { <span aria-hidden="true">→</span> }
+        </button>
+        <button class="secondary-action" type="button" (click)="backToCheckout()">← Back to Checkout</button>
+      </article>
+    } @else if (screen() === 'pending') {
+      <article class="payment-card result-card" aria-labelledby="online-payment-title">
+        <span class="result-icon pending-icon"><span class="payment-spinner" aria-hidden="true"></span></span>
+        <span class="eyebrow">PAYMENT STATUS</span>
+        <h1 id="online-payment-title">Payment Processing</h1>
+        <p>We're waiting for confirmation from your payment provider. Please don't make another payment.</p>
+        <div class="status-order"><span>Order number</span><strong>{{ activeOrderId() }}</strong></div>
+        @if (notice()) { <p class="status-note" role="status">{{ notice() }}</p> }
+        <button class="primary-action" type="button" (click)="checkPaymentStatus()">Check payment status <span aria-hidden="true">↻</span></button>
+      </article>
+    } @else if (screen() === 'failed') {
+      <article class="payment-card result-card" aria-labelledby="online-payment-title">
+        <span class="result-icon failed-icon" aria-hidden="true">!</span>
+        <span class="eyebrow">PAYMENT STATUS</span>
+        <h1 id="online-payment-title">Payment Failed</h1>
+        <p>We couldn't complete your payment. No amount should be considered paid until the payment is successfully verified.</p>
+        <button class="primary-action" type="button" (click)="tryAgain()">Try Again <span aria-hidden="true">→</span></button>
+        <button class="secondary-action" type="button" (click)="tryAgain()">Change Payment Method</button>
+        <button class="text-action" type="button" (click)="backToCheckout()">Back to Checkout</button>
+      </article>
+    } @else {
+      <article class="payment-card result-card success-card" aria-labelledby="online-payment-title">
+        <span class="result-icon success-icon" aria-hidden="true">✓</span>
+        <span class="eyebrow">PAYMENT CONFIRMED</span>
+        <h1 id="online-payment-title">Payment Successful</h1>
+        <strong class="success-amount">{{ product.currency }}{{ formattedTotal }} <span>Paid</span></strong>
+        <div class="status-order"><span>Order</span><strong>#{{ paidOrder()?.order_id }}</strong></div>
+        <p class="confirmed-status"><span aria-hidden="true">✓</span> Payment Confirmed</p>
+        <button class="primary-action" type="button" (click)="viewOrder()">View Order <span aria-hidden="true">→</span></button>
+        <button class="secondary-action" type="button" (click)="continueShopping()">Continue Shopping</button>
+      </article>
+    }
+  </section>
+</main>

@@ -92,16 +92,26 @@ export class Payment {
     this.notice.set('');
   }
 
+  submitOrder(): void {
+    if (this.selectedMethod === 'online') {
+      if (!this.checkout) {
+        this.notice.set('Your checkout details have expired. Return to checkout and try again.');
+        return;
+      }
+      void this.router.navigateByUrl('/online-payment', {
+        state: { checkout: this.checkout },
+      });
+      return;
+    }
+    void this.placeCodOrder();
+  }
+
   continueShopping(): void {
     void this.router.navigateByUrl('/product-details');
   }
 
   async placeCodOrder(): Promise<void> {
     if (this.isSubmitting()) return;
-    if (this.selectedMethod !== 'cod') {
-      this.notice.set('Online payment is not configured. No payment or order was submitted.');
-      return;
-    }
     if (!this.checkout) {
       this.notice.set('Your checkout details have expired. Return to checkout and try again.');
       return;

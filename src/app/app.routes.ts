@@ -3,12 +3,14 @@ import { Checkout } from './checkout/checkout';
 import { Payment } from './payment/payment';
 import { ProductDetails } from './product-details/product-details';
 import { OrderSuccess } from './order-success/order-success';
+import { OnlinePayment } from './online-payment/online-payment';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', redirectTo: 'product-details' },
 	{ path: 'product-details', component: ProductDetails, title: 'Premium Everyday Product | goodform' },
 	{ path: 'checkout', component: Checkout, title: 'Secure checkout | TheCart' },
 	{ path: 'payment', component: Payment, title: 'Payment | TheCart' },
+	{ path: 'online-payment', component: OnlinePayment, title: 'Online payment | TheCart' },
 	{ path: 'order/success', component: OrderSuccess, title: 'Order placed successfully | TheCart' },
 	{ path: '**', redirectTo: 'product-details' },
 ];

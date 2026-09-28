@@ -6,8 +6,8 @@ import { Router, RouterLink } from '@angular/router';
 interface OrderConfirmation {
   order_id: string;
   order_status: 'PLACED';
-  payment_method: 'COD';
-  payment_status: 'COD_PENDING';
+  payment_method: 'COD' | 'UPI';
+  payment_status: 'COD_PENDING' | 'PAID';
   product_title: string;
   product_sku: string;
   quantity: number;
@@ -15,7 +15,7 @@ interface OrderConfirmation {
   currency: 'INR';
   order_date: string;
   expected_delivery_range: string;
-  email_status: 'SENT';
+  email_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
   email_notification_message: string;
   notification_recipient: string;
 }

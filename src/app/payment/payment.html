@@ -25,7 +25,7 @@
 
           <div class="method-list" role="radiogroup" aria-label="Payment method">
             <button class="method-card" type="button" role="radio" [attr.aria-checked]="selectedMethod === 'online'" [class.is-selected]="selectedMethod === 'online'" (click)="selectMethod('online')">
-              <span class="method-radio"><i></i></span><span class="method-copy"><span class="method-title">Pay Online <small class="coming-tag">SETUP REQUIRED</small></span><span class="method-description">Payment methods will be shown here after a provider is configured.</span><span class="method-tags"><span>Hosted checkout</span><span>No credentials collected here</span></span></span><span class="method-symbol" aria-hidden="true">↗</span>
+              <span class="method-radio"><i></i></span><span class="method-copy"><span class="method-title">Online payment <small class="coming-tag">UPI</small></span><span class="method-description">Pay securely through Razorpay using your preferred UPI app.</span><span class="method-tags"><span>UPI apps</span><span>Server verified</span></span></span><span class="method-symbol" aria-hidden="true">↗</span>
             </button>
 
             <button class="method-card" type="button" role="radio" [attr.aria-checked]="selectedMethod === 'cod'" [class.is-selected]="selectedMethod === 'cod'" (click)="selectMethod('cod')">
@@ -58,10 +58,10 @@
       </div>
 
       <footer class="payment-footer">
-        <div class="trust-row"><span><i>⌑</i> Secure checkout</span><span><i>₹</i> Payment options subject to verification</span><span><i>↗</i> Support when you need it</span></div><button class="payment-cta" type="button" (click)="placeCodOrder()" [disabled]="isSubmitting()"><span>{{ isSubmitting() ? 'Sending order details…' : selectedMethod === 'online' ? 'Continue to online payment' : 'Place COD · ' + product.currency + previewTotal }}</span><span aria-hidden="true">{{ isSubmitting() ? '…' : '→' }}</span></button><p class="provider-note">{{ selectedMethod === 'cod' ? 'Your COD details will be sent to the store by email.' : 'Online payment requires a configured gateway.' }}</p>
+        <div class="trust-row"><span><i>⌑</i> Secure checkout</span><span><i>₹</i> {{ selectedMethod === 'cod' ? 'Cash on delivery' : 'UPI payment' }}</span><span><i>↗</i> Support when you need it</span></div><button class="payment-cta" type="button" (click)="submitOrder()" [disabled]="isSubmitting()"><span>{{ isSubmitting() ? 'Placing COD order…' : selectedMethod === 'online' ? 'Continue Online Payment' : 'Place COD · ' + product.currency + previewTotal }}</span><span aria-hidden="true">{{ isSubmitting() ? '…' : '→' }}</span></button><p class="provider-note">{{ selectedMethod === 'cod' ? 'Your COD details will be sent to the store by email.' : 'Payment is confirmed only after backend verification.' }}</p>
       </footer>
     }
   </section>
 
-  @if (checkout) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UNVERIFIED PREVIEW' }}</small></div><button type="button" (click)="placeCodOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'PAY SECURELY' : 'PLACE COD' }} <span>→</span></button></div> }
+  @if (checkout) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UPI PAYMENT' }}</small></div><button type="button" (click)="submitOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'CONTINUE' : 'PLACE COD' }} <span>→</span></button></div> }
 </main>

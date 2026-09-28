@@ -19,16 +19,17 @@
       <div class="success-card missing-order" role="alert"><span class="success-mark">!</span><h1 id="success-title">Order details unavailable</h1><p>We could not find this confirmation in this browser session. Please check your email or contact support with your order reference.</p><button type="button" (click)="continueShopping()">Continue shopping</button></div>
     } @else {
       <article class="success-card">
+        <aside class="whatsapp-note" role="status" aria-live="polite"><span>IMPORTANT · WHATSAPP UPDATE</span><strong>Order and delivery details will be shared via WhatsApp within 30 minutes.</strong></aside>
         <div class="success-check" aria-hidden="true">✓</div>
         <span class="eyebrow">ORDER CONFIRMED</span>
         <h1 id="success-title">Order placed successfully</h1>
-        <p class="success-lead">Please keep the payable amount ready when it arrives.</p>
+        <p class="success-lead">{{ order.payment_method === 'UPI' ? 'Your UPI payment has been received.' : 'Please keep the payable amount ready when it arrives.' }}</p>
 
         <div class="order-reference"><span>ORDER ID</span><strong>{{ order.order_id }}</strong></div>
         <div class="order-details">
           <div class="detail-row"><span>Product</span><strong>{{ order.product_title }} × {{ order.quantity }}</strong></div>
           <div class="detail-row"><span>SKU</span><strong>{{ order.product_sku }}</strong></div>
-          <div class="detail-row"><span>Payment method</span><strong>Cash on Delivery</strong></div>
+          <div class="detail-row"><span>Payment method</span><strong>{{ order.payment_method === 'UPI' ? 'UPI' : 'Cash on Delivery' }}</strong></div>
           <div class="detail-row"><span>Payment status</span><strong class="pending-status">{{ order.payment_status }}</strong></div>
           <div class="detail-row"><span>Amount payable</span><strong class="amount">{{ order.currency }} {{ formatMoney(order.total) }}</strong></div>
           <div class="detail-row"><span>Expected delivery</span><strong>{{ order.expected_delivery_range }}</strong></div>
@@ -39,7 +40,6 @@
         }
 
         <div class="success-actions"><button type="button" class="continue-button" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button></div>
-        <p class="whatsapp-note">Order and delivery details will be shared via WhatsApp within 30 minutes.</p>
       </article>
     }
   </section>
