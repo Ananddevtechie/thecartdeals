@@ -15,6 +15,28 @@ body {
 	font-family: Inter, 'Avenir Next', Avenir, sans-serif;
 }
 
+img.brand-mark {
+	display: block !important;
+	object-fit: contain;
+	background: #f0b95d !important;
+	border-radius: 50% 50% 50% 5% !important;
+	transform: rotate(-8deg) !important;
+	font: inherit !important;
+	letter-spacing: normal !important;
+}
+
+.storefront img.brand-mark {
+	object-fit: contain;
+}
+
+img.profile-avatar {
+	display: block;
+	object-fit: contain;
+	background: #f0b95d;
+	border-radius: 50% 50% 50% 5%;
+	transform: rotate(-8deg);
+}
+
 button,
 a {
 	-webkit-tap-highlight-color: transparent;
