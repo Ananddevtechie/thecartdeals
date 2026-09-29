@@ -86,7 +86,7 @@ export class ProductDetails {
   }
 
   navigateToCheckout(): void {
-    void this.router.navigateByUrl('/checkout').then(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    void this.router.navigateByUrl('/checkout');
   }
 
   toggleFaq(index: number): void {
