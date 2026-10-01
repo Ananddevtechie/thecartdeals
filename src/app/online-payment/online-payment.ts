@@ -23,6 +23,7 @@ interface CheckoutSummary {
   state?: string;
   pin?: string;
   landmark?: string;
+  customerId?: string;
   quantity?: number;
 }
 
@@ -257,6 +258,7 @@ export class OnlinePayment implements OnDestroy {
     return {
       product_id: this.product.id,
       quantity: this.quantity,
+      customer_id: String(checkout.customerId ?? ''),
       full_name: String(checkout.fullName ?? ''),
       mobile: String(checkout.mobile ?? ''),
       alternate_mobile: checkout.alternateMobile ? String(checkout.alternateMobile) : null,

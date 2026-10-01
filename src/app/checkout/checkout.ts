@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { productOffer } from '../product-details/product-offer';
+import { CustomerApiService } from './customer-api.service';
 
 interface CheckoutDraft {
   [key: string]: FormDataEntryValue | number | undefined;
@@ -28,6 +29,7 @@ interface CheckoutDraft {
 export class Checkout {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly customerApi = inject(CustomerApiService);
   readonly product = productOffer;
   readonly checkoutDraft = this.readCheckoutDraft();
   readonly indianStates = [
@@ -62,6 +64,7 @@ export class Checkout {
   ];
   quantity = Math.max(1, Math.min(10, Number(this.checkoutDraft?.quantity) || 1));
   orderMessage = '';
+  isSubmitting = false;
 
   get total(): number {
     return this.product.price * this.quantity;
@@ -71,22 +74,45 @@ export class Checkout {
     this.quantity = Math.max(1, Math.min(10, this.quantity + amount));
   }
 
-  continueToPayment(event: SubmitEvent): void {
+  async continueToPayment(event: SubmitEvent): Promise<void> {
     event.preventDefault();
+    if (this.isSubmitting) return;
     const form = event.currentTarget as HTMLFormElement;
     if (!form.reportValidity()) return;
 
     const formData = new FormData(form);
     const checkout = Object.fromEntries(formData.entries());
-    void this.router.navigateByUrl('/payment', {
-      state: {
-        checkout: {
-          ...checkout,
-          quantity: this.quantity,
-          productId: this.product.id,
+    this.orderMessage = '';
+    this.isSubmitting = true;
+    try {
+      const customerId = await this.customerApi.saveCustomer({
+        full_name: String(checkout['fullName'] ?? ''),
+        mobile: String(checkout['mobile'] ?? ''),
+        alternate_mobile: String(checkout['alternateMobile'] ?? '') || null,
+        address_line1: String(checkout['addressLine1'] ?? ''),
+        address_line2: String(checkout['addressLine2'] ?? ''),
+        pincode: String(checkout['pin'] ?? ''),
+        city: String(checkout['city'] ?? ''),
+        state: String(checkout['state'] ?? ''),
+        landmark: String(checkout['landmark'] ?? '') || null,
+      });
+      await this.router.navigateByUrl('/payment', {
+        state: {
+          checkout: {
+            ...checkout,
+            quantity: this.quantity,
+            productId: this.product.id,
+            customerId,
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      this.orderMessage = error instanceof Error
+        ? error.message
+        : 'Could not save your delivery details. Please try again.';
+    } finally {
+      this.isSubmitting = false;
+    }
   }
 
   private readCheckoutDraft(): CheckoutDraft | null {

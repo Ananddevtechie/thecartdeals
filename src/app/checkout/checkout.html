@@ -40,7 +40,7 @@
         <div class="summary-total"><span>Total</span><strong>{{ product.currency }}{{ total }}</strong></div>
         <small class="delivery-disclaimer">*Delivery availability and charges, if any, are confirmed by PIN code.</small>
       </div>
-      <button class="place-order" type="submit"><span>Continue to payment</span><span>{{ product.currency }}{{ total }} <b>→</b></span></button>
+      <button class="place-order" type="submit" [disabled]="isSubmitting"><span>{{ isSubmitting ? 'Saving details...' : 'Continue to payment' }}</span><span>{{ product.currency }}{{ total }} <b>→</b></span></button>
       @if (orderMessage) { <p class="order-message" role="alert">{{ orderMessage }}</p> }
       <p class="secure-note"><span>⌑</span> Your information is secure and never shared.</p>
     </form>

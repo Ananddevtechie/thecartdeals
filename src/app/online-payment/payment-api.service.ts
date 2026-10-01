@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 export interface PaymentOrderRequest {
   product_id: string;
   quantity: number;
+  customer_id: string;
   full_name: string;
   mobile: string;
   alternate_mobile: string | null;

@@ -56,6 +56,7 @@
 .delivery-disclaimer { display: block; margin-top: 6px; color: #bac6bb; font-size: 10px; line-height: 1.5; }
 .place-order { width: 100%; min-height: 53px; display: flex; align-items: center; justify-content: space-between; margin-top: 19px; padding: 0 17px; border: 0; border-radius: 10px; background: #f0b95d; color: #1d2a21; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; box-shadow: 0 10px 22px rgba(5,18,11,.25); transition: background .2s, transform .2s; }
 .place-order:hover { transform: translateY(-2px); background: #f5c979; }
+.place-order:disabled { transform: none; opacity: .72; cursor: wait; }
 .place-order:active { transform: scale(.99); }
 .place-order b { padding-left: 9px; font-size: 17px; font-weight: 500; }
 .secure-note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 14px 0 0; color: #c0cbc1; font-size: 11px; }
