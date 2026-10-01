@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, ChangeDetectorRef, Component, inject, OnDestroy, signal } from '@angular/core';
 import { PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { productOffer } from '../product-details/product-offer';
+import { ProductApiService, StoreProduct } from '../product-details/product-api.service';
 import {
   PaidOrderResult,
   PaymentApiService,
@@ -25,6 +25,7 @@ interface CheckoutSummary {
   landmark?: string;
   customerId?: string;
   quantity?: number;
+  productId?: string;
 }
 
 interface UpiApp {
@@ -74,8 +75,9 @@ export class OnlinePayment implements OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly paymentApi = inject(PaymentApiService);
+  private readonly productApi = inject(ProductApiService);
   private statusTimer: ReturnType<typeof setTimeout> | undefined;
-  readonly product = productOffer;
+  product: StoreProduct | null = null;
   readonly upiApps: UpiApp[] = [
     { id: 'google-pay', name: 'Google Pay', mark: 'G', style: 'google' },
     { id: 'phonepe', name: 'PhonePe', mark: 'पे', style: 'phonepe' },
@@ -89,7 +91,7 @@ export class OnlinePayment implements OnDestroy {
   stateResolved = false;
   readonly screen = signal<PaymentScreen>('selection');
   readonly selectedApp = signal('google-pay');
-  readonly payableTotal = signal(this.product.price);
+  readonly payableTotal = signal(0);
   readonly notice = signal('');
   readonly isSubmitting = signal(false);
   readonly activeOrderId = signal('');
@@ -97,13 +99,7 @@ export class OnlinePayment implements OnDestroy {
 
   constructor() {
     afterNextRender(() => {
-      this.checkout = this.readCheckoutState();
-      this.quantity = Math.max(1, Math.min(10, Number(this.checkout?.quantity) || 1));
-      this.payableTotal.set(this.product.price * this.quantity);
-      this.stateResolved = true;
-      const pendingOrderId = new URLSearchParams(window.location.search).get('orderId');
-      if (pendingOrderId) this.watchPaymentStatus(pendingOrderId);
-      this.changeDetector.detectChanges();
+      void this.resolvePaymentState();
     });
   }
 
@@ -122,7 +118,7 @@ export class OnlinePayment implements OnDestroy {
 
   async payNow(): Promise<void> {
     if (this.isSubmitting()) return;
-    if (!this.checkout) {
+    if (!this.checkout || !this.product) {
       this.notice.set('Your checkout details have expired. Return to checkout and try again.');
       return;
     }
@@ -256,7 +252,7 @@ export class OnlinePayment implements OnDestroy {
   private buildOrderRequest(): PaymentOrderRequest {
     const checkout = this.checkout!;
     return {
-      product_id: this.product.id,
+      product_id: checkout.productId ?? '',
       quantity: this.quantity,
       customer_id: String(checkout.customerId ?? ''),
       full_name: String(checkout.fullName ?? ''),
@@ -274,5 +270,22 @@ export class OnlinePayment implements OnDestroy {
   private readCheckoutState(): CheckoutSummary | null {
     if (!isPlatformBrowser(this.platformId)) return null;
     return window.history.state?.['checkout'] as CheckoutSummary | null;
+  }
+
+  private async resolvePaymentState(): Promise<void> {
+    this.checkout = this.readCheckoutState();
+    this.quantity = Math.max(1, Math.min(10, Number(this.checkout?.quantity) || 1));
+    if (this.checkout?.productId) {
+      try {
+        this.product = await this.productApi.getProduct(this.checkout.productId);
+        this.payableTotal.set(this.product.price * this.quantity);
+      } catch (error) {
+        this.notice.set(error instanceof Error ? error.message : 'Could not load this product.');
+      }
+    }
+    this.stateResolved = true;
+    const pendingOrderId = new URLSearchParams(window.location.search).get('orderId');
+    if (pendingOrderId) this.watchPaymentStatus(pendingOrderId);
+    this.changeDetector.detectChanges();
   }
 }

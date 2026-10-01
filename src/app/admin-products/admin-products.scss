@@ -1,0 +1,68 @@
+:host { display: block; min-height: 100vh; color: #1e3029; font-family: 'Avenir Next', Avenir, sans-serif; background: #f4f6f3; }
+button, input, textarea { font: inherit; }
+.admin-shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+.admin-header { height: 76px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dce4dc; }
+.admin-brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; background: #285b49; color: #fff; font-family: Georgia, serif; font-size: 20px; }
+.admin-brand > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+.admin-brand strong { font-family: Georgia, serif; font-size: 16px; }
+.admin-brand small, .kicker { color: #778579; font-size: 9px; font-weight: 750; letter-spacing: .12em; }
+.store-link { color: #315e4d; text-decoration: none; font-size: 12px; font-weight: 650; }
+.store-link span { margin-left: 8px; }
+.page-intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 39px 0 24px; }
+.page-intro h1, .access-panel h1 { margin: 7px 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 34px; font-weight: 500; }
+.page-intro > p, .intro { max-width: 360px; margin: 0; color: #718075; font-size: 12px; line-height: 1.7; }
+.admin-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr); align-items: start; gap: 22px; padding-bottom: 60px; }
+.product-form-panel, .catalog-panel { border: 1px solid #dde5dd; border-radius: 7px; background: #fff; }
+.product-form { padding: 25px; }
+.product-form h2, .catalog-heading h2 { margin: 0 0 17px; color: #25382e; font-size: 14px; font-weight: 700; }
+.product-form h2:not(:first-child) { margin-top: 29px; padding-top: 23px; border-top: 1px solid #e9eee9; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 13px; }
+.span-two { grid-column: 1 / -1; }
+.field { min-width: 0; display: flex; flex-direction: column; gap: 6px; color: #4b5b50; font-size: 10px; font-weight: 650; }
+.field input, .field textarea { width: 100%; box-sizing: border-box; min-height: 39px; padding: 9px 10px; border: 1px solid #dbe3dc; border-radius: 5px; outline: none; background: #fff; color: #23362c; font-size: 12px; font-weight: 400; }
+.field textarea { resize: vertical; line-height: 1.5; }
+.field input:focus, .field textarea:focus { border-color: #57836b; box-shadow: 0 0 0 3px #e8f0e9; }
+.field input[readonly] { background: #f3f6f2; color: #718075; }
+.field small { color: #8b978d; font-size: 9px; font-weight: 400; }
+.active-toggle { display: flex; align-items: center; gap: 9px; margin-top: 21px; color: #536357; font-size: 11px; }
+.active-toggle input { accent-color: #356b53; }
+.save-button, .access-panel button { width: 100%; min-height: 44px; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 0 14px; border: 0; border-radius: 5px; background: #285b49; color: white; font-size: 12px; font-weight: 700; cursor: pointer; }
+.save-button:hover, .access-panel button:hover { background: #1e493a; }
+.save-button:disabled, .access-panel button:disabled { opacity: .6; cursor: wait; }
+.catalog-panel { position: sticky; top: 18px; overflow: hidden; }
+.catalog-heading { display: flex; align-items: center; justify-content: space-between; padding: 21px 19px 17px; border-bottom: 1px solid #e9eee9; }
+.catalog-heading .kicker { margin: 0 0 6px; }
+.catalog-heading h2 { margin: 0; }
+.catalog-heading > span { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: #edf3ed; color: #315e4d; font-size: 10px; font-weight: 700; }
+.product-list { margin: 0; padding: 0; list-style: none; }
+.product-list li { display: grid; grid-template-columns: 54px minmax(0, 1fr) 8px; gap: 11px; align-items: center; padding: 13px 17px; border-bottom: 1px solid #edf0ed; }
+.product-list img { width: 54px; height: 54px; border-radius: 4px; background: #edf0ed; object-fit: cover; }
+.product-summary { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.product-summary strong { overflow: hidden; color: #334439; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.product-summary small { overflow: hidden; color: #879388; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.product-summary span { color: #5c6c60; font-size: 9px; }
+.product-summary i { padding: 0 4px; color: #a4afa5; font-style: normal; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4f956b; }
+.status-dot.is-inactive { background: #b4bcb5; }
+.empty-state { padding: 10px 18px 18px; color: #829085; font-size: 11px; line-height: 1.6; }
+.form-error, .form-notice { margin: 12px 0 0; padding: 10px 11px; border-radius: 4px; font-size: 11px; }
+.form-error { background: #fff0eb; color: #a34430; }
+.form-notice { background: #edf5ef; color: #326449; }
+.access-panel { width: min(410px, 100%); box-sizing: border-box; margin: 12vh auto 0; padding: 29px; border: 1px solid #dce5dc; border-radius: 7px; background: #fff; }
+.access-panel .kicker { margin: 0; }
+.intro { margin-top: 11px; }
+.access-panel form { display: grid; gap: 8px; margin-top: 24px; }
+.access-panel label { color: #4b5b50; font-size: 10px; font-weight: 650; }
+.access-panel input { min-height: 41px; padding: 0 10px; border: 1px solid #dbe3dc; border-radius: 5px; outline: none; }
+.access-panel input:focus { border-color: #57836b; box-shadow: 0 0 0 3px #e8f0e9; }
+.access-panel button { margin-top: 7px; }
+@media (max-width: 760px) {
+  .admin-shell { width: calc(100% - 30px); }
+  .page-intro { align-items: start; flex-direction: column; padding-top: 28px; }
+  .page-intro h1, .access-panel h1 { font-size: 29px; }
+  .admin-layout { grid-template-columns: 1fr; gap: 16px; }
+  .product-form { padding: 19px 15px; }
+  .catalog-panel { position: static; }
+}
+@media (max-width: 430px) { .form-grid { grid-template-columns: 1fr; } .span-two { grid-column: auto; } }

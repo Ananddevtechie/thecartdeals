@@ -16,7 +16,7 @@
 
     @if (!stateResolved) {
       <div class="session-alert loading-state" role="status"><span class="loading-spinner" aria-hidden="true"></span><div><strong>Preparing your payment summary</strong><p>Loading your checkout details securely.</p></div></div>
-    } @else if (!checkout) {
+    } @else if (!checkout || !product) {
       <div class="session-alert" role="alert"><span class="alert-icon">!</span><div><strong>Checkout details not found</strong><p>Return to checkout and submit your delivery details before continuing.</p><button type="button" (click)="backToCheckout()">Return to checkout <span>→</span></button></div></div>
     } @else {
       <div class="payment-layout">
@@ -63,5 +63,5 @@
     }
   </section>
 
-  @if (checkout) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UPI PAYMENT' }}</small></div><button type="button" (click)="submitOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'CONTINUE' : 'PLACE COD' }} <span>→</span></button></div> }
+  @if (checkout && product) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UPI PAYMENT' }}</small></div><button type="button" (click)="submitOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'CONTINUE' : 'PLACE COD' }} <span>→</span></button></div> }
 </main>

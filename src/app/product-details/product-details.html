@@ -1,4 +1,10 @@
 <div class="storefront">
+  @if (loading || loadError) {
+    <section class="product-state" aria-live="polite">
+      @if (loading) { <p>Loading product…</p> }
+      @else { <h1>{{ loadError }}</h1><a href="/admin/products">Open product admin <span>↗</span></a> }
+    </section>
+  } @else {
   <div class="announcement" role="note">
     <span><i>✦</i> A LITTLE EXTRA OFF, FOR A LIMITED TIME</span>
     <span><i>↗</i> DELIVERY ACROSS INDIA</span>
@@ -22,7 +28,7 @@
     <section class="hero section-wrap" aria-labelledby="product-title">
       <div class="gallery-column">
         <div class="gallery-card">
-          <div class="gallery-topline"><span>THE EVERYDAY EDIT</span><span class="gallery-count">0{{ selectedMedia + 1 }} <i>/</i> 0{{ media.length }}</span></div>
+          <div class="gallery-topline"><span>{{ product.eyebrow || product.title }}</span><span class="gallery-count">0{{ selectedMedia + 1 }} <i>/</i> 0{{ media.length }}</span></div>
           <button class="main-image" type="button" [class.is-zoomed]="zoomed" (click)="zoomed = !zoomed" [attr.aria-label]="zoomed ? 'Zoom out of product image' : 'Zoom in on product image'">
             <img [src]="media[selectedMedia].src" [alt]="media[selectedMedia].alt" />
             <span class="image-caption">{{ media[selectedMedia].label }}</span>
@@ -84,16 +90,19 @@
 
     <section class="details-section">
       <div class="section-wrap details-layout">
-        <div class="details-intro"><span class="section-kicker">THE DETAILS MATTER</span><h2>Thought through,<br /><em>down to the details.</em></h2><p>Useful by design, with no unnecessary fuss.</p><div class="details-image"><img [src]="media[2].src" [alt]="media[2].alt" /><span>EVERYDAY, ELEVATED</span></div></div>
+        <div class="details-intro"><span class="section-kicker">THE DETAILS MATTER</span><h2>Thought through,<br /><em>down to the details.</em></h2><p>Useful by design, with no unnecessary fuss.</p><div class="details-image"><img [src]="media[0].src" [alt]="media[0].alt" /><span>{{ product.title }}</span></div></div>
         <div class="details-content">
           <div class="feature-list"><h3>Product features</h3>@for (feature of product.features; track feature) { <div class="feature-row"><span>✦</span><p>{{ feature }}</p></div> }</div>
           <div class="spec-list"><h3>Specifications</h3>
             @if (product.specifications.length) {
               @for (spec of product.specifications; track spec.label) { <div class="spec-row"><span>{{ spec.label }}</span><strong>{{ spec.value }}</strong></div> }
             } @else {
-              <div class="spec-pending"><span>i</span><p>Verified material, dimensions, weight and color information will be added to this listing when available.</p></div>
+              <div class="spec-pending"><span>i</span><p>No specifications have been added to this listing.</p></div>
             }
           </div>
+          @if (product.packageContents.length) {
+            <div class="spec-list"><h3>Package contents</h3>@for (item of product.packageContents; track item) { <div class="feature-row"><span>✦</span><p>{{ item }}</p></div> }</div>
+          }
         </div>
       </div>
     </section>
@@ -113,11 +122,27 @@
     <section class="faq-section section-wrap" id="faq">
       <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="#support">Talk to our team <span>↗</span></a></div>
       <div class="faq-list">
-        @for (faq of faqs; track faq.question; let i = $index) {
+        @for (faq of product.faqs; track faq.question; let i = $index) {
           <article class="faq-item" [class.is-open]="openFaq === i"><button type="button" class="faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="openFaq === i"><span>{{ faq.question }}</span><span class="faq-toggle">{{ openFaq === i ? '−' : '+' }}</span></button>@if (openFaq === i) { <p class="faq-answer">{{ faq.answer }}</p> }</article>
         }
+        @if (!product.faqs.length) { <p class="faq-empty">No questions have been added for this product.</p> }
       </div>
     </section>
+
+    @if (relatedProducts.length) {
+      <section class="related-section section-wrap" aria-labelledby="related-heading">
+        <div class="related-heading"><div><span class="section-kicker">MORE FROM THECART</span><h2 id="related-heading">Other products</h2></div></div>
+        <div class="related-grid">
+          @for (item of relatedProducts; track item.id) {
+            <button class="related-card" type="button" (click)="openProduct(item)">
+              <img [src]="item.imageUrl" [alt]="item.title" />
+              <span class="related-copy"><strong>{{ item.title }}</strong><small>{{ item.currency }}{{ item.price }} <s>{{ item.currency }}{{ item.mrp }}</s></small></span>
+              <span class="related-arrow" aria-hidden="true">↗</span>
+            </button>
+          }
+        </div>
+      </section>
+    }
   </main>
 
   <footer class="site-footer" id="support">
@@ -126,4 +151,5 @@
   </footer>
 
   <div class="mobile-sticky-cta"><div class="sticky-price"><strong>{{ product.currency }}{{ product.price }}</strong><small>TODAY</small></div><button type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button></div>
+  }
 </div>

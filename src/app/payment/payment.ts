@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { productOffer } from '../product-details/product-offer';
+import { ProductApiService, StoreProduct } from '../product-details/product-api.service';
 
 interface CheckoutState {
   [key: string]: FormDataEntryValue | number | undefined;
@@ -16,6 +16,7 @@ interface CheckoutState {
   pin?: string;
   landmark?: string;
   quantity?: number;
+  productId?: string;
 }
 
 interface CodOrderResult {
@@ -53,7 +54,8 @@ export class Payment {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  readonly product = productOffer;
+  private readonly productApi = inject(ProductApiService);
+  product: StoreProduct | null = null;
   checkout: CheckoutState | null = null;
   quantity = 1;
   stateResolved = false;
@@ -63,19 +65,16 @@ export class Payment {
 
   constructor() {
     afterNextRender(() => {
-      this.checkout = this.readCheckoutState();
-      this.quantity = Math.max(1, Math.min(10, Number(this.checkout?.quantity) || 1));
-      this.stateResolved = true;
-      this.changeDetector.detectChanges();
+      void this.resolvePaymentState();
     });
   }
 
   get previewTotal(): number {
-    return this.product.price * this.quantity;
+    return (this.product?.price ?? 0) * this.quantity;
   }
 
   get previewSavings(): number {
-    return Math.max(0, this.product.mrp - this.product.price) * this.quantity;
+    return Math.max(0, (this.product?.mrp ?? 0) - (this.product?.price ?? 0)) * this.quantity;
   }
 
   get maskedMobile(): string {
@@ -93,6 +92,10 @@ export class Payment {
   }
 
   submitOrder(): void {
+    if (!this.product) {
+      this.notice.set('This product is no longer available. Return to the catalog and choose another product.');
+      return;
+    }
     if (this.selectedMethod === 'online') {
       if (!this.checkout) {
         this.notice.set('Your checkout details have expired. Return to checkout and try again.');
@@ -112,7 +115,7 @@ export class Payment {
 
   async placeCodOrder(): Promise<void> {
     if (this.isSubmitting()) return;
-    if (!this.checkout) {
+    if (!this.checkout || !this.product) {
       this.notice.set('Your checkout details have expired. Return to checkout and try again.');
       return;
     }
@@ -161,9 +164,24 @@ export class Payment {
   }
 
   backToCheckout(): void {
-    void this.router.navigateByUrl('/checkout', {
+    void this.router.navigate(['/checkout'], {
+      queryParams: { product: this.checkout?.productId },
       state: { checkout: this.checkout },
     });
+  }
+
+  private async resolvePaymentState(): Promise<void> {
+    this.checkout = this.readCheckoutState();
+    this.quantity = Math.max(1, Math.min(10, Number(this.checkout?.quantity) || 1));
+    if (this.checkout?.productId) {
+      try {
+        this.product = await this.productApi.getProduct(this.checkout.productId);
+      } catch (error) {
+        this.notice.set(error instanceof Error ? error.message : 'Could not load this product.');
+      }
+    }
+    this.stateResolved = true;
+    this.changeDetector.detectChanges();
   }
 
   private readCheckoutState(): CheckoutState | null {

@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, afterNextRender, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { productOffer } from '../product-details/product-offer';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ProductApiService, StoreProduct } from '../product-details/product-api.service';
 import { CustomerApiService } from './customer-api.service';
 
 interface CheckoutDraft {
@@ -17,6 +17,7 @@ interface CheckoutDraft {
   state?: string;
   landmark?: string;
   quantity?: number;
+  productId?: string;
 }
 
 @Component({
@@ -28,9 +29,13 @@ interface CheckoutDraft {
 })
 export class Checkout {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly customerApi = inject(CustomerApiService);
-  readonly product = productOffer;
+  private readonly productApi = inject(ProductApiService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  product: StoreProduct | null = null;
+  productError = '';
   readonly checkoutDraft = this.readCheckoutDraft();
   readonly indianStates = [
     'Andhra Pradesh',
@@ -67,7 +72,11 @@ export class Checkout {
   isSubmitting = false;
 
   get total(): number {
-    return this.product.price * this.quantity;
+    return (this.product?.price ?? 0) * this.quantity;
+  }
+
+  constructor() {
+    afterNextRender(() => { void this.loadProduct(); });
   }
 
   changeQuantity(amount: number): void {
@@ -77,6 +86,10 @@ export class Checkout {
   async continueToPayment(event: SubmitEvent): Promise<void> {
     event.preventDefault();
     if (this.isSubmitting) return;
+    if (!this.product) {
+      this.orderMessage = this.productError || 'This product is no longer available.';
+      return;
+    }
     const form = event.currentTarget as HTMLFormElement;
     if (!form.reportValidity()) return;
 
@@ -120,5 +133,21 @@ export class Checkout {
     if (navigationDraft) return navigationDraft;
     if (!isPlatformBrowser(this.platformId)) return null;
     return window.history.state?.['checkout'] as CheckoutDraft | null;
+  }
+
+  private async loadProduct(): Promise<void> {
+    const productId = this.route.snapshot.queryParamMap.get('product') ?? this.checkoutDraft?.productId ?? '';
+    if (!productId) {
+      this.productError = 'Choose a product before checking out.';
+      this.changeDetector.detectChanges();
+      return;
+    }
+    try {
+      this.product = await this.productApi.getProduct(productId);
+    } catch (error) {
+      this.productError = error instanceof Error ? error.message : 'Could not load this product.';
+    } finally {
+      this.changeDetector.detectChanges();
+    }
   }
 }

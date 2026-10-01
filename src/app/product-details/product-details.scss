@@ -791,3 +791,21 @@ a { color: inherit; }
   .storefront .footer-note, .storefront .footer-links a { font-size: 10px; }
   .storefront .footer-bottom { font-size: 9px; }
 }
+
+.storefront .product-state { min-height: 55vh; display: grid; align-content: center; justify-items: center; gap: 10px; padding: 30px; color: #dce6dc; text-align: center; }
+.storefront .product-state p, .storefront .product-state h1 { margin: 0; color: #f4f5ed; font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: 500; }
+.storefront .product-state a { color: #f0b95d; font-size: 12px; text-decoration: none; }
+.storefront .product-state a span { margin-left: 6px; }
+.storefront .faq-empty { padding: 13px 2px; color: #c3cec4; font-size: 12px; }
+.storefront .related-section { padding-top: 35px; padding-bottom: 80px; }
+.storefront .related-heading { margin-bottom: 21px; }
+.storefront .related-heading h2 { margin: 8px 0 0; color: var(--ink); font-size: 27px; font-weight: 620; }
+.storefront .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 13px; }
+.storefront .related-card { min-width: 0; position: relative; display: flex; flex-direction: column; gap: 11px; padding: 9px; border: 1px solid #d9e3d9; border-radius: 8px; background: #243a30; color: inherit; text-align: left; cursor: pointer; transition: border-color .2s, transform .2s; }
+.storefront .related-card:hover { transform: translateY(-2px); border-color: #f0b95d; }
+.storefront .related-card > img { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 5px; background: #edf0ed; object-fit: cover; }
+.storefront .related-copy { min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 2px 3px 4px; }
+.storefront .related-copy strong { overflow: hidden; color: #eef2eb; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.storefront .related-copy small { color: #fff4df; font-size: 11px; font-weight: 700; }
+.storefront .related-copy s { margin-left: 5px; color: #c1ccc2; font-size: 10px; font-weight: 400; }
+.storefront .related-arrow { position: absolute; right: 12px; bottom: 15px; color: #f0b95d; font-size: 13px; }

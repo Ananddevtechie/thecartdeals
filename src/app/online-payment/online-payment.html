@@ -16,7 +16,7 @@
 
     @if (!stateResolved) {
       <div class="payment-card loading-state" role="status"><span class="payment-spinner" aria-hidden="true"></span>Loading payment details…</div>
-    } @else if (!checkout) {
+    } @else if (!checkout || !product) {
       <article class="payment-card result-card" role="alert">
         <span class="eyebrow">PAYMENT</span>
         <h1 id="online-payment-title">Payment details unavailable</h1>

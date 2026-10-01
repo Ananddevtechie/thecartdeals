@@ -9,6 +9,7 @@
   </header>
 
   <section class="checkout-content" aria-labelledby="checkout-title">
+    @if (product) {
     <div class="checkout-heading">
       <span class="eyebrow"><i></i> SECURE CHECKOUT</span>
       <h1 id="checkout-title">Complete your order</h1>
@@ -46,5 +47,8 @@
     </form>
 
     <div class="checkout-reassurance"><span>◉ Cash on Delivery, where available</span><span>↗ Delivery across India</span></div>
+    } @else {
+      <div class="checkout-heading"><span class="eyebrow"><i></i> SECURE CHECKOUT</span><h1 id="checkout-title">Product unavailable</h1><p>{{ productError || 'Loading product details…' }}</p><a class="back-link" routerLink="/product-details">Return to the catalog</a></div>
+    }
   </section>
 </main>
