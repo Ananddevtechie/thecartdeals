@@ -64,8 +64,15 @@ interface ProductResponse {
   is_active?: boolean;
 }
 
+interface AdminLoginResponse {
+  authenticated?: boolean;
+  detail?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProductApiService {
+  private adminCredentials: { username: string; password: string } | null = null;
+
   async listProducts(): Promise<StoreProduct[]> {
     const response = await fetch('/api/products');
     const result = await response.json() as ProductResponse[] | { detail?: string };
@@ -97,6 +104,24 @@ export class ProductApiService {
     }));
   }
 
+  async loginAdmin(username: string, password: string): Promise<void> {
+    const response = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const result = await response.json() as AdminLoginResponse;
+    if (!response.ok || result.authenticated !== true) {
+      this.adminCredentials = null;
+      throw new Error(result.detail ?? 'Admin username or password is incorrect.');
+    }
+    this.adminCredentials = { username, password };
+  }
+
+  getAdminCredentials(): { username: string; password: string } | null {
+    return this.adminCredentials;
+  }
+
   async createProduct(username: string, password: string, draft: ProductDraft): Promise<StoreProduct> {
     const response = await fetch('/api/admin/products', {
       method: 'POST',
@@ -106,6 +131,19 @@ export class ProductApiService {
     const result = await response.json() as ProductResponse | { detail?: string };
     if (!response.ok || !('id' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not save this product.' : 'Could not save this product.');
+    }
+    return this.toStoreProduct(result);
+  }
+
+  async updateProduct(username: string, password: string, slug: string, draft: ProductDraft): Promise<StoreProduct> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}`, {
+      method: 'PUT',
+      headers: { ...this.adminHeaders(username, password), 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft),
+    });
+    const result = await response.json() as ProductResponse | { detail?: string };
+    if (!response.ok || !('id' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not update this product.' : 'Could not update this product.');
     }
     return this.toStoreProduct(result);
   }

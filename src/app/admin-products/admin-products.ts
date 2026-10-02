@@ -1,8 +1,28 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductApiService, ProductDraft, StoreProduct } from '../product-details/product-api.service';
 
 type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean };
+
+interface ProductEditorValues {
+  title: string;
+  sku: string;
+  description: string;
+  eyebrow: string;
+  imageUrl: string;
+  gallery: string;
+  costPrice: number;
+  sellingPrice: number;
+  mrp: number;
+  stockQuantity: number;
+  stockLabel: string;
+  benefits: string;
+  features: string;
+  specifications: string;
+  packageContents: string;
+  faqs: string;
+  isActive: boolean;
+}
 
 @Component({
   selector: 'app-admin-products',
@@ -11,16 +31,35 @@ type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean };
   templateUrl: './admin-products.html',
   styleUrl: './admin-products.scss',
 })
-export class AdminProducts {
+export class AdminProducts implements OnInit {
   private readonly productApi = inject(ProductApiService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   username = '';
   password = '';
   products: AdminProduct[] = [];
+  productsLoading = false;
   error = '';
   notice = '';
   busy = false;
   unlocked = false;
   slug = '';
+  editingProduct: AdminProduct | null = null;
+  editValues: ProductEditorValues | null = null;
+
+  ngOnInit(): void {
+    if (this.route.snapshot.routeConfig?.path !== 'admin/products/add') return;
+    const credentials = this.productApi.getAdminCredentials();
+    if (!credentials) {
+      void this.router.navigateByUrl('/admin/products');
+      return;
+    }
+    this.username = credentials.username;
+    this.password = credentials.password;
+    this.unlocked = true;
+    void this.loadProducts();
+  }
 
   async unlock(event: SubmitEvent): Promise<void> {
     event.preventDefault();
@@ -31,21 +70,68 @@ export class AdminProducts {
     this.busy = true;
     this.error = '';
     try {
-      this.products = await this.productApi.listAdminProducts(username, password);
-      this.username = username;
-      this.password = password;
-      this.unlocked = true;
+      await this.productApi.loginAdmin(username, password);
+      await this.router.navigateByUrl('/admin/products/add');
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not verify admin access.';
     } finally {
       this.busy = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  private async loadProducts(): Promise<void> {
+    this.productsLoading = true;
+    this.changeDetector.markForCheck();
+    try {
+      this.products = await this.productApi.listAdminProducts(this.username, this.password);
+    } catch (error) {
+      this.error = error instanceof Error ? error.message : 'Could not load the product catalog.';
+    } finally {
+      this.productsLoading = false;
+      this.changeDetector.markForCheck();
     }
   }
 
   updateSlug(event: Event): void {
+    if (this.editingProduct) return;
     const title = (event.currentTarget as HTMLInputElement).value;
     this.slug = title.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+  }
+
+  editProduct(product: AdminProduct): void {
+    this.editingProduct = product;
+    this.slug = product.id;
+    this.editValues = {
+      title: product.title,
+      sku: product.sku,
+      description: product.description,
+      eyebrow: product.eyebrow,
+      imageUrl: product.imageUrl,
+      gallery: product.gallery.filter((image) => image.src !== product.imageUrl).map((image) => image.src).join('\n'),
+      costPrice: product.costPrice,
+      sellingPrice: product.price,
+      mrp: product.mrp,
+      stockQuantity: product.stockQuantity,
+      stockLabel: product.stockLabel,
+      benefits: product.benefits.map((benefit) => `${benefit.title} | ${benefit.copy}`).join('\n'),
+      features: product.features.join('\n'),
+      specifications: product.specifications.map((spec) => `${spec.label}: ${spec.value}`).join('\n'),
+      packageContents: product.packageContents.join('\n'),
+      faqs: product.faqs.map((faq) => `${faq.question} | ${faq.answer}`).join('\n'),
+      isActive: product.isActive,
+    };
+    this.error = '';
+    this.notice = '';
+  }
+
+  cancelEdit(): void {
+    this.editingProduct = null;
+    this.editValues = null;
+    this.slug = '';
+    this.error = '';
+    this.notice = '';
   }
 
   async addProduct(event: SubmitEvent): Promise<void> {
@@ -58,15 +144,23 @@ export class AdminProducts {
     this.notice = '';
     try {
       const draft = this.buildDraft(values);
-      await this.productApi.createProduct(this.username, this.password, draft);
+      if (this.editingProduct) {
+        await this.productApi.updateProduct(this.username, this.password, this.editingProduct.id, draft);
+      } else {
+        await this.productApi.createProduct(this.username, this.password, draft);
+      }
       this.products = await this.productApi.listAdminProducts(this.username, this.password);
+      const wasEditing = this.editingProduct !== null;
+      this.editingProduct = null;
+      this.editValues = null;
       form.reset();
       this.slug = '';
-      this.notice = 'Product added to the storefront.';
+      this.notice = wasEditing ? 'Product updated.' : 'Product added to the storefront.';
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not save this product.';
     } finally {
       this.busy = false;
+      this.changeDetector.markForCheck();
     }
   }
 
@@ -82,7 +176,7 @@ export class AdminProducts {
       gallery.unshift({ src: imageUrl, alt: title, label: 'Product' });
     }
     return {
-      slug: this.slug,
+      slug: this.editingProduct?.id ?? this.slug,
       sku: this.value(values, 'sku'),
       title,
       description: this.value(values, 'description'),

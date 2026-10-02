@@ -20,57 +20,62 @@
     </section>
   } @else {
     <section class="page-intro">
-      <div><p class="kicker">STOREFRONT INVENTORY</p><h1>Add a product</h1></div>
+      <div><p class="kicker">STOREFRONT INVENTORY</p><h1>{{ editingProduct ? 'Edit product' : 'Add a product' }}</h1></div>
       <p>Listings go live on their product page when marked active.</p>
     </section>
 
     <div class="admin-layout">
       <section class="product-form-panel">
         <form class="product-form" (submit)="addProduct($event)">
-          <h2>Product information</h2>
+          <h2>{{ editingProduct ? 'Edit product information' : 'Product information' }}</h2>
           <div class="form-grid">
-            <label class="field span-two">Product name<input name="title" required maxlength="255" (input)="updateSlug($event)" /></label>
-            <label class="field">URL slug<input name="slug" [value]="slug" readonly required /></label>
-            <label class="field">SKU<input name="sku" required maxlength="100" /></label>
-            <label class="field span-two">Short description<textarea name="description" rows="3" required></textarea></label>
-            <label class="field span-two">Eyebrow / short label<input name="eyebrow" maxlength="120" placeholder="A LITTLE BETTER, EVERY DAY" /></label>
-            <label class="field span-two">Main image URL<input name="imageUrl" type="url" required placeholder="https://…" /></label>
-            <label class="field span-two">Additional image URLs<textarea name="gallery" rows="3" placeholder="One https:// image URL per line"></textarea></label>
+            <label class="field span-two">Product name<input name="title" [value]="editValues?.title ?? ''" required maxlength="255" (input)="updateSlug($event)" /></label>
+            <label class="field">URL slug<input name="slug" [value]="editingProduct?.id ?? slug" readonly required /></label>
+            <label class="field">SKU<input name="sku" [value]="editValues?.sku ?? ''" required maxlength="100" /></label>
+            <label class="field span-two">Short description<textarea name="description" [value]="editValues?.description ?? ''" rows="3" required></textarea></label>
+            <label class="field span-two">Eyebrow / short label<input name="eyebrow" [value]="editValues?.eyebrow ?? ''" maxlength="120" placeholder="A LITTLE BETTER, EVERY DAY" /></label>
+            <label class="field span-two">Main image URL<input name="imageUrl" [value]="editValues?.imageUrl ?? ''" type="url" required placeholder="https://…" /></label>
+            <label class="field span-two">Additional image URLs<textarea name="gallery" [value]="editValues?.gallery ?? ''" rows="3" placeholder="One https:// image URL per line"></textarea></label>
           </div>
 
           <h2>Price and stock</h2>
           <div class="form-grid price-grid">
-            <label class="field">Cost price (₹)<input name="costPrice" type="number" min="0" step="0.01" required /></label>
-            <label class="field">Selling price (₹)<input name="sellingPrice" type="number" min="0.01" step="0.01" required /></label>
-            <label class="field">MRP (₹)<input name="mrp" type="number" min="0.01" step="0.01" required /></label>
-            <label class="field">Stock quantity<input name="stockQuantity" type="number" min="0" step="1" required /></label>
-            <label class="field span-two">Availability label<input name="stockLabel" required value="Available now" maxlength="120" /></label>
+            <label class="field">Cost price (₹)<input name="costPrice" [value]="editValues?.costPrice ?? ''" type="number" min="0" step="0.01" required /></label>
+            <label class="field">Selling price (₹)<input name="sellingPrice" [value]="editValues?.sellingPrice ?? ''" type="number" min="0.01" step="0.01" required /></label>
+            <label class="field">MRP (₹)<input name="mrp" [value]="editValues?.mrp ?? ''" type="number" min="0.01" step="0.01" required /></label>
+            <label class="field">Stock quantity<input name="stockQuantity" [value]="editValues?.stockQuantity ?? ''" type="number" min="0" step="1" required /></label>
+            <label class="field span-two">Availability label<input name="stockLabel" [value]="editValues?.stockLabel ?? 'Available now'" required maxlength="120" /></label>
           </div>
 
           <h2>Details shown on the product page</h2>
           <div class="form-grid">
-            <label class="field span-two">Benefits<textarea name="benefits" rows="4" placeholder="Easy to use | Convenient for everyday use&#10;Thoughtful quality | Made for regular use"></textarea><small>One per line: title | description</small></label>
-            <label class="field span-two">Features<textarea name="features" rows="4" placeholder="One feature per line"></textarea></label>
-            <label class="field span-two">Specifications<textarea name="specifications" rows="4" placeholder="Material: Stainless steel&#10;Color: Green"></textarea><small>One per line: label: value</small></label>
-            <label class="field span-two">Package contents<textarea name="packageContents" rows="3" placeholder="One item per line"></textarea></label>
-            <label class="field span-two">FAQs<textarea name="faqs" rows="4" placeholder="Is COD available? | COD availability depends on your PIN code."></textarea><small>One per line: question | answer</small></label>
+            <label class="field span-two">Benefits<textarea name="benefits" [value]="editValues?.benefits ?? ''" rows="4" placeholder="Easy to use | Convenient for everyday use&#10;Thoughtful quality | Made for regular use"></textarea><small>One per line: title | description</small></label>
+            <label class="field span-two">Features<textarea name="features" [value]="editValues?.features ?? ''" rows="4" placeholder="One feature per line"></textarea></label>
+            <label class="field span-two">Specifications<textarea name="specifications" [value]="editValues?.specifications ?? ''" rows="4" placeholder="Material: Stainless steel&#10;Color: Green"></textarea><small>One per line: label: value</small></label>
+            <label class="field span-two">Package contents<textarea name="packageContents" [value]="editValues?.packageContents ?? ''" rows="3" placeholder="One item per line"></textarea></label>
+            <label class="field span-two">FAQs<textarea name="faqs" [value]="editValues?.faqs ?? ''" rows="4" placeholder="Is COD available? | COD availability depends on your PIN code."></textarea><small>One per line: question | answer</small></label>
           </div>
 
-          <label class="active-toggle"><input name="isActive" type="checkbox" checked /><span>Publish this product</span></label>
+          <label class="active-toggle"><input name="isActive" type="checkbox" [checked]="editValues?.isActive ?? true" /><span>Publish this product</span></label>
           @if (error) { <p class="form-error" role="alert">{{ error }}</p> }
           @if (notice) { <p class="form-notice" role="status">{{ notice }}</p> }
-          <button class="save-button" type="submit" [disabled]="busy">{{ busy ? 'Saving…' : 'Add product' }} <span>→</span></button>
+          <div class="form-actions">
+            @if (editingProduct) { <button class="cancel-edit" type="button" (click)="cancelEdit()" [disabled]="busy">Cancel edit</button> }
+            <button class="save-button" type="submit" [disabled]="busy">{{ busy ? 'Saving…' : editingProduct ? 'Save changes' : 'Add product' }} <span>→</span></button>
+          </div>
         </form>
       </section>
 
       <aside class="catalog-panel">
         <div class="catalog-heading"><div><p class="kicker">CATALOG</p><h2>Added products</h2></div><span>{{ products.length }}</span></div>
-        @if (products.length) {
+        @if (productsLoading) {
+          <p class="empty-state" role="status">Loading products…</p>
+        } @else if (products.length) {
           <ul class="product-list">
             @for (product of products; track product.id) {
               <li>
                 <img [src]="product.imageUrl" [alt]="product.title" />
-                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span></div>
+                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span><button class="edit-product" type="button" (click)="editProduct(product)">Edit product</button></div>
                 <span class="status-dot" [class.is-inactive]="!product.isActive" [attr.aria-label]="product.isActive ? 'Published' : 'Unpublished'"></span>
               </li>
             }
