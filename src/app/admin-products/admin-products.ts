@@ -13,7 +13,8 @@ type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean };
 })
 export class AdminProducts {
   private readonly productApi = inject(ProductApiService);
-  key = '';
+  username = '';
+  password = '';
   products: AdminProduct[] = [];
   error = '';
   notice = '';
@@ -24,12 +25,15 @@ export class AdminProducts {
   async unlock(event: SubmitEvent): Promise<void> {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
-    const key = String(new FormData(form).get('adminKey') ?? '').trim();
+    const values = new FormData(form);
+    const username = String(values.get('adminUsername') ?? '').trim();
+    const password = String(values.get('adminPassword') ?? '');
     this.busy = true;
     this.error = '';
     try {
-      this.products = await this.productApi.listAdminProducts(key);
-      this.key = key;
+      this.products = await this.productApi.listAdminProducts(username, password);
+      this.username = username;
+      this.password = password;
       this.unlocked = true;
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not verify admin access.';
@@ -54,8 +58,8 @@ export class AdminProducts {
     this.notice = '';
     try {
       const draft = this.buildDraft(values);
-      await this.productApi.createProduct(this.key, draft);
-      this.products = await this.productApi.listAdminProducts(this.key);
+      await this.productApi.createProduct(this.username, this.password, draft);
+      this.products = await this.productApi.listAdminProducts(this.username, this.password);
       form.reset();
       this.slug = '';
       this.notice = 'Product added to the storefront.';

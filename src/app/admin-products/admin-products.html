@@ -8,10 +8,12 @@
     <section class="access-panel">
       <p class="kicker">RESTRICTED ACCESS</p>
       <h1>Product catalog</h1>
-      <p class="intro">Enter the admin key configured for the backend to manage storefront listings.</p>
+      <p class="intro">Sign in with the admin account to manage storefront listings.</p>
       <form (submit)="unlock($event)">
-        <label for="admin-key">Admin key</label>
-        <input id="admin-key" name="adminKey" type="password" autocomplete="current-password" required />
+        <label for="admin-username">Username</label>
+        <input id="admin-username" name="adminUsername" type="text" autocomplete="username" required />
+        <label for="admin-password">Password</label>
+        <input id="admin-password" name="adminPassword" type="password" autocomplete="current-password" required />
         @if (error) { <p class="form-error" role="alert">{{ error }}</p> }
         <button type="submit" [disabled]="busy">{{ busy ? 'Checking…' : 'Continue' }} <span>→</span></button>
       </form>

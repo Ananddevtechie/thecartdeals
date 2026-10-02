@@ -84,8 +84,8 @@ export class ProductApiService {
     return this.toStoreProduct(result);
   }
 
-  async listAdminProducts(key: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean })[]> {
-    const response = await fetch('/api/admin/products', { headers: this.adminHeaders(key) });
+  async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean })[]> {
+    const response = await fetch('/api/admin/products', { headers: this.adminHeaders(username, password) });
     const result = await response.json() as ProductResponse[] | { detail?: string };
     if (!response.ok || !Array.isArray(result)) {
       throw new Error(!Array.isArray(result) ? result.detail ?? 'Could not load products.' : 'Could not load products.');
@@ -97,10 +97,10 @@ export class ProductApiService {
     }));
   }
 
-  async createProduct(key: string, draft: ProductDraft): Promise<StoreProduct> {
+  async createProduct(username: string, password: string, draft: ProductDraft): Promise<StoreProduct> {
     const response = await fetch('/api/admin/products', {
       method: 'POST',
-      headers: { ...this.adminHeaders(key), 'Content-Type': 'application/json' },
+      headers: { ...this.adminHeaders(username, password), 'Content-Type': 'application/json' },
       body: JSON.stringify(draft),
     });
     const result = await response.json() as ProductResponse | { detail?: string };
@@ -110,8 +110,8 @@ export class ProductApiService {
     return this.toStoreProduct(result);
   }
 
-  private adminHeaders(key: string): HeadersInit {
-    return { Authorization: `Bearer ${key}` };
+  private adminHeaders(username: string, password: string): HeadersInit {
+    return { Authorization: `Basic ${btoa(`${username}:${password}`)}` };
   }
 
   private toStoreProduct(product: ProductResponse): StoreProduct {
