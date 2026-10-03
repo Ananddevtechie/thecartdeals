@@ -19,6 +19,7 @@ export class StorefrontHome implements OnInit {
   products: StoreProduct[] = [];
   loading = true;
   loadError = '';
+  filtersOpen = false;
   searchTerm = '';
   selectedCategory = 'All';
   minimumPrice = '';
@@ -52,6 +53,10 @@ export class StorefrontHome implements OnInit {
 
   setSearch(event: Event): void {
     this.searchTerm = (event.currentTarget as HTMLInputElement).value;
+  }
+
+  toggleFilters(): void {
+    this.filtersOpen = !this.filtersOpen;
   }
 
   setMinimumPrice(event: Event): void {

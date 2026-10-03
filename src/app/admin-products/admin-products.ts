@@ -40,7 +40,10 @@ export class AdminProducts implements OnInit {
   username = '';
   password = '';
   products: AdminProduct[] = [];
+  readonly productsPerPage = 10;
+  productsPage = 1;
   productsLoading = false;
+  deletingProductId: string | null = null;
   error = '';
   notice = '';
   busy = false;
@@ -48,6 +51,23 @@ export class AdminProducts implements OnInit {
   slug = '';
   editingProduct: AdminProduct | null = null;
   editValues: ProductEditorValues | null = null;
+
+  get totalProductPages(): number {
+    return Math.max(1, Math.ceil(this.products.length / this.productsPerPage));
+  }
+
+  get paginatedProducts(): AdminProduct[] {
+    const start = (this.productsPage - 1) * this.productsPerPage;
+    return this.products.slice(start, start + this.productsPerPage);
+  }
+
+  get firstProductNumber(): number {
+    return this.products.length ? (this.productsPage - 1) * this.productsPerPage + 1 : 0;
+  }
+
+  get lastProductNumber(): number {
+    return Math.min(this.productsPage * this.productsPerPage, this.products.length);
+  }
 
   ngOnInit(): void {
     if (this.route.snapshot.routeConfig?.path !== 'admin/products/add') return;
@@ -86,6 +106,7 @@ export class AdminProducts implements OnInit {
     this.changeDetector.markForCheck();
     try {
       this.products = await this.productApi.listAdminProducts(this.username, this.password);
+      this.productsPage = Math.min(this.productsPage, this.totalProductPages);
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not load the product catalog.';
     } finally {
@@ -136,9 +157,38 @@ export class AdminProducts implements OnInit {
     this.notice = '';
   }
 
+  previousProductPage(): void {
+    this.productsPage = Math.max(1, this.productsPage - 1);
+  }
+
+  nextProductPage(): void {
+    this.productsPage = Math.min(this.totalProductPages, this.productsPage + 1);
+  }
+
+  async deleteProduct(product: AdminProduct): Promise<void> {
+    if (this.busy || this.deletingProductId !== null) return;
+    if (!window.confirm(`Delete "${product.title}" permanently from the catalog?`)) return;
+
+    this.deletingProductId = product.id;
+    this.error = '';
+    this.notice = '';
+    try {
+      await this.productApi.deleteProduct(this.username, this.password, product.id);
+      this.products = await this.productApi.listAdminProducts(this.username, this.password);
+      this.productsPage = Math.min(this.productsPage, this.totalProductPages);
+      if (this.editingProduct?.id === product.id) this.cancelEdit();
+      this.notice = `${product.title} was deleted from the catalog.`;
+    } catch (error) {
+      this.error = error instanceof Error ? error.message : 'Could not delete this product.';
+    } finally {
+      this.deletingProductId = null;
+      this.changeDetector.markForCheck();
+    }
+  }
+
   async addProduct(event: SubmitEvent): Promise<void> {
     event.preventDefault();
-    if (this.busy) return;
+    if (this.busy || this.deletingProductId !== null) return;
     const form = event.currentTarget as HTMLFormElement;
     const values = new FormData(form);
     this.busy = true;
@@ -153,6 +203,8 @@ export class AdminProducts implements OnInit {
       }
       this.products = await this.productApi.listAdminProducts(this.username, this.password);
       const wasEditing = this.editingProduct !== null;
+      if (!wasEditing) this.productsPage = 1;
+      else this.productsPage = Math.min(this.productsPage, this.totalProductPages);
       this.editingProduct = null;
       this.editValues = null;
       form.reset();

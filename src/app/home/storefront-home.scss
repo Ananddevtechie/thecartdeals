@@ -135,3 +135,29 @@ a { color: inherit; text-decoration: none; }
 .empty-symbol { color: #f0c979; }
 .shop-footer { position: relative; border-color: rgba(255,255,255,.13); color: #c1ccc2; }
 .shop-footer .footer-brand { color: #f5f4ee; font-family: 'DM Sans', 'Trebuchet MS', sans-serif; }
+.catalog-tools { display: flex; align-items: center; gap: 8px; }
+.catalog-tools .search-box { width: 260px; }
+.filter-toggle { min-height: 39px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 11px; border: 1px solid rgba(255,255,255,.16); border-radius: 5px; background: rgba(10,24,17,.32); color: #d5dfd6; font-size: 10px; font-weight: 650; cursor: pointer; }
+.filter-toggle:hover, .filter-toggle[aria-expanded='true'] { border-color: rgba(240,185,93,.6); color: #f0c979; }
+.filter-icon { width: 15px; display: grid; gap: 4px; }
+.filter-icon i { position: relative; height: 1px; background: currentColor; }
+.filter-icon i::after { position: absolute; top: -2px; width: 4px; height: 4px; border: 1px solid currentColor; border-radius: 50%; background: #21372d; content: ''; }
+.filter-icon i:nth-child(1)::after { left: 3px; }
+.filter-icon i:nth-child(2)::after { left: 9px; }
+.filter-icon i:nth-child(3)::after { left: 5px; }
+.catalog-filter-panel { margin-top: 16px; padding: 7px 15px 13px; border: 1px solid rgba(255,255,255,.14); border-radius: 5px; background: rgba(10,24,17,.24); }
+.catalog-filter-panel[hidden] { display: none; }
+.catalog-filter-panel .category-strip { padding: 8px 0 13px; }
+.catalog-filter-panel .filters { display: grid; grid-template-columns: 1fr 2fr; gap: 0 20px; padding: 12px 0 0; border-top: 1px solid rgba(255,255,255,.13); border-right: 0; }
+.catalog-filter-panel .filter-heading { grid-column: 1 / -1; }
+.catalog-filter-panel .filters fieldset { padding: 12px 0 3px; }
+.catalog-filter-panel .filters fieldset + fieldset { padding-left: 20px; border-left: 1px solid rgba(255,255,255,.13); }
+.catalog-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+@media (max-width: 620px) {
+	.catalog-tools { width: 100%; }
+	.catalog-tools .search-box { width: auto; min-width: 0; flex: 1; }
+	.filter-toggle { flex: 0 0 auto; }
+	.catalog-filter-panel { padding-right: 11px; padding-left: 11px; }
+	.catalog-filter-panel .filters { grid-template-columns: 1fr 1fr; gap: 0 12px; }
+	.catalog-filter-panel .filters fieldset + fieldset { padding-left: 12px; }
+}

@@ -195,6 +195,18 @@ export class ProductApiService {
     return this.toStoreProduct(result);
   }
 
+  async deleteProduct(username: string, password: string, slug: string): Promise<void> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}`, {
+      method: 'DELETE',
+      headers: this.adminHeaders(username, password),
+    });
+    if (!response.ok) {
+      const result = await response.json() as { detail?: string };
+      throw new Error(result.detail ?? 'Could not delete this product.');
+    }
+    this.invalidatePublicProductCache();
+  }
+
   private invalidatePublicProductCache(): void {
     this.cacheGeneration += 1;
     this.productsCache = null;

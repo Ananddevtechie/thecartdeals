@@ -17,16 +17,18 @@
     <section class="catalog" aria-labelledby="catalog-title">
       <div class="catalog-heading">
         <div><p class="eyebrow">THE COLLECTION</p><h2 id="catalog-title">Shop all products <span>{{ filteredProducts.length }}</span></h2></div>
-        <label class="search-box"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search products" [value]="searchTerm" (input)="setSearch($event)" aria-label="Search products" /></label>
+        <div class="catalog-tools">
+          <label class="search-box"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search products" [value]="searchTerm" (input)="setSearch($event)" aria-label="Search products" /></label>
+          <button class="filter-toggle" type="button" (click)="toggleFilters()" [attr.aria-expanded]="filtersOpen" aria-controls="catalog-filters"><span class="filter-icon" aria-hidden="true"><i></i><i></i><i></i></span><span>Filters</span></button>
+        </div>
       </div>
 
-      <div class="category-strip" aria-label="Filter by category">
-        @for (category of categories; track category) {
-          <button type="button" [class.is-selected]="selectedCategory === category" [attr.aria-pressed]="selectedCategory === category" (click)="setCategory(category)">{{ category }}</button>
-        }
-      </div>
-
-      <div class="catalog-layout">
+      <div class="catalog-filter-panel" id="catalog-filters" [hidden]="!filtersOpen">
+        <div class="category-strip" aria-label="Filter by category">
+          @for (category of categories; track category) {
+            <button type="button" [class.is-selected]="selectedCategory === category" [attr.aria-pressed]="selectedCategory === category" (click)="setCategory(category)">{{ category }}</button>
+          }
+        </div>
         <aside class="filters" aria-label="Product filters">
           <div class="filter-heading"><h3>Filter by</h3><button type="button" (click)="clearFilters()">Clear all</button></div>
           <fieldset>
@@ -42,7 +44,9 @@
             }
           </fieldset>
         </aside>
+      </div>
 
+      <div class="catalog-layout">
         <div class="product-area">
           <div class="results-bar"><span>Showing <strong>{{ filteredProducts.length }}</strong> of {{ products.length }} products</span><label>Sort by <select [value]="sortOrder" (change)="setSortOrder($event)" aria-label="Sort products"><option value="featured">Featured</option><option value="price-ascending">Price: low to high</option><option value="price-descending">Price: high to low</option></select></label></div>
 

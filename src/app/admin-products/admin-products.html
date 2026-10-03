@@ -61,8 +61,8 @@
           @if (error) { <p class="form-error" role="alert">{{ error }}</p> }
           @if (notice) { <p class="form-notice" role="status">{{ notice }}</p> }
           <div class="form-actions">
-            @if (editingProduct) { <button class="cancel-edit" type="button" (click)="cancelEdit()" [disabled]="busy">Cancel edit</button> }
-            <button class="save-button" type="submit" [disabled]="busy">{{ busy ? 'Saving…' : editingProduct ? 'Save changes' : 'Add product' }} <span>→</span></button>
+            @if (editingProduct) { <button class="cancel-edit" type="button" (click)="cancelEdit()" [disabled]="busy || deletingProductId !== null">Cancel edit</button> }
+            <button class="save-button" type="submit" [disabled]="busy || deletingProductId !== null">{{ busy ? 'Saving…' : editingProduct ? 'Save changes' : 'Add product' }} <span>→</span></button>
           </div>
         </form>
       </section>
@@ -73,14 +73,18 @@
           <p class="empty-state" role="status">Loading products…</p>
         } @else if (products.length) {
           <ul class="product-list">
-            @for (product of products; track product.id) {
+            @for (product of paginatedProducts; track product.id) {
               <li>
                 <img [src]="product.imageUrl" [alt]="product.title" />
-                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span><button class="edit-product" type="button" (click)="editProduct(product)">Edit product</button></div>
+                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span><div class="product-actions"><button class="edit-product" type="button" (click)="editProduct(product)" [disabled]="busy || deletingProductId !== null">Edit product</button><button class="delete-product" type="button" (click)="deleteProduct(product)" [disabled]="busy || deletingProductId !== null">{{ deletingProductId === product.id ? 'Deleting…' : 'Delete' }}</button></div></div>
                 <span class="status-dot" [class.is-inactive]="!product.isActive" [attr.aria-label]="product.isActive ? 'Published' : 'Unpublished'"></span>
               </li>
             }
           </ul>
+          <nav class="catalog-pagination" aria-label="Catalog pagination">
+            <span>Showing {{ firstProductNumber }}-{{ lastProductNumber }} of {{ products.length }}</span>
+            <div><button type="button" (click)="previousProductPage()" [disabled]="productsPage === 1">Previous</button><span>Page {{ productsPage }} of {{ totalProductPages }}</span><button type="button" (click)="nextProductPage()" [disabled]="productsPage === totalProductPages">Next</button></div>
+          </nav>
         } @else {
           <p class="empty-state">No products have been added yet.</p>
         }
