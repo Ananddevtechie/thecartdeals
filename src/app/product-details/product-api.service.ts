@@ -74,24 +74,66 @@ interface AdminLoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class ProductApiService {
+  private readonly publicCacheTtlMs = 60_000;
+  private productsCache: { expiresAt: number; products: StoreProduct[] } | null = null;
+  private productsRequest: Promise<StoreProduct[]> | null = null;
+  private readonly productCache = new Map<string, { expiresAt: number; product: StoreProduct }>();
+  private readonly productRequests = new Map<string, Promise<StoreProduct>>();
+  private cacheGeneration = 0;
   private adminCredentials: { username: string; password: string } | null = null;
 
   async listProducts(): Promise<StoreProduct[]> {
-    const response = await fetch('/api/products');
-    const result = await response.json() as ProductResponse[] | { detail?: string };
-    if (!response.ok || !Array.isArray(result)) {
-      throw new Error(!Array.isArray(result) ? result.detail ?? 'Could not load products.' : 'Could not load products.');
+    if (this.productsCache && this.productsCache.expiresAt > Date.now()) return this.productsCache.products;
+    if (this.productsRequest) return this.productsRequest;
+
+    const generation = this.cacheGeneration;
+    const request = (async () => {
+      const response = await fetch('/api/products');
+      const result = await response.json() as ProductResponse[] | { detail?: string };
+      if (!response.ok || !Array.isArray(result)) {
+        throw new Error(!Array.isArray(result) ? result.detail ?? 'Could not load products.' : 'Could not load products.');
+      }
+      const products = result.map((product) => this.toStoreProduct(product));
+      if (generation === this.cacheGeneration) {
+        const expiresAt = Date.now() + this.publicCacheTtlMs;
+        this.productsCache = { expiresAt, products };
+        for (const product of products) this.productCache.set(product.id, { expiresAt, product });
+      }
+      return products;
+    })();
+    this.productsRequest = request;
+    try {
+      return await request;
+    } finally {
+      if (this.productsRequest === request) this.productsRequest = null;
     }
-    return result.map((product) => this.toStoreProduct(product));
   }
 
   async getProduct(slug: string): Promise<StoreProduct> {
-    const response = await fetch(`/api/products/${encodeURIComponent(slug)}`);
-    const result = await response.json() as ProductResponse | { detail?: string };
-    if (!response.ok || !('id' in result)) {
-      throw new Error('detail' in result ? result.detail ?? 'Could not load this product.' : 'Could not load this product.');
+    const cached = this.productCache.get(slug);
+    if (cached && cached.expiresAt > Date.now()) return cached.product;
+    const pendingRequest = this.productRequests.get(slug);
+    if (pendingRequest) return pendingRequest;
+
+    const generation = this.cacheGeneration;
+    const request = (async () => {
+      const response = await fetch(`/api/products/${encodeURIComponent(slug)}`);
+      const result = await response.json() as ProductResponse | { detail?: string };
+      if (!response.ok || !('id' in result)) {
+        throw new Error('detail' in result ? result.detail ?? 'Could not load this product.' : 'Could not load this product.');
+      }
+      const product = this.toStoreProduct(result);
+      if (generation === this.cacheGeneration) {
+        this.productCache.set(slug, { expiresAt: Date.now() + this.publicCacheTtlMs, product });
+      }
+      return product;
+    })();
+    this.productRequests.set(slug, request);
+    try {
+      return await request;
+    } finally {
+      if (this.productRequests.get(slug) === request) this.productRequests.delete(slug);
     }
-    return this.toStoreProduct(result);
   }
 
   async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean })[]> {
@@ -135,6 +177,7 @@ export class ProductApiService {
     if (!response.ok || !('id' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not save this product.' : 'Could not save this product.');
     }
+    this.invalidatePublicProductCache();
     return this.toStoreProduct(result);
   }
 
@@ -148,7 +191,16 @@ export class ProductApiService {
     if (!response.ok || !('id' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not update this product.' : 'Could not update this product.');
     }
+    this.invalidatePublicProductCache();
     return this.toStoreProduct(result);
+  }
+
+  private invalidatePublicProductCache(): void {
+    this.cacheGeneration += 1;
+    this.productsCache = null;
+    this.productsRequest = null;
+    this.productCache.clear();
+    this.productRequests.clear();
   }
 
   private adminHeaders(username: string, password: string): HeadersInit {

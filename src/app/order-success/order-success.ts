@@ -60,7 +60,7 @@ export class OrderSuccess {
   }
 
   continueShopping(): void {
-    void this.router.navigateByUrl('/product-details');
+    void this.router.navigateByUrl('/');
   }
 
   private readConfirmation(): void {
