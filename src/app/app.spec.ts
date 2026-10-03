@@ -8,6 +8,7 @@ const testProduct: StoreProduct = {
   id: 'test-product',
   sku: 'TEST-001',
   title: 'Test product',
+  category: 'Test',
   description: 'Catalog product for the app test.',
   eyebrow: 'TEST LISTING',
   imageUrl: '/test-product.jpg',
@@ -50,5 +51,15 @@ describe('App', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-product-details')).toBeTruthy();
+  });
+
+  it('should show the product catalog at the default route', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-storefront-home')).toBeTruthy();
   });
 });

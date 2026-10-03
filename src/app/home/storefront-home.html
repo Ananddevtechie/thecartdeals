@@ -1,0 +1,81 @@
+<div class="storefront-home">
+  <div class="shop-announcement"><span>EVERYDAY FINDS, THOUGHTFULLY PICKED</span><span>DELIVERY ACROSS INDIA <b aria-hidden="true">↗</b></span></div>
+  <header class="shop-header">
+    <a class="shop-brand" routerLink="/" aria-label="TheCart home">
+      <img src="/app-icon.png" alt="" />
+      <span><strong>TheCart</strong><small>GOOD THINGS, FOUND.</small></span>
+    </a>
+    <nav aria-label="Shop navigation"><a class="current" routerLink="/">Shop</a><a routerLink="/admin/products">Seller tools</a></nav>
+    <a class="seller-link" routerLink="/admin/products">Seller sign in <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main>
+    <section class="shop-intro" aria-labelledby="shop-title">
+      <div><p class="eyebrow">THECART EDIT</p><h1 id="shop-title">Find your next<br /><em>everyday favourite.</em></h1></div>
+      <p class="intro-copy">Useful little upgrades, picked for the way you live.<br />Browse the collection and find something worth keeping.</p>
+      <span class="intro-mark" aria-hidden="true">T</span>
+    </section>
+
+    <section class="catalog" aria-labelledby="catalog-title">
+      <div class="catalog-heading">
+        <div><p class="eyebrow">THE COLLECTION</p><h2 id="catalog-title">Shop all products <span>{{ filteredProducts.length }}</span></h2></div>
+        <label class="search-box"><span aria-hidden="true">⌕</span><input type="search" placeholder="Search products" [value]="searchTerm" (input)="setSearch($event)" aria-label="Search products" /></label>
+      </div>
+
+      <div class="category-strip" aria-label="Filter by category">
+        @for (category of categories; track category) {
+          <button type="button" [class.is-selected]="selectedCategory === category" [attr.aria-pressed]="selectedCategory === category" (click)="setCategory(category)">{{ category }}</button>
+        }
+      </div>
+
+      <div class="catalog-layout">
+        <aside class="filters" aria-label="Product filters">
+          <div class="filter-heading"><h3>Filter by</h3><button type="button" (click)="clearFilters()">Clear all</button></div>
+          <fieldset>
+            <legend>Price</legend>
+            <label class="price-input"><span>₹</span><input type="number" min="0" inputmode="numeric" placeholder="Min" [value]="minimumPrice" (input)="setMinimumPrice($event)" aria-label="Minimum price" /></label>
+            <span class="price-divider">to</span>
+            <label class="price-input"><span>₹</span><input type="number" min="0" inputmode="numeric" placeholder="Max" [value]="maximumPrice" (input)="setMaximumPrice($event)" aria-label="Maximum price" /></label>
+          </fieldset>
+          <fieldset>
+            <legend>Category</legend>
+            @for (category of categories; track category) {
+              <label class="category-option"><input type="radio" name="product-category" [checked]="selectedCategory === category" (change)="setCategory(category)" /><span>{{ category }}</span><small>{{ category === 'All' ? products.length : products.filter(p => p.category === category).length }}</small></label>
+            }
+          </fieldset>
+        </aside>
+
+        <div class="product-area">
+          <div class="results-bar"><span>Showing <strong>{{ filteredProducts.length }}</strong> of {{ products.length }} products</span><label>Sort by <select [value]="sortOrder" (change)="setSortOrder($event)" aria-label="Sort products"><option value="featured">Featured</option><option value="price-ascending">Price: low to high</option><option value="price-descending">Price: high to low</option></select></label></div>
+
+          @if (loading) {
+            <div class="catalog-state" role="status"><span class="loader"></span><p>Finding the good things…</p></div>
+          } @else if (loadError) {
+            <div class="catalog-state" role="alert"><h3>We couldn't load the collection.</h3><p>{{ loadError }}</p><button type="button" (click)="retryLoad()">Try again</button></div>
+          } @else if (filteredProducts.length) {
+            <div class="product-grid">
+              @for (product of filteredProducts; track product.id) {
+                <article class="product-card">
+                  <a class="product-image" [routerLink]="['/product-details', product.id]" [attr.aria-label]="'View ' + product.title">
+                    <img [src]="product.imageUrl" [alt]="product.title" loading="lazy" />
+                    @if (savingsPercent(product)) { <span class="discount-tag">{{ savingsPercent(product) }}% OFF</span> }
+                    <span class="image-arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <div class="product-info">
+                    <span class="product-category">{{ product.category }}</span>
+                    <a class="product-title" [routerLink]="['/product-details', product.id]">{{ product.title }}</a>
+                    <p class="product-description">{{ product.description }}</p>
+                    <div class="product-bottom"><p class="product-price">{{ product.currency }}{{ product.price }} @if (product.mrp > product.price) { <del>{{ product.currency }}{{ product.mrp }}</del> }</p><a class="view-product" [routerLink]="['/product-details', product.id]" aria-label="View product">View <span aria-hidden="true">→</span></a></div>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="catalog-state empty-state"><span class="empty-symbol" aria-hidden="true">⌕</span><h3>No products match these filters.</h3><p>Try another category or a wider price range.</p><button type="button" (click)="clearFilters()">Show all products</button></div>
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="shop-footer"><a class="footer-brand" routerLink="/">TheCart</a><span>Everyday, a little better.</span><a routerLink="/admin/products">Seller sign in <span aria-hidden="true">↗</span></a></footer>
+</div>

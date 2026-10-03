@@ -6,6 +6,7 @@ type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean };
 
 interface ProductEditorValues {
   title: string;
+  category: string;
   sku: string;
   description: string;
   eyebrow: string;
@@ -105,6 +106,7 @@ export class AdminProducts implements OnInit {
     this.slug = product.id;
     this.editValues = {
       title: product.title,
+      category: product.category,
       sku: product.sku,
       description: product.description,
       eyebrow: product.eyebrow,
@@ -179,6 +181,7 @@ export class AdminProducts implements OnInit {
       slug: this.editingProduct?.id ?? this.slug,
       sku: this.value(values, 'sku'),
       title,
+      category: this.value(values, 'category'),
       description: this.value(values, 'description'),
       eyebrow: this.value(values, 'eyebrow'),
       image_url: imageUrl,

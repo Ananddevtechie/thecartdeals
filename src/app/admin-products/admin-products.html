@@ -30,6 +30,7 @@
           <h2>{{ editingProduct ? 'Edit product information' : 'Product information' }}</h2>
           <div class="form-grid">
             <label class="field span-two">Product name<input name="title" [value]="editValues?.title ?? ''" required maxlength="255" (input)="updateSlug($event)" /></label>
+            <label class="field">Category<input name="category" [value]="editValues?.category ?? ''" required maxlength="80" placeholder="Home &amp; Living" /></label>
             <label class="field">URL slug<input name="slug" [value]="editingProduct?.id ?? slug" readonly required /></label>
             <label class="field">SKU<input name="sku" [value]="editValues?.sku ?? ''" required maxlength="100" /></label>
             <label class="field span-two">Short description<textarea name="description" [value]="editValues?.description ?? ''" rows="3" required></textarea></label>

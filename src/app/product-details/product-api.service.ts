@@ -4,6 +4,7 @@ export interface StoreProduct {
   id: string;
   sku: string;
   title: string;
+  category: string;
   description: string;
   eyebrow: string;
   imageUrl: string;
@@ -24,6 +25,7 @@ export interface ProductDraft {
   slug: string;
   sku: string;
   title: string;
+  category: string;
   description: string;
   eyebrow: string;
   image_url: string;
@@ -46,6 +48,7 @@ interface ProductResponse {
   id: string;
   sku: string;
   title: string;
+  category: string;
   description: string | null;
   eyebrow: string;
   image_url: string | null;
@@ -157,6 +160,7 @@ export class ProductApiService {
       id: product.id,
       sku: product.sku,
       title: product.title,
+      category: product.category,
       description: product.description ?? '',
       eyebrow: product.eyebrow,
       imageUrl: product.image_url ?? '',

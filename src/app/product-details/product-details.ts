@@ -15,6 +15,7 @@ const emptyProduct: StoreProduct = {
   id: '',
   sku: '',
   title: '',
+  category: 'Other',
   description: '',
   eyebrow: '',
   imageUrl: '',

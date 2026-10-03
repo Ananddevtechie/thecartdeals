@@ -5,9 +5,10 @@ import { ProductDetails } from './product-details/product-details';
 import { OrderSuccess } from './order-success/order-success';
 import { OnlinePayment } from './online-payment/online-payment';
 import { AdminProducts } from './admin-products/admin-products';
+import { StorefrontHome } from './home/storefront-home';
 
 export const routes: Routes = [
-	{ path: '', pathMatch: 'full', redirectTo: 'product-details' },
+	{ path: '', pathMatch: 'full', component: StorefrontHome, title: 'Shop | TheCart' },
 	{ path: 'product-details', component: ProductDetails, title: 'Product details | TheCart' },
 	{ path: 'product-details/:slug', component: ProductDetails, title: 'Product details | TheCart' },
 	{ path: 'admin/products', component: AdminProducts, title: 'Add products | TheCart Admin' },
@@ -16,5 +17,5 @@ export const routes: Routes = [
 	{ path: 'payment', component: Payment, title: 'Payment | TheCart' },
 	{ path: 'online-payment', component: OnlinePayment, title: 'Online payment | TheCart' },
 	{ path: 'order/success', component: OrderSuccess, title: 'Order placed successfully | TheCart' },
-	{ path: '**', redirectTo: 'product-details' },
+	{ path: '**', redirectTo: '' },
 ];
