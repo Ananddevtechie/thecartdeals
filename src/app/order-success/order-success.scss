@@ -45,9 +45,10 @@
 .continue-button,.missing-order button { width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;border:0;border-radius:9px;background:#f0b95d;color:#1d2a21;font:inherit;font-size:11px;font-weight:800;cursor:pointer; }
 .continue-button:hover,.missing-order button:hover { background:#f5c979; }
 .continue-button span { font-size:16px; }
-.whatsapp-note { display:grid;gap:7px;margin:0 0 22px;padding:16px 18px;border:1px solid #f5d58e;border-radius:9px;background:#f0b95d;color:#182a22;text-align:center;box-shadow:0 8px 24px rgba(8,20,14,.2); }
-.whatsapp-note span { font-size:9px;font-weight:850;letter-spacing:.12em; }
-.whatsapp-note strong { font-size:14px;font-weight:800;line-height:1.5; }
+.email-note { display:grid;gap:7px;margin:0 0 22px;padding:16px 18px;border:1px solid #f5d58e;border-radius:9px;background:#f0b95d;color:#182a22;text-align:center;box-shadow:0 8px 24px rgba(8,20,14,.2); }
+.email-note span { font-size:9px;font-weight:850;letter-spacing:.12em; }
+.email-note strong { font-size:14px;font-weight:800;line-height:1.5; }
+.email-note.email-failed { border-color:#d88b78;background:#592d24;color:#fff0eb; }
 .missing-order { text-align:left; }
 .missing-order p { color:#c1ccc2;font-size:11px;line-height:1.7; }
 .loading-state { display:flex;align-items:center;gap:12px;color:#e9eee7;font-size:12px; }

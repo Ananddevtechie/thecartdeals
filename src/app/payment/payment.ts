@@ -17,6 +17,7 @@ interface CheckoutState {
   landmark?: string;
   quantity?: number;
   productId?: string;
+  customerId?: string;
 }
 
 interface CodOrderResult {
@@ -38,7 +39,7 @@ interface CodOrderResult {
   currency: 'INR';
   order_date: string;
   expected_delivery_range: string;
-  email_status: 'SENT';
+  email_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
   email_notification_message: string;
   notification_recipient: string;
 }
@@ -125,25 +126,29 @@ export class Payment {
     const abortController = new AbortController();
     const timeoutId = window.setTimeout(() => abortController.abort(), 60_000);
     try {
+      const orderRequest = {
+        product_id: this.product.id,
+        quantity: this.quantity,
+        customer_id: this.checkout.customerId ?? null,
+        full_name: String(this.checkout.fullName ?? ''),
+        mobile: String(this.checkout.mobile ?? ''),
+        alternate_mobile: this.checkout.alternateMobile ? String(this.checkout.alternateMobile) : null,
+        address_line1: String(this.checkout.addressLine1 ?? ''),
+        address_line2: String(this.checkout.addressLine2 ?? ''),
+        pin: String(this.checkout.pin ?? ''),
+        city: String(this.checkout.city ?? ''),
+        state: String(this.checkout.state ?? ''),
+        landmark: String(this.checkout.landmark ?? '') || null,
+      };
+      const idempotencyKey = await this.getCodIdempotencyKey(orderRequest);
       const response = await fetch('/api/orders/cod', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
         },
         signal: abortController.signal,
-        body: JSON.stringify({
-          product_id: this.product.id,
-          quantity: this.quantity,
-          full_name: String(this.checkout.fullName ?? ''),
-          mobile: String(this.checkout.mobile ?? ''),
-          alternate_mobile: this.checkout.alternateMobile ? String(this.checkout.alternateMobile) : null,
-          address_line1: String(this.checkout.addressLine1 ?? ''),
-          address_line2: String(this.checkout.addressLine2 ?? ''),
-          pin: String(this.checkout.pin ?? ''),
-          city: String(this.checkout.city ?? ''),
-          state: String(this.checkout.state ?? ''),
-          landmark: String(this.checkout.landmark ?? ''),
-        }),
+        body: JSON.stringify(orderRequest),
       });
       const result = await response.json() as CodOrderResult | { detail?: string };
       if (!response.ok) {
@@ -155,8 +160,9 @@ export class Payment {
       await this.router.navigateByUrl('/order/success', {
         state: { order: result, checkout: this.checkout },
       });
+      this.clearCodIdempotencyKey(idempotencyKey);
     } catch {
-      this.notice.set('We could not confirm whether the email was sent. Please check with the store before retrying.');
+      this.notice.set('We could not confirm whether your order was received. Retrying is safe and will not create a duplicate order.');
     } finally {
       window.clearTimeout(timeoutId);
       this.isSubmitting.set(false);
@@ -168,6 +174,36 @@ export class Payment {
       queryParams: { product: this.checkout?.productId },
       state: { checkout: this.checkout },
     });
+  }
+
+  private async getCodIdempotencyKey(orderRequest: object): Promise<string> {
+    const storageKey = 'thecart-cod-order-key';
+    try {
+      const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(orderRequest)));
+      const fingerprint = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+      const saved = window.sessionStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved) as { fingerprint?: string; key?: string };
+        if (parsed.fingerprint === fingerprint && parsed.key) return parsed.key;
+      }
+      const key = window.crypto.randomUUID();
+      window.sessionStorage.setItem(storageKey, JSON.stringify({ fingerprint, key }));
+      return key;
+    } catch {
+      return window.crypto.randomUUID();
+    }
+  }
+
+  private clearCodIdempotencyKey(key: string): void {
+    try {
+      const storageKey = 'thecart-cod-order-key';
+      const saved = window.sessionStorage.getItem(storageKey);
+      if (saved && (JSON.parse(saved) as { key?: string }).key === key) {
+        window.sessionStorage.removeItem(storageKey);
+      }
+    } catch {
+      window.sessionStorage.removeItem('thecart-cod-order-key');
+    }
   }
 
   private async resolvePaymentState(): Promise<void> {
