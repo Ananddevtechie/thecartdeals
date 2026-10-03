@@ -73,3 +73,35 @@ button, input, textarea { font: inherit; }
   .catalog-panel { position: static; }
 }
 @media (max-width: 430px) { .form-grid { grid-template-columns: 1fr; } .span-two { grid-column: auto; } }
+
+:host { position: relative; isolation: isolate; overflow: hidden; color: #eef4ed; font-family: 'DM Sans', 'Trebuchet MS', sans-serif; background: linear-gradient(155deg, #294437 0%, #21372d 54%, #182a22 100%); }
+:host::before { position: absolute; z-index: -1; inset: 0; background-image: linear-gradient(135deg, rgba(41,68,55,.56), rgba(24,42,34,.64)), url('/parcel-paper.svg'); background-position: center, center top; background-size: cover, 1100px auto; content: ''; opacity: .48; pointer-events: none; }
+.admin-shell { position: relative; }
+.admin-header { border-color: rgba(255,255,255,.13); }
+.admin-brand { color: #f4f4ec; }
+.brand-mark { border-radius: 50% 50% 50% 5px; transform: rotate(-8deg); background: #f0b95d; color: #182721; font-family: 'DM Sans', 'Trebuchet MS', sans-serif; }
+.admin-brand strong { font-family: 'DM Sans', 'Trebuchet MS', sans-serif; }
+.admin-brand small, .kicker { color: #b4c0b5; }
+.store-link, .product-summary .edit-product { color: #f0c979; }
+.page-intro h1, .access-panel h1 { color: #f4f7f1; font-family: 'DM Sans', 'Trebuchet MS', sans-serif; }
+.page-intro > p, .intro { color: #c3cec4; }
+.product-form-panel, .catalog-panel, .access-panel { border-color: rgba(255,255,255,.16); background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.05)); box-shadow: 0 22px 58px rgba(8,20,14,.23), inset 0 1px rgba(255,255,255,.08); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.product-form h2, .catalog-heading h2, .field, .access-panel label, .product-summary strong { color: #edf2eb; }
+.product-form h2:not(:first-child), .catalog-heading, .product-list li { border-color: rgba(255,255,255,.13); }
+.field input, .field textarea, .access-panel input { border-color: rgba(255,255,255,.16); background: rgba(10,24,17,.32); color: #edf2eb; }
+.field input::placeholder, .field textarea::placeholder, .access-panel input::placeholder { color: #a8b6aa; }
+.field input:focus, .field textarea:focus, .access-panel input:focus { border-color: rgba(240,185,93,.72); box-shadow: 0 0 0 3px rgba(240,185,93,.12); }
+.field input[readonly] { background: rgba(10,24,17,.48); color: #bac6bb; }
+.field small, .product-summary small, .empty-state { color: #b4c0b5; }
+.active-toggle { color: #dce5dc; }
+.active-toggle input { accent-color: #f0b95d; }
+.save-button, .access-panel button { background: #f0b95d; color: #1d2a21; }
+.save-button:hover, .access-panel button:hover { background: #f5c979; }
+.cancel-edit { border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #dce5dc; }
+.cancel-edit:hover { border-color: rgba(240,185,93,.4); background: rgba(240,185,93,.1); color: #f0c979; }
+.catalog-heading > span { background: rgba(240,185,93,.14); color: #f0c979; }
+.product-list img { background: rgba(10,24,17,.4); }
+.product-summary span { color: #c5d0c6; }
+.product-summary i { color: #f0c979; }
+.form-error { background: rgba(118,54,37,.35); color: #f2c7b7; }
+.form-notice { background: rgba(139,196,162,.13); color: #bce1c4; }
