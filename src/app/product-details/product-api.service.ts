@@ -29,6 +29,7 @@ export interface ProductDraft {
   description: string;
   eyebrow: string;
   image_url: string;
+  meesho_url: string | null;
   currency: 'INR';
   cost_price: number;
   selling_price: number;
@@ -52,6 +53,7 @@ interface ProductResponse {
   description: string | null;
   eyebrow: string;
   image_url: string | null;
+  meesho_url?: string | null;
   currency: string;
   selling_price: number | string;
   mrp: number | string;
@@ -136,7 +138,7 @@ export class ProductApiService {
     }
   }
 
-  async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean })[]> {
+  async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string })[]> {
     const response = await fetch('/api/admin/products', { headers: this.adminHeaders(username, password) });
     const result = await response.json() as ProductResponse[] | { detail?: string };
     if (!response.ok || !Array.isArray(result)) {
@@ -146,6 +148,7 @@ export class ProductApiService {
       ...this.toStoreProduct(product),
       costPrice: Number(product.cost_price ?? 0),
       isActive: product.is_active ?? false,
+      meeshoUrl: product.meesho_url ?? '',
     }));
   }
 

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductApiService, ProductDraft, StoreProduct } from '../product-details/product-api.service';
 
-type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean };
+type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string };
 
 interface ProductEditorValues {
   title: string;
@@ -11,6 +11,7 @@ interface ProductEditorValues {
   description: string;
   eyebrow: string;
   imageUrl: string;
+  meeshoUrl: string;
   gallery: string;
   costPrice: number;
   sellingPrice: number;
@@ -132,6 +133,7 @@ export class AdminProducts implements OnInit {
       description: product.description,
       eyebrow: product.eyebrow,
       imageUrl: product.imageUrl,
+      meeshoUrl: product.meeshoUrl,
       gallery: product.gallery.filter((image) => image.src !== product.imageUrl).map((image) => image.src).join('\n'),
       costPrice: product.costPrice,
       sellingPrice: product.price,
@@ -237,6 +239,7 @@ export class AdminProducts implements OnInit {
       description: this.value(values, 'description'),
       eyebrow: this.value(values, 'eyebrow'),
       image_url: imageUrl,
+      meesho_url: this.value(values, 'meeshoUrl') || null,
       currency: 'INR',
       cost_price: Number(values.get('costPrice')),
       selling_price: Number(values.get('sellingPrice')),
