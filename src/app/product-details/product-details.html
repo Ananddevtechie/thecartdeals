@@ -108,8 +108,24 @@
     </section>
 
     <section class="reviews-section section-wrap">
-      <div class="reviews-top"><div><span class="section-kicker">KIND WORDS, WHEN THEY COME</span><h2>Loved by customers.</h2><p>Honest experiences make a better community.</p></div><div class="reviews-count"><strong>—</strong><span>REVIEWS</span></div></div>
-      <div class="reviews-empty"><div class="empty-stars">☆☆☆☆☆</div><strong>Be the first to share your experience.</strong><p>Verified customer reviews will show here after they’re collected.</p></div>
+      <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Real experiences with this product.</p></div><div class="reviews-count"><strong>{{ reviewSummary.review_count ? reviewSummary.average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary.review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span> }<span>{{ reviewSummary.review_count }} REVIEWS</span></div></div>
+      @if (reviewSummary.review_count) {
+        <div class="customer-reviews">
+          @for (review of reviewSummary.reviews; track review.id) {
+            <article class="customer-review">
+              <div class="customer-review-header"><div><strong>{{ review.reviewer_name }}</strong><span class="customer-review-rating" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span></div><time>{{ formatReviewDate(review.created_at) }}</time></div>
+              <p>{{ review.comment }}</p>
+              @if (review.image_urls.length) {
+                <div class="customer-review-images" aria-label="Customer review photos">
+                  @for (imageUrl of review.image_urls; track imageUrl) { <a [href]="imageUrl" target="_blank" rel="noopener noreferrer"><img [src]="imageUrl" alt="Photo shared with customer review" loading="lazy" /></a> }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="reviews-empty"><div class="empty-stars">☆☆☆☆☆</div><strong>No reviews yet.</strong><p>Customer experiences will appear here.</p></div>
+      }
     </section>
 
     <section class="final-offer">
@@ -131,9 +147,17 @@
 
     @if (relatedProducts.length) {
       <section class="related-section section-wrap" aria-labelledby="related-heading">
-        <div class="related-heading"><div><span class="section-kicker">MORE FROM THECART</span><h2 id="related-heading">Other products</h2></div></div>
-        <div class="related-grid">
-          @for (item of relatedProducts; track item.id) {
+        <div class="related-heading"><div><span class="section-kicker">MORE FROM THECART</span><h2 id="related-heading">Other products</h2></div>
+          @if (relatedProducts.length > relatedPageSize) {
+            <div class="related-controls" aria-label="Other products pages">
+              <span>{{ relatedStartNumber }}-{{ relatedEndNumber }} of {{ relatedProducts.length }}</span>
+              <button type="button" (click)="previousRelatedPage()" [disabled]="relatedPage === 0" aria-label="Previous products" title="Previous products">‹</button>
+              <button type="button" (click)="nextRelatedPage()" [disabled]="relatedEndNumber >= relatedProducts.length" aria-label="Next 10 products" title="Next 10 products">›</button>
+            </div>
+          }
+        </div>
+        <div class="related-grid" id="related-grid">
+          @for (item of visibleRelatedProducts; track item.id) {
             <button class="related-card" type="button" (click)="openProduct(item)">
               <img [src]="item.imageUrl" [alt]="item.title" />
               <span class="related-copy"><strong>{{ item.title }}</strong><small>{{ item.currency }}{{ item.price }} <s>{{ item.currency }}{{ item.mrp }}</s></small></span>

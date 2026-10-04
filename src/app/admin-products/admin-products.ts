@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ProductApiService, ProductDraft, StoreProduct } from '../product-details/product-api.service';
+import { ProductApiService, ProductDraft, ProductReviewSummary, StoreProduct } from '../product-details/product-api.service';
 
 type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string };
 
@@ -52,6 +52,15 @@ export class AdminProducts implements OnInit {
   slug = '';
   editingProduct: AdminProduct | null = null;
   editValues: ProductEditorValues | null = null;
+  reviewProduct: AdminProduct | null = null;
+  reviewSummary: ProductReviewSummary | null = null;
+  reviewName = 'Verified customer';
+  reviewRating = 5;
+  reviewComment = '';
+  reviewImages: File[] = [];
+  reviewBusy = false;
+  reviewError = '';
+  readonly reviewRatings = [1, 2, 3, 4, 5];
 
   get totalProductPages(): number {
     return Math.max(1, Math.ceil(this.products.length / this.productsPerPage));
@@ -165,6 +174,91 @@ export class AdminProducts implements OnInit {
 
   nextProductPage(): void {
     this.productsPage = Math.min(this.totalProductPages, this.productsPage + 1);
+  }
+
+  async openProductReviews(product: AdminProduct): Promise<void> {
+    this.reviewProduct = product;
+    this.reviewSummary = null;
+    this.reviewName = 'Verified customer';
+    this.reviewRating = 5;
+    this.reviewComment = '';
+    this.reviewImages = [];
+    this.reviewError = '';
+    this.reviewBusy = true;
+    try {
+      this.reviewSummary = await this.productApi.listAdminProductReviews(this.username, this.password, product.id);
+    } catch (error) {
+      this.reviewError = error instanceof Error ? error.message : 'Could not load reviews.';
+    } finally {
+      this.reviewBusy = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  closeProductReviews(): void {
+    if (this.reviewBusy) return;
+    this.reviewProduct = null;
+    this.reviewSummary = null;
+    this.reviewError = '';
+  }
+
+  setReviewRating(rating: number): void {
+    this.reviewRating = rating;
+  }
+
+  selectReviewImages(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (files.length + this.reviewImages.length > 5) {
+      this.reviewError = 'Upload up to five images per review.';
+      input.value = '';
+      return;
+    }
+    const invalidFile = files.find((file) => !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024);
+    if (invalidFile) {
+      this.reviewError = 'Choose JPEG, PNG, or WebP images up to 5 MB each.';
+      input.value = '';
+      return;
+    }
+    this.reviewImages = [...this.reviewImages, ...files];
+    this.reviewError = '';
+    input.value = '';
+  }
+
+  removeReviewImage(index: number): void {
+    this.reviewImages = this.reviewImages.filter((_, imageIndex) => imageIndex !== index);
+  }
+
+  formatReviewDate(value: string): string {
+    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+  }
+
+  async saveProductReview(event: SubmitEvent): Promise<void> {
+    event.preventDefault();
+    if (!this.reviewProduct || this.reviewBusy) return;
+    this.reviewBusy = true;
+    this.reviewError = '';
+    try {
+      await this.productApi.createProductReview(
+        this.username,
+        this.password,
+        this.reviewProduct.id,
+        this.reviewRating,
+        this.reviewName.trim(),
+        this.reviewComment.trim(),
+        this.reviewImages,
+      );
+      this.reviewSummary = await this.productApi.listAdminProductReviews(this.username, this.password, this.reviewProduct.id);
+      this.reviewComment = '';
+      this.reviewImages = [];
+      this.reviewRating = 5;
+      this.notice = 'Review added to the product page.';
+    } catch (error) {
+      this.reviewError = error instanceof Error ? error.message : 'Could not save this review.';
+    } finally {
+      this.reviewBusy = false;
+      this.changeDetector.markForCheck();
+    }
   }
 
   async deleteProduct(product: AdminProduct): Promise<void> {

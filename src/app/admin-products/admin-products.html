@@ -77,7 +77,7 @@
             @for (product of paginatedProducts; track product.id) {
               <li>
                 <img [src]="product.imageUrl" [alt]="product.title" />
-                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span><div class="product-actions"><button class="edit-product" type="button" (click)="editProduct(product)" [disabled]="busy || deletingProductId !== null">Edit product</button><button class="delete-product" type="button" (click)="deleteProduct(product)" [disabled]="busy || deletingProductId !== null">{{ deletingProductId === product.id ? 'Deleting…' : 'Delete' }}</button></div></div>
+                <div class="product-summary"><strong>{{ product.title }}</strong><small>/product-details/{{ product.id }}</small><span>{{ product.currency }}{{ product.price }} <i>·</i> {{ product.stockQuantity }} in stock</span><div class="product-actions"><button class="edit-product" type="button" (click)="editProduct(product)" [disabled]="busy || deletingProductId !== null">Edit product</button><button class="delete-product" type="button" (click)="deleteProduct(product)" [disabled]="busy || deletingProductId !== null">{{ deletingProductId === product.id ? 'Deleting…' : 'Delete' }}</button><button class="review-product" type="button" (click)="openProductReviews(product)" [disabled]="busy || deletingProductId !== null">Review</button></div></div>
                 <span class="status-dot" [class.is-inactive]="!product.isActive" [attr.aria-label]="product.isActive ? 'Published' : 'Unpublished'"></span>
               </li>
             }
@@ -91,5 +91,52 @@
         }
       </aside>
     </div>
+
+    @if (reviewProduct) {
+      <div class="review-backdrop" (click)="closeProductReviews()">
+        <section class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="review-dialog-title" (click)="$event.stopPropagation()">
+          <header class="review-dialog-header">
+            <div><p class="kicker">CUSTOMER EXPERIENCE</p><h2 id="review-dialog-title">Reviews · {{ reviewProduct.title }}</h2></div>
+            <button class="review-close" type="button" (click)="closeProductReviews()" [disabled]="reviewBusy" aria-label="Close reviews">×</button>
+          </header>
+
+          @if (reviewSummary) {
+            <div class="review-overview"><strong>{{ reviewSummary.average_rating.toFixed(1) }}</strong><span class="review-overview-stars" aria-label="Average rating">★</span><span>{{ reviewSummary.review_count }} reviews</span></div>
+          }
+
+          <form class="review-entry-form" (submit)="saveProductReview($event)">
+            <label class="review-field">Reviewer name<input name="reviewerName" [value]="reviewName" required maxlength="120" (input)="reviewName = $any($event.currentTarget).value" /></label>
+            <fieldset class="review-rating-field"><legend>Your rating</legend><div class="review-star-picker">
+              @for (star of reviewRatings; track star) {
+                <button type="button" [class.is-active]="star <= reviewRating" [attr.aria-pressed]="reviewRating === star" [attr.aria-label]="star + ' star' + (star === 1 ? '' : 's')" (click)="setReviewRating(star)">★</button>
+              }
+              <span>{{ reviewRating }} / 5</span>
+            </div></fieldset>
+            <label class="review-field">Your review<textarea name="comment" [value]="reviewComment" (input)="reviewComment = $any($event.currentTarget).value" rows="4" maxlength="2000" required placeholder="What did you like or find useful about this product?"></textarea><small>Up to 2,000 characters</small></label>
+            <div class="review-field"><span>Photos</span><label class="review-upload"><input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="selectReviewImages($event)" /><span>＋ Add photos</span><small>Up to 5 images, 5 MB each</small></label>
+              @if (reviewImages.length) {
+                <ul class="selected-review-images">
+                  @for (image of reviewImages; track $index; let i = $index) {
+                    <li><span>{{ image.name }}</span><button type="button" (click)="removeReviewImage(i)" [disabled]="reviewBusy" [attr.aria-label]="'Remove ' + image.name">×</button></li>
+                  }
+                </ul>
+              }
+            </div>
+            @if (reviewError) { <p class="form-error" role="alert">{{ reviewError }}</p> }
+            <div class="review-form-actions"><button type="button" class="cancel-edit" (click)="closeProductReviews()" [disabled]="reviewBusy">Close</button><button type="submit" class="save-button" [disabled]="reviewBusy">{{ reviewBusy ? 'Saving…' : 'Publish review' }} <span>→</span></button></div>
+          </form>
+
+          <div class="admin-review-list">
+            <h3>Published reviews</h3>
+            @if (reviewBusy && !reviewSummary) { <p class="empty-state">Loading reviews…</p> }
+            @else if (reviewSummary?.reviews?.length) {
+              @for (review of reviewSummary!.reviews; track review.id) {
+                <article class="admin-review-item"><div><strong>{{ review.reviewer_name }}</strong><span class="admin-review-rating">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span><time>{{ formatReviewDate(review.created_at) }}</time></div><p>{{ review.comment }}</p><div class="admin-review-images">@for (imageUrl of review.image_urls; track imageUrl) { <img [src]="imageUrl" alt="Review photo" loading="lazy" /> }</div></article>
+              }
+            } @else if (reviewSummary) { <p class="empty-state">No reviews yet. Add the first one above.</p> }
+          </div>
+        </section>
+      </div>
+    }
   }
 </main>

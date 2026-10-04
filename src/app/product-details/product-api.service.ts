@@ -45,6 +45,21 @@ export interface ProductDraft {
   is_active: boolean;
 }
 
+export interface ProductReview {
+  id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  image_urls: string[];
+}
+
+export interface ProductReviewSummary {
+  average_rating: number;
+  review_count: number;
+  reviews: ProductReview[];
+}
+
 interface ProductResponse {
   id: string;
   sku: string;
@@ -136,6 +151,52 @@ export class ProductApiService {
     } finally {
       if (this.productRequests.get(slug) === request) this.productRequests.delete(slug);
     }
+  }
+
+  async getProductReviews(slug: string): Promise<ProductReviewSummary> {
+    const response = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews`);
+    const result = await response.json() as ProductReviewSummary | { detail?: string };
+    if (!response.ok || !('reviews' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
+    }
+    return result;
+  }
+
+  async listAdminProductReviews(username: string, password: string, slug: string): Promise<ProductReviewSummary> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews`, {
+      headers: this.adminHeaders(username, password),
+    });
+    const result = await response.json() as ProductReviewSummary | { detail?: string };
+    if (!response.ok || !('reviews' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
+    }
+    return result;
+  }
+
+  async createProductReview(
+    username: string,
+    password: string,
+    slug: string,
+    rating: number,
+    reviewerName: string,
+    comment: string,
+    images: File[],
+  ): Promise<ProductReview> {
+    const form = new FormData();
+    form.set('rating', String(rating));
+    form.set('reviewer_name', reviewerName);
+    form.set('comment', comment);
+    for (const image of images) form.append('images', image, image.name);
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews`, {
+      method: 'POST',
+      headers: this.adminHeaders(username, password),
+      body: form,
+    });
+    const result = await response.json() as ProductReview | { detail?: string };
+    if (!response.ok || !('rating' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not save this review.' : 'Could not save this review.');
+    }
+    return result;
   }
 
   async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string })[]> {

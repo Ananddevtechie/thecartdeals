@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductApiService, StoreProduct } from './product-api.service';
+import { ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
 
 interface ProductMedia {
   src: string;
@@ -49,6 +49,9 @@ export class ProductDetails implements OnInit {
   product = emptyProduct;
   catalog: StoreProduct[] = [];
   relatedProducts: StoreProduct[] = [];
+  reviewSummary: ProductReviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+  relatedPage = 0;
+  readonly relatedPageSize = 10;
   media: ProductMedia[] = [];
   selectedMedia = 0;
   openFaq = -1;
@@ -65,6 +68,28 @@ export class ProductDetails implements OnInit {
 
   get savings(): number {
     return Math.max(0, this.product.mrp - this.product.price);
+  }
+
+  get visibleRelatedProducts(): StoreProduct[] {
+    const start = this.relatedPage * this.relatedPageSize;
+    return this.relatedProducts.slice(start, start + this.relatedPageSize);
+  }
+
+  get relatedStartNumber(): number {
+    return this.relatedProducts.length ? this.relatedPage * this.relatedPageSize + 1 : 0;
+  }
+
+  get relatedEndNumber(): number {
+    return Math.min((this.relatedPage + 1) * this.relatedPageSize, this.relatedProducts.length);
+  }
+
+  previousRelatedPage(): void {
+    this.relatedPage = Math.max(0, this.relatedPage - 1);
+  }
+
+  nextRelatedPage(): void {
+    const lastPage = Math.max(0, Math.ceil(this.relatedProducts.length / this.relatedPageSize) - 1);
+    this.relatedPage = Math.min(lastPage, this.relatedPage + 1);
   }
 
   selectMedia(index: number): void {
@@ -84,6 +109,15 @@ export class ProductDetails implements OnInit {
     this.openFaq = this.openFaq === index ? -1 : index;
   }
 
+  ratingStars(rating: number): string {
+    const filled = Math.max(0, Math.min(5, Math.round(rating)));
+    return `${'★'.repeat(filled)}${'☆'.repeat(5 - filled)}`;
+  }
+
+  formatReviewDate(value: string): string {
+    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+  }
+
   private async loadProduct(slug: string | null): Promise<void> {
     this.loading = true;
     this.loadError = '';
@@ -99,7 +133,16 @@ export class ProductDetails implements OnInit {
         return;
       }
       this.product = selected;
-      this.relatedProducts = this.catalog.filter((item) => item.id !== selected.id);
+      this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+      try {
+        this.reviewSummary = await this.productApi.getProductReviews(selected.id);
+      } catch {
+        this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+      }
+      this.relatedProducts = this.catalog
+        .filter((item) => item.id !== selected.id)
+        .sort((first, second) => Number(second.category === selected.category) - Number(first.category === selected.category));
+      this.relatedPage = 0;
       this.media = selected.gallery.length
         ? selected.gallery
         : [{ src: selected.imageUrl, alt: selected.title, label: 'Product' }];
