@@ -46,9 +46,8 @@ export interface PaidOrderResult {
   currency: 'INR';
   order_date: string;
   expected_delivery_range: string;
-  email_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
-  email_notification_message: string;
-  notification_recipient: string;
+  notification_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
+  notification_message: string;
 }
 
 export interface PaymentStatusResult extends Omit<PaidOrderResult, 'order_status' | 'payment_status'> {

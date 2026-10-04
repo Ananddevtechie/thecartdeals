@@ -39,9 +39,8 @@ interface CodOrderResult {
   currency: 'INR';
   order_date: string;
   expected_delivery_range: string;
-  email_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
-  email_notification_message: string;
-  notification_recipient: string;
+  notification_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
+  notification_message: string;
 }
 
 @Component({

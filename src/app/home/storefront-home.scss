@@ -24,7 +24,7 @@ a { color: inherit; text-decoration: none; }
 .intro-copy { margin: 46px 117px 0 30px; color: #77817b; font-size: 12px; line-height: 1.8; }
 .intro-mark { position: absolute; top: 16px; right: 52px; color: #f4f6f2; font: 300 240px/.9 Georgia, serif; transform: rotate(-10deg); user-select: none; }
 .catalog { width: min(1320px, calc(100% - 88px)); margin: 0 auto; padding: 44px 0 88px; }
-.catalog-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.catalog-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding-bottom: 8px; }
 .catalog-heading .eyebrow { margin-bottom: 9px; }
 .catalog-heading h2 { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--ink); font: 600 27px/1.2 Georgia, 'Times New Roman', serif; }
 .catalog-heading h2 span { display: grid; min-width: 24px; height: 24px; place-items: center; padding: 0 6px; border-radius: 50%; background: #edf2ed; color: var(--green); font: 700 10px/1 'Avenir Next', Avenir, sans-serif; }
