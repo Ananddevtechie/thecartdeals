@@ -14,6 +14,9 @@
 .back-link:hover { color: #f0c979; }
 .back-link span { font-size: 16px; }
 .checkout-content { width: min(660px, 100%); margin: 56px auto 0; }
+.checkout-loading { min-height: 200px; display: grid; place-items: center; }
+.checkout-loading-spinner { width: 22px; height: 22px; border: 2px solid rgba(240,201,121,.25); border-top-color: #f0c979; border-radius: 50%; animation: checkout-spin .8s linear infinite; }
+@keyframes checkout-spin { to { transform: rotate(360deg); } }
 .checkout-heading { margin-bottom: 25px; text-align: center; }
 .eyebrow, .step-label { color: #f0c979; font-size: 10px; font-weight: 800; letter-spacing: .14em; }
 .eyebrow { display: inline-flex; align-items: center; gap: 9px; }

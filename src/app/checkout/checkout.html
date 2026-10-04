@@ -47,8 +47,10 @@
     </form>
 
     <div class="checkout-reassurance"><span>◉ Cash on Delivery, where available</span><span>↗ Delivery across India</span></div>
+    } @else if (productLoading) {
+      <div class="checkout-loading" role="status" aria-label="Loading checkout"><span class="checkout-loading-spinner" aria-hidden="true"></span></div>
     } @else {
-      <div class="checkout-heading"><span class="eyebrow"><i></i> SECURE CHECKOUT</span><h1 id="checkout-title">Product unavailable</h1><p>{{ productError || 'Loading product details…' }}</p><a class="back-link" routerLink="/product-details">Return to the catalog</a></div>
+      <div class="checkout-heading"><span class="eyebrow"><i></i> SECURE CHECKOUT</span><h1 id="checkout-title">Checkout unavailable</h1><p>{{ productError || 'Could not load this product.' }}</p><a class="back-link" routerLink="/product-details">Return to the catalog</a></div>
     }
   </section>
 </main>

@@ -35,6 +35,7 @@ export class Checkout {
   private readonly productApi = inject(ProductApiService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   product: StoreProduct | null = null;
+  productLoading = true;
   productError = '';
   readonly checkoutDraft = this.readCheckoutDraft();
   readonly indianStates = [
@@ -139,6 +140,7 @@ export class Checkout {
     const productId = this.route.snapshot.queryParamMap.get('product') ?? this.checkoutDraft?.productId ?? '';
     if (!productId) {
       this.productError = 'Choose a product before checking out.';
+      this.productLoading = false;
       this.changeDetector.detectChanges();
       return;
     }
@@ -147,6 +149,7 @@ export class Checkout {
     } catch (error) {
       this.productError = error instanceof Error ? error.message : 'Could not load this product.';
     } finally {
+      this.productLoading = false;
       this.changeDetector.detectChanges();
     }
   }
