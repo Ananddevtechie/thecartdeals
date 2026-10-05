@@ -58,6 +58,8 @@ export class AdminProducts implements OnInit {
   reviewRating = 5;
   reviewComment = '';
   reviewImages: File[] = [];
+  mainImageFile: File | null = null;
+  additionalImageFiles: File[] = [];
   reviewBusy = false;
   reviewError = '';
   readonly reviewRatings = [1, 2, 3, 4, 5];
@@ -134,6 +136,8 @@ export class AdminProducts implements OnInit {
 
   editProduct(product: AdminProduct): void {
     this.editingProduct = product;
+    this.mainImageFile = null;
+    this.additionalImageFiles = [];
     this.slug = product.id;
     this.editValues = {
       title: product.title,
@@ -164,6 +168,8 @@ export class AdminProducts implements OnInit {
     this.editingProduct = null;
     this.editValues = null;
     this.slug = '';
+    this.mainImageFile = null;
+    this.additionalImageFiles = [];
     this.error = '';
     this.notice = '';
   }
@@ -174,6 +180,48 @@ export class AdminProducts implements OnInit {
 
   nextProductPage(): void {
     this.productsPage = Math.min(this.totalProductPages, this.productsPage + 1);
+  }
+
+  selectMainImage(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) return;
+    if (!this.isValidProductImage(file)) {
+      this.mainImageFile = null;
+      this.error = 'Choose a JPEG, PNG, or WebP image up to 5 MB.';
+      input.value = '';
+      return;
+    }
+    this.mainImageFile = file;
+    this.error = '';
+  }
+
+  clearMainImage(input: HTMLInputElement): void {
+    this.mainImageFile = null;
+    input.value = '';
+  }
+
+  selectAdditionalImages(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (this.additionalImageFiles.length + files.length > 10) {
+      this.error = 'Upload no more than ten additional images.';
+      input.value = '';
+      return;
+    }
+    const invalidFile = files.find((file) => !this.isValidProductImage(file));
+    if (invalidFile) {
+      this.error = 'Choose JPEG, PNG, or WebP images up to 5 MB each.';
+      input.value = '';
+      return;
+    }
+    this.additionalImageFiles = [...this.additionalImageFiles, ...files];
+    this.error = '';
+    input.value = '';
+  }
+
+  removeAdditionalImage(index: number): void {
+    this.additionalImageFiles = this.additionalImageFiles.filter((_, fileIndex) => fileIndex !== index);
   }
 
   async openProductReviews(product: AdminProduct): Promise<void> {
@@ -291,12 +339,21 @@ export class AdminProducts implements OnInit {
     this.error = '';
     this.notice = '';
     try {
-      const draft = this.buildDraft(values);
-      if (this.editingProduct) {
-        await this.productApi.updateProduct(this.username, this.password, this.editingProduct.id, draft);
-      } else {
-        await this.productApi.createProduct(this.username, this.password, draft);
+      const mainImageFile = values.get('mainImage') instanceof File && (values.get('mainImage') as File).size > 0
+        ? values.get('mainImage') as File
+        : this.mainImageFile;
+      if (!this.value(values, 'imageUrl') && !mainImageFile) {
+        this.error = 'Enter a main image URL or choose an image file.';
+        return;
       }
+      const draft = this.buildDraft(values);
+      await this.productApi.saveProductWithImages(
+        this.username,
+        this.password,
+        draft,
+        mainImageFile,
+        this.additionalImageFiles,
+      );
       this.products = await this.productApi.listAdminProducts(this.username, this.password);
       const wasEditing = this.editingProduct !== null;
       if (!wasEditing) this.productsPage = 1;
@@ -305,6 +362,8 @@ export class AdminProducts implements OnInit {
       this.editValues = null;
       form.reset();
       this.slug = '';
+      this.mainImageFile = null;
+      this.additionalImageFiles = [];
       this.notice = wasEditing ? 'Product updated.' : 'Product added to the storefront.';
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not save this product.';
@@ -322,7 +381,7 @@ export class AdminProducts implements OnInit {
       alt: `${title} product view ${index + 1}`,
       label: `View ${index + 1}`,
     }));
-    if (!gallery.some((image) => image.src === imageUrl)) {
+    if (imageUrl && !gallery.some((image) => image.src === imageUrl)) {
       gallery.unshift({ src: imageUrl, alt: title, label: 'Product' });
     }
     return {
@@ -365,5 +424,9 @@ export class AdminProducts implements OnInit {
 
   private value(values: FormData, name: string): string {
     return String(values.get(name) ?? '').trim();
+  }
+
+  private isValidProductImage(file: File): boolean {
+    return ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 5 * 1024 * 1024;
   }
 }

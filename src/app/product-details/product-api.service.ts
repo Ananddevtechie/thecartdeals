@@ -259,6 +259,31 @@ export class ProductApiService {
     return this.toStoreProduct(result);
   }
 
+  async saveProductWithImages(
+    username: string,
+    password: string,
+    draft: ProductDraft,
+    mainImage: File | null,
+    additionalImages: File[],
+  ): Promise<StoreProduct> {
+    const form = new FormData();
+    form.set('product_data', JSON.stringify(draft));
+    if (mainImage) form.set('main_image', mainImage, mainImage.name);
+    for (const image of additionalImages) form.append('additional_images', image, image.name);
+
+    const response = await fetch('/api/admin/products/save', {
+      method: 'POST',
+      headers: this.adminHeaders(username, password),
+      body: form,
+    });
+    const result = await response.json() as ProductResponse | { detail?: string };
+    if (!response.ok || !('id' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not save this product.' : 'Could not save this product.');
+    }
+    this.invalidatePublicProductCache();
+    return this.toStoreProduct(result);
+  }
+
   async deleteProduct(username: string, password: string, slug: string): Promise<void> {
     const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}`, {
       method: 'DELETE',

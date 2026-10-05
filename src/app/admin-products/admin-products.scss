@@ -23,6 +23,13 @@ button, input, textarea { font: inherit; }
 .field { min-width: 0; display: flex; flex-direction: column; gap: 6px; color: #4b5b50; font-size: 10px; font-weight: 650; }
 .field input, .field textarea { width: 100%; box-sizing: border-box; min-height: 39px; padding: 9px 10px; border: 1px solid #dbe3dc; border-radius: 5px; outline: none; background: #fff; color: #23362c; font-size: 12px; font-weight: 400; }
 .field textarea { resize: vertical; line-height: 1.5; }
+.field input[type="file"] { min-height: auto; padding: 8px; border-style: dashed; background: #f8faf8; color: #506257; cursor: pointer; }
+.device-images-label { color: #4b5b50; }
+.selected-product-images { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.selected-product-images li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border-radius: 4px; background: #f2f6f2; color: #526357; font-size: 10px; font-weight: 400; }
+.selected-product-images li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selected-product-images button { flex: 0 0 auto; padding: 3px 0; border: 0; background: transparent; color: #a34430; font-size: 9px; font-weight: 650; cursor: pointer; }
+.clear-selected-image { align-self: flex-start; padding: 3px 0; border: 0; background: transparent; color: #a34430; font-size: 9px; font-weight: 650; cursor: pointer; }
 .field input:focus, .field textarea:focus { border-color: #57836b; box-shadow: 0 0 0 3px #e8f0e9; }
 .field input[readonly] { background: #f3f6f2; color: #718075; }
 .field small { color: #8b978d; font-size: 9px; font-weight: 400; }

@@ -38,9 +38,17 @@
             <label class="field">SKU<input name="sku" [value]="editValues?.sku ?? ''" required maxlength="100" /></label>
             <label class="field span-two">Short description<textarea name="description" [value]="editValues?.description ?? ''" rows="3" required></textarea></label>
             <label class="field span-two">Eyebrow / short label<input name="eyebrow" [value]="editValues?.eyebrow ?? ''" maxlength="120" placeholder="A LITTLE BETTER, EVERY DAY" /></label>
-            <label class="field span-two">Main image URL<input name="imageUrl" [value]="editValues?.imageUrl ?? ''" type="url" required placeholder="https://…" /></label>
-            <label class="field span-two">Meesho product link<input name="meeshoUrl" [value]="editValues?.meeshoUrl ?? ''" type="url" placeholder="https://www.meesho.com/…" /></label>
+            <label class="field span-two">Main image URL<input name="imageUrl" [value]="editValues?.imageUrl ?? ''" type="text" inputmode="url" placeholder="https://… (or choose a file below)" /><small>Use a URL or select a file. Selecting a file replaces this URL.</small></label>
+            <div class="field span-two"><label class="device-images-label" for="mainImage">Main image from your device</label><input #mainImageInput id="mainImage" name="mainImage" type="file" accept="image/jpeg,image/png,image/webp" (change)="selectMainImage($event)" /><small>{{ mainImageFile?.name ?? 'JPEG, PNG, or WebP; up to 5 MB.' }}</small>@if (mainImageFile) { <button class="clear-selected-image" type="button" (click)="clearMainImage(mainImageInput)">Remove selected file</button> }</div>
             <label class="field span-two">Additional image URLs<textarea name="gallery" [value]="editValues?.gallery ?? ''" rows="3" placeholder="One https:// image URL per line"></textarea></label>
+            <div class="field span-two"><label class="device-images-label" for="additionalImages">Additional images from your device</label><input id="additionalImages" type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="selectAdditionalImages($event)" /><small>Up to 10 files, 5 MB each. These are added after the image URLs above.</small>
+              @if (additionalImageFiles.length) {
+                <ul class="selected-product-images">
+                  @for (file of additionalImageFiles; track file.name + $index; let i = $index) { <li><span>{{ file.name }}</span><button type="button" (click)="removeAdditionalImage(i)" [attr.aria-label]="'Remove ' + file.name">Remove</button></li> }
+                </ul>
+              }
+            </div>
+            <label class="field span-two">Meesho product link<input name="meeshoUrl" [value]="editValues?.meeshoUrl ?? ''" type="url" placeholder="https://www.meesho.com/…" /></label>
           </div>
 
           <h2>Price and stock</h2>
