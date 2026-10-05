@@ -6,6 +6,8 @@ import { OrderSuccess } from './order-success/order-success';
 import { OnlinePayment } from './online-payment/online-payment';
 import { AdminProducts } from './admin-products/admin-products';
 import { StorefrontHome } from './home/storefront-home';
+import { AdminOrders } from './admin-orders/admin-orders';
+import { OrderTrackingPage } from './order-tracking/order-tracking';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: StorefrontHome, title: 'Shop | TheCart' },
@@ -13,9 +15,12 @@ export const routes: Routes = [
 	{ path: 'product-details/:slug', component: ProductDetails, title: 'Product details | TheCart' },
 	{ path: 'admin/products', component: AdminProducts, title: 'Add products | TheCart Admin' },
 	{ path: 'admin/products/add', component: AdminProducts, title: 'Add a product | TheCart Admin' },
+	{ path: 'admin/orders', component: AdminOrders, title: 'Manage orders | TheCart Admin' },
 	{ path: 'checkout', component: Checkout, title: 'Secure checkout | TheCart' },
 	{ path: 'payment', component: Payment, title: 'Payment | TheCart' },
 	{ path: 'online-payment', component: OnlinePayment, title: 'Online payment | TheCart' },
 	{ path: 'order/success', component: OrderSuccess, title: 'Order placed successfully | TheCart' },
+	{ path: 'track-order', component: OrderTrackingPage, title: 'Track your order | TheCart' },
+	{ path: 'track-order/:orderId', component: OrderTrackingPage, title: 'Track your order | TheCart' },
 	{ path: '**', redirectTo: '' },
 ];

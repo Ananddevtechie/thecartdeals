@@ -1,0 +1,65 @@
+<main class="tracking-page">
+  <header class="tracking-header">
+    <a class="tracking-brand" routerLink="/" aria-label="TheCart home"><img class="brand-mark" src="/app-icon.png" alt="" /><span><strong>TheCart</strong><small>ORDER TRACKING</small></span></a>
+    <a class="shop-link" routerLink="/">Continue shopping <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="tracking-content" aria-live="polite">
+    @if (loading) {
+      <div class="tracking-card loading-card" role="status"><span class="spinner" aria-hidden="true"></span>Loading your tracking details…</div>
+    } @else if (!tracking) {
+      <article class="tracking-card lookup-card">
+        <span class="eyebrow">ORDER TRACKING</span>
+        <h1>Where’s your order?</h1>
+        <p>Enter the order ID from your confirmation page to see the latest delivery updates.</p>
+        <form class="lookup-form" (submit)="findOrder($event)">
+          <label for="track-order-id">Order ID</label>
+          <input id="track-order-id" name="orderId" type="text" [value]="orderIdInput" (input)="setOrderId($event)" placeholder="Example: ORD-A4D848E5DAAF4830" autocomplete="off" required />
+          @if (error) { <p class="lookup-error" role="alert">{{ error }}</p> }
+          <button type="submit">Track my order <span aria-hidden="true">→</span></button>
+        </form>
+      </article>
+    } @else {
+      <div class="tracking-heading">
+        <div><span class="eyebrow">YOUR DELIVERY</span><h1>Track your order</h1><p>Order <strong>#{{ tracking.order_id }}</strong></p></div>
+        <button class="refresh-button" type="button" (click)="loadTracking()" [disabled]="loading">↻ Refresh</button>
+      </div>
+      <article class="tracking-card">
+        <section class="shipment-summary">
+          <div class="shipment-icon" aria-hidden="true">▣</div>
+          <div class="shipment-copy"><span>Current status</span><strong>{{ statusLabel(tracking.delivery_status) }}</strong>
+            @if (tracking.estimated_delivery_date) { <p class="expected-delivery"><span>Expected delivery by</span><strong>{{ formatDate(tracking.estimated_delivery_date) }}</strong></p> }
+            @else if (tracking.delivery_status !== 'DELIVERED' && tracking.delivery_status !== 'CANCELLED') { <small>We’ll show your delivery date when it’s available.</small> }
+          </div>
+          <span class="live-tag">LIVE UPDATES</span>
+        </section>
+
+        @if (tracking.delivery_status === 'CANCELLED') {
+          <div class="cancelled-banner"><strong>Order cancelled</strong><span>Please contact support if you need help with this order.</span>
+            @if (tracking.payment_method === 'UPI') { <span>Cancellation does not automatically issue a payment refund; contact the store for refund assistance.</span> }
+          </div>
+        } @else {
+          <ol class="delivery-timeline" aria-label="Delivery progress">
+            @for (stage of stages; track stage; let i = $index) {
+              <li [class.is-complete]="stageComplete(i)" [class.is-current]="stageCurrent(i)">
+                <span class="stage-marker" aria-hidden="true">{{ stageComplete(i) ? '✓' : i + 1 }}</span>
+                <div class="stage-copy"><strong>{{ statusLabel(stage) }}</strong>
+                  @if (stageDate(stage); as date) { <time>{{ date }}</time> }
+                  @else if (stageCurrent(i)) { <small>We’ll update this as your order moves.</small> }
+                </div>
+              </li>
+            }
+          </ol>
+        }
+
+        <section class="item-summary">
+          <div class="item-icon" aria-hidden="true">▧</div>
+          <div><strong>{{ tracking.product_title }}</strong><small>Qty {{ tracking.quantity }} · {{ tracking.product_sku }}</small></div>
+          <span>{{ tracking.currency }} {{ formattedTotal }}</span>
+        </section>
+        <footer class="tracking-footer"><span>Payment</span><strong>{{ tracking.payment_method === 'UPI' ? 'Paid online' : 'Cash on delivery' }}</strong></footer>
+      </article>
+      <p class="tracking-help">Tracking updates are provided by the store. Check back here for the latest delivery progress.</p>
+    }
+  </section>
+</main>

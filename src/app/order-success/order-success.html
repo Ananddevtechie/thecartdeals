@@ -39,7 +39,12 @@
           <section class="delivery-card"><div class="delivery-heading"><strong>Delivery address</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p><p>{{ delivery.addressLine1 }}, {{ delivery.addressLine2 }}{{ delivery.landmark ? ', near ' + delivery.landmark : '' }}, {{ delivery.city }}, {{ delivery.state }} {{ delivery.pin }}</p></section>
         }
 
-        <div class="success-actions"><button type="button" class="continue-button" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button></div>
+        <div class="success-actions">
+          @if (order.payment_status === 'PAID' || order.payment_method === 'COD') {
+            <button type="button" class="track-order-button" (click)="trackOrder()">Track your order <span aria-hidden="true">→</span></button>
+          }
+          <button type="button" class="continue-button" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button>
+        </div>
       </article>
     }
   </section>

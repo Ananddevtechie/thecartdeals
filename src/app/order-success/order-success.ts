@@ -62,6 +62,11 @@ export class OrderSuccess {
     void this.router.navigateByUrl('/');
   }
 
+  trackOrder(): void {
+    if (!this.order) return;
+    void this.router.navigateByUrl(`/track-order/${encodeURIComponent(this.order.order_id)}`);
+  }
+
   private readConfirmation(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     const historyState = window.history.state as {

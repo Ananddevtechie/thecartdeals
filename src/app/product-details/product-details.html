@@ -22,6 +22,10 @@
       <a href="#support">Support</a>
     </nav>
     <button class="header-order" type="button" (click)="navigateToCheckout()">Order now <span>↗</span></button>
+    <button class="cart-trigger" type="button" (click)="cartOpen = true" [attr.aria-label]="'Open cart, ' + cart.itemCount() + ' items'" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>
+      @if (cart.itemCount()) { <span class="cart-count">{{ cart.itemCount() }}</span> }
+    </button>
   </header>
 
   <main id="top">
@@ -63,7 +67,10 @@
           <p class="offer-footnote">Introductory offer · Price may change</p>
         </div>
 
-        <button class="primary-button hero-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span class="cta-price">{{ product.currency }}{{ product.price }} <b>→</b></span></button>
+        <div class="hero-purchase-actions">
+          <button class="primary-button hero-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span class="cta-price">{{ product.currency }}{{ product.price }} <b>→</b></span></button>
+          <button class="add-cart-button" type="button" (click)="addToCart()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg><span>Add to cart</span></button>
+        </div>
         <div class="checkout-reassurance"><span>⌑ Secure checkout</span><span>◉ COD where available</span><span>↗ India-wide delivery</span></div>
         <a class="message-link" href="https://wa.me/?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer"><span class="message-icon">◔</span> Have a question? Message our team <span class="link-arrow">↗</span></a>
         <div class="stock-note"><span class="stock-indicator"></span>{{ product.stockLabel }} <span>·</span> Ships across India</div>
@@ -131,7 +138,7 @@
     <section class="final-offer">
       <div class="section-wrap final-offer-inner">
         <div class="final-offer-copy"><span class="section-kicker">YOUR EVERYDAY, UPGRADED</span><h2>Ready for a little<br /><em>more ease?</em></h2><p>A thoughtful everyday pick, at a thoughtful price.</p></div>
-        <div class="final-offer-card"><div class="final-price"><span>MRP <s>{{ product.currency }}{{ product.mrp }}</s></span><strong>{{ product.currency }}{{ product.price }} <small>TODAY</small></strong><span class="save-pill">SAVE {{ product.currency }}{{ savings }}</span></div><p class="final-limited"><span>✳</span> Introductory offer · Price may change</p><button class="primary-button final-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button><div class="final-perks"><span>◉ COD where available</span><span>↗ India-wide delivery</span><span>⌑ Secure checkout</span></div></div>
+        <div class="final-offer-card"><div class="final-price"><span>MRP <s>{{ product.currency }}{{ product.mrp }}</s></span><strong>{{ product.currency }}{{ product.price }} <small>TODAY</small></strong><span class="save-pill">SAVE {{ product.currency }}{{ savings }}</span></div><p class="final-limited"><span>✳</span> Introductory offer · Price may change</p><div class="final-purchase-actions"><button class="primary-button final-cta" type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button><button class="add-cart-button final-add-cart" type="button" (click)="addToCart()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg><span>Add to cart</span></button></div><div class="final-perks"><span>◉ COD where available</span><span>↗ India-wide delivery</span><span>⌑ Secure checkout</span></div></div>
       </div>
     </section>
 
@@ -174,6 +181,29 @@
     <div class="section-wrap footer-bottom"><span>© {{ product.title }} · TheCart</span><span>Thoughtfully picked. Happily used.</span></div>
   </footer>
 
-  <div class="mobile-sticky-cta"><div class="sticky-price"><strong>{{ product.currency }}{{ product.price }}</strong><small>TODAY</small></div><button type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button></div>
+  <div class="mobile-sticky-cta"><div class="sticky-price"><strong>{{ product.currency }}{{ product.price }}</strong><small>TODAY</small></div><button class="sticky-add-cart" type="button" (click)="addToCart()" aria-label="Add to cart"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg></button><button type="button" (click)="navigateToCheckout()"><span>Order now</span><span>→</span></button></div>
   }
 </div>
+
+@if (cartOpen) {
+  <div class="cart-backdrop" (click)="closeCart()">
+    <section class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" (click)="$event.stopPropagation()">
+      <header class="cart-heading"><div><span class="eyebrow">YOUR PICKS</span><h2 id="cart-title">Shopping cart <small>{{ cart.itemCount() }}</small></h2></div><button class="cart-close" type="button" (click)="closeCart()" aria-label="Close cart">×</button></header>
+      @if (cart.storageError()) { <p class="cart-storage-warning" role="alert">{{ cart.storageError() }}</p> }
+      @if (cart.items().length) {
+        <ul class="cart-items">
+          @for (item of cart.items(); track item.productId) {
+            <li class="cart-item">
+              <img [src]="item.imageUrl" [alt]="item.title" />
+              <div class="cart-item-copy"><strong>{{ item.title }}</strong><span>{{ item.currency }}{{ item.price }}</span><div class="cart-quantity"><button type="button" (click)="changeCartQuantity(item, -1)" [disabled]="item.quantity <= 1" [attr.aria-label]="'Decrease quantity of ' + item.title">−</button><span>{{ item.quantity }}</span><button type="button" (click)="changeCartQuantity(item, 1)" [disabled]="item.quantity >= 10" [attr.aria-label]="'Increase quantity of ' + item.title">+</button></div><button class="cart-remove" type="button" (click)="cart.remove(item.productId)">Remove</button></div>
+              <button class="cart-buy" type="button" (click)="checkoutCartItem(item)">Buy this item <span aria-hidden="true">→</span></button>
+            </li>
+          }
+        </ul>
+        <p class="cart-note">Items are checked out individually. Delivery and final pricing are confirmed at checkout.</p>
+      } @else {
+        <div class="cart-empty"><span aria-hidden="true">♡</span><strong>Your cart is waiting</strong><p>Add something you love and it’ll show up here.</p><button type="button" (click)="closeCart()">Continue shopping</button></div>
+      }
+    </section>
+  </div>
+}

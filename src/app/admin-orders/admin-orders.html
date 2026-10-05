@@ -1,0 +1,82 @@
+<main class="orders-shell">
+  <header class="orders-header">
+    <a class="orders-brand" routerLink="/admin/products/add" aria-label="TheCart catalog admin">
+      <img class="brand-mark" src="/app-icon.png" alt="" />
+      <span><strong>TheCart</strong><small>ORDER MANAGEMENT</small></span>
+    </a>
+    <nav aria-label="Admin navigation">
+      <a routerLink="/admin/products/add">Product catalog</a>
+      <a routerLink="/">View storefront <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <section class="orders-intro">
+    <div><p class="kicker">FULFILMENT</p><h1>Manage orders</h1></div>
+    <button type="button" class="refresh-button" (click)="loadOrders()" [disabled]="loading">↻ Refresh orders</button>
+  </section>
+  <p class="intro-copy">Update delivery progress and the expected delivery date. Customers can follow each update from their order page.</p>
+
+  @if (error) { <p class="message-error" role="alert">{{ error }}</p> }
+  @if (notice) { <p class="message-success" role="status">{{ notice }}</p> }
+
+  <div class="orders-layout">
+    <section class="orders-list-panel" aria-labelledby="orders-list-title">
+      <header class="panel-heading"><div><p class="kicker">RECENT ACTIVITY</p><h2 id="orders-list-title">All orders</h2></div><span>{{ orders.length }}</span></header>
+      @if (loading) {
+        <p class="empty-state" role="status">Loading orders…</p>
+      } @else if (orders.length) {
+        <ul class="orders-list">
+          @for (order of orders; track order.order_id) {
+            <li>
+              <button class="order-row" type="button" [class.is-selected]="selectedOrder?.order_id === order.order_id" (click)="selectOrder(order)">
+                <span class="order-row-main"><strong>{{ order.customer_name }}</strong><small>#{{ order.order_id }} · {{ formatDate(order.order_date) }}</small><span>{{ order.product_title }} × {{ order.quantity }}</span></span>
+                <span class="order-row-side"><b [class.payment-pending]="!canUpdate(order)">{{ paymentLabel(order) }}</b><small>{{ order.currency }} {{ order.total }}</small></span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="empty-state">No orders have been placed yet.</p>
+      }
+    </section>
+
+    <section class="order-detail-panel" aria-labelledby="order-detail-title">
+      @if (selectedOrder; as order) {
+        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2></div><span class="payment-pill" [class.payment-pill-pending]="!canUpdate(order)">{{ order.payment_method === 'UPI' ? 'Online payment' : 'Cash on delivery' }} · {{ order.payment_status }}</span></header>
+        <div class="customer-block"><strong>{{ order.customer_name }}</strong><a [href]="'tel:' + order.customer_mobile">{{ order.customer_mobile }}</a><p>{{ formatAddress(order) }}</p></div>
+        <div class="product-block"><div><strong>{{ order.product_title }}</strong><small>SKU {{ order.product_sku }} · Qty {{ order.quantity }}</small></div><strong>{{ order.currency }} {{ order.total }}</strong></div>
+
+        @if (canUpdate(order)) {
+          <form class="tracking-form" (submit)="$event.preventDefault(); saveTracking()">
+            <label class="field">Current delivery status
+              <select [value]="selectedStatus" (change)="setStatus($event)" [disabled]="saving" required>
+                @for (stage of stages; track stage) { <option [value]="stage">{{ statusLabel(stage) }}</option> }
+              </select>
+            </label>
+            <label class="field">Estimated delivery date
+              <input type="date" [value]="deliveryDate" (input)="setDeliveryDate($event)" [disabled]="saving" />
+            </label>
+            <button class="save-button" type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save tracking update' }} <span aria-hidden="true">→</span></button>
+          </form>
+        } @else {
+          <p class="payment-warning">Delivery updates are enabled after payment is confirmed or a COD order is placed.</p>
+        }
+
+        <section class="history" aria-labelledby="history-title">
+          <h3 id="history-title">Tracking update history</h3>
+          @if (order.tracking_events.length) {
+            <ol>
+              @for (event of order.tracking_events; track event.created_at + event.status) {
+                <li><span class="history-dot" aria-hidden="true"></span><div><strong>{{ statusLabel(event.status) }}</strong><time>{{ formatDate(event.created_at) }}</time>@if (event.estimated_delivery_date) { <small>Estimated delivery {{ formatDate(event.estimated_delivery_date) }}</small> }</div></li>
+              }
+            </ol>
+          } @else {
+            <p class="empty-state">Tracking history will appear once this order is confirmed.</p>
+          }
+        </section>
+      } @else {
+        <div class="detail-empty"><span aria-hidden="true">↖</span><strong>Select an order</strong><p>Order, delivery and customer details will appear here.</p></div>
+      }
+    </section>
+  </div>
+</main>

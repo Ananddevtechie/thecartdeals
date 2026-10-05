@@ -9,6 +9,7 @@ button, input, textarea { font: inherit; }
 .admin-brand small, .kicker { color: #778579; font-size: 9px; font-weight: 750; letter-spacing: .12em; }
 .store-link { color: #315e4d; text-decoration: none; font-size: 12px; font-weight: 650; }
 .store-link span { margin-left: 8px; }
+.admin-nav { display: flex; align-items: center; gap: 22px; }
 .page-intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 39px 0 24px; }
 .page-intro h1, .access-panel h1 { margin: 7px 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 34px; font-weight: 500; }
 .page-intro > p, .intro { max-width: 360px; margin: 0; color: #718075; font-size: 12px; line-height: 1.7; }
@@ -75,6 +76,7 @@ button, input, textarea { font: inherit; }
   .admin-shell { width: calc(100% - 30px); }
   .page-intro { align-items: start; flex-direction: column; padding-top: 28px; }
   .page-intro h1, .access-panel h1 { font-size: 29px; }
+  .admin-nav { gap: 12px; }
   .admin-layout { grid-template-columns: 1fr; gap: 16px; }
   .product-form { padding: 19px 15px; }
   .catalog-panel { position: static; }

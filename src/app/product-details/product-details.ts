@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ShoppingCartService, ShoppingCartItem } from '../cart/shopping-cart.service';
 import { ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
 
 interface ProductMedia {
@@ -41,6 +42,7 @@ const emptyProduct: StoreProduct = {
 export class ProductDetails implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  readonly cart = inject(ShoppingCartService);
   private readonly productApi = inject(ProductApiService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
@@ -58,6 +60,7 @@ export class ProductDetails implements OnInit {
   zoomed = false;
   loading = true;
   loadError = '';
+  cartOpen = false;
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -99,6 +102,26 @@ export class ProductDetails implements OnInit {
 
   navigateToCheckout(): void {
     void this.router.navigate(['/checkout'], { queryParams: { product: this.product.id } });
+  }
+
+  addToCart(): void {
+    this.cart.add(this.product);
+    this.cartOpen = true;
+  }
+
+  closeCart(): void {
+    this.cartOpen = false;
+  }
+
+  changeCartQuantity(item: ShoppingCartItem, amount: number): void {
+    this.cart.setQuantity(item.productId, item.quantity + amount);
+  }
+
+  checkoutCartItem(item: ShoppingCartItem): void {
+    void this.router.navigate(['/checkout'], {
+      queryParams: { product: item.productId },
+      state: { checkout: { productId: item.productId, quantity: item.quantity } },
+    });
   }
 
   openProduct(product: StoreProduct): void {
