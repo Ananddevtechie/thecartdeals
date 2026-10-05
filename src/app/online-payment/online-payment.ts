@@ -147,9 +147,17 @@ export class OnlinePayment implements OnDestroy {
           email: orderResult.customer_email ?? undefined,
         },
         theme: { color: '#2d6a4f' },
-        modal: { ondismiss: () => this.watchPaymentStatus(orderResult.order_id) },
+        modal: {
+          ondismiss: () => this.watchPaymentStatus(
+            orderResult.order_id,
+            'Checkout was closed. We are checking whether the payment completed.',
+          ),
+        },
       });
-      checkout.on('payment.failed', () => this.watchPaymentStatus(orderResult.order_id));
+      checkout.on('payment.failed', () => this.watchPaymentStatus(
+        orderResult.order_id,
+        'Razorpay reported that the payment failed. Please try again.',
+      ));
       checkout.open();
     } catch (error) {
       this.notice.set(error instanceof Error ? error.message : 'We could not start your payment. Please try again.');
@@ -209,10 +217,10 @@ export class OnlinePayment implements OnDestroy {
     }
   }
 
-  private watchPaymentStatus(orderId: string): void {
+  private watchPaymentStatus(orderId: string, message = ''): void {
     this.activeOrderId.set(orderId);
     this.screen.set('pending');
-    this.notice.set('');
+    this.notice.set(message);
     if (this.statusTimer) clearTimeout(this.statusTimer);
     if (isPlatformBrowser(this.platformId) && !window.location.search.includes(encodeURIComponent(orderId))) {
       void this.router.navigateByUrl(`/online-payment?orderId=${encodeURIComponent(orderId)}`, {

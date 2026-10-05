@@ -77,6 +77,7 @@
         <span class="eyebrow">PAYMENT STATUS</span>
         <h1 id="online-payment-title">Payment Failed</h1>
         <p>We couldn't complete your payment. No amount should be considered paid until the payment is successfully verified.</p>
+        @if (notice()) { <div class="payment-notice" role="alert">{{ notice() }}</div> }
         <button class="primary-action" type="button" (click)="tryAgain()">Try Again <span aria-hidden="true">→</span></button>
         <button class="secondary-action" type="button" (click)="tryAgain()">Change Payment Method</button>
         <button class="text-action" type="button" (click)="backToCheckout()">Back to Checkout</button>
