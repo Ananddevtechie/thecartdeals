@@ -19,7 +19,7 @@
     <nav class="header-links" aria-label="Page navigation">
       <a href="#reviews">Reviews</a>
       <a href="#faq">FAQ</a>
-      <a href="#support">Support</a>
+      <a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Support</a>
     </nav>
     <button class="header-order" type="button" (click)="navigateToCheckout()">Order now <span>↗</span></button>
     <button class="cart-trigger" type="button" (click)="cartOpen = true" [attr.aria-label]="'Open cart, ' + cart.itemCount() + ' items'" aria-haspopup="dialog">
@@ -54,7 +54,7 @@
         <h1 id="product-title">{{ product.title }}<span>.</span></h1>
         <p class="hero-description">{{ product.description }}</p>
 
-        <div class="rating-line" id="reviews">
+        <div class="rating-line">
           <span class="rating-stars" aria-label="No reviews yet">☆☆☆☆☆</span>
           <span class="rating-copy">Be the first to review</span>
           <span class="rating-divider"></span>
@@ -114,7 +114,7 @@
       </div>
     </section>
 
-    <section class="reviews-section section-wrap">
+    <section class="reviews-section section-wrap" id="reviews">
       <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Real experiences with this product.</p></div><div class="reviews-count"><strong>{{ reviewSummary.review_count ? reviewSummary.average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary.review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span> }<span>{{ reviewSummary.review_count }} REVIEWS</span></div></div>
       @if (reviewSummary.review_count) {
         <div class="customer-reviews">
@@ -143,7 +143,7 @@
     </section>
 
     <section class="faq-section section-wrap" id="faq">
-      <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="#support">Talk to our team <span>↗</span></a></div>
+      <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Talk to our team <span>↗</span></a></div>
       <div class="faq-list">
         @for (faq of product.faqs; track faq.question; let i = $index) {
           <article class="faq-item" [class.is-open]="openFaq === i"><button type="button" class="faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="openFaq === i"><span>{{ faq.question }}</span><span class="faq-toggle">{{ openFaq === i ? '−' : '+' }}</span></button>@if (openFaq === i) { <p class="faq-answer">{{ faq.answer }}</p> }</article>
@@ -177,7 +177,7 @@
   </main>
 
   <footer class="site-footer" id="support">
-    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="#support">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/" target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
+    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
     <div class="section-wrap footer-bottom"><span>© {{ product.title }} · TheCart</span><span>Thoughtfully picked. Happily used.</span></div>
   </footer>
 
