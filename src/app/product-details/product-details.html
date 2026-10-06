@@ -17,9 +17,9 @@
       <span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
     </a>
     <nav class="header-links" aria-label="Page navigation">
-      <a href="#reviews">Reviews</a>
-      <a href="#faq">FAQ</a>
-      <a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Support</a>
+      <a [href]="'/product-details/' + product.id + '#reviews'" (click)="navigateToReviews($event)">Reviews</a>
+      <a [href]="'/product-details/' + product.id + '#faq'" (click)="navigateToFaq($event)">FAQ</a>
+      <a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Support</a>
     </nav>
     <button class="header-order" type="button" (click)="navigateToCheckout()">Order now <span>↗</span></button>
     <button class="cart-trigger" type="button" (click)="cartOpen = true" [attr.aria-label]="'Open cart, ' + cart.itemCount() + ' items'" aria-haspopup="dialog">
@@ -55,8 +55,10 @@
         <p class="hero-description">{{ product.description }}</p>
 
         <div class="rating-line">
-          <span class="rating-stars" aria-label="No reviews yet">☆☆☆☆☆</span>
-          <span class="rating-copy">Be the first to review</span>
+          <span class="rating-stars" [attr.aria-label]="reviewSummary.review_count ? reviewSummary.average_rating + ' out of 5 stars' : 'No reviews yet'">{{ reviewSummary.review_count ? ratingStars(reviewSummary.average_rating) : '☆☆☆☆☆' }}</span>
+          @if (reviewSummary.review_count) {
+            <span class="rating-copy">{{ reviewSummary.average_rating.toFixed(1) }}</span>
+          }
           <span class="rating-divider"></span>
           <span class="rating-proof">Thoughtfully picked for you</span>
         </div>
@@ -72,7 +74,7 @@
           <button class="add-cart-button" type="button" (click)="addToCart()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg><span>Add to cart</span></button>
         </div>
         <div class="checkout-reassurance"><span>⌑ Secure checkout</span><span>◉ COD where available</span><span>↗ India-wide delivery</span></div>
-        <a class="message-link" href="https://wa.me/?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer"><span class="message-icon">◔</span> Have a question? Message our team <span class="link-arrow">↗</span></a>
+        <a class="message-link" href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer"><span class="message-icon">◔</span> Have a question? Message our team <span class="link-arrow">↗</span></a>
         <div class="stock-note"><span class="stock-indicator"></span>{{ product.stockLabel }} <span>·</span> Ships across India</div>
       </div>
     </section>
@@ -143,7 +145,7 @@
     </section>
 
     <section class="faq-section section-wrap" id="faq">
-      <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Talk to our team <span>↗</span></a></div>
+      <div class="faq-intro"><span class="section-kicker">GOOD TO KNOW</span><h2>Questions,<br /><em>answered.</em></h2><p>Still wondering? Our support team is happy to help.</p><a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Talk to our team <span>↗</span></a></div>
       <div class="faq-list">
         @for (faq of product.faqs; track faq.question; let i = $index) {
           <article class="faq-item" [class.is-open]="openFaq === i"><button type="button" class="faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="openFaq === i"><span>{{ faq.question }}</span><span class="faq-toggle">{{ openFaq === i ? '−' : '+' }}</span></button>@if (openFaq === i) { <p class="faq-answer">{{ faq.answer }}</p> }</article>
@@ -177,7 +179,7 @@
   </main>
 
   <footer class="site-footer" id="support">
-    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/918590786095" target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
+    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
     <div class="section-wrap footer-bottom"><span>© {{ product.title }} · TheCart</span><span>Thoughtfully picked. Happily used.</span></div>
   </footer>
 

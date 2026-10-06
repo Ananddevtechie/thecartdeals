@@ -104,6 +104,20 @@ export class ProductDetails implements OnInit {
     void this.router.navigate(['/checkout'], { queryParams: { product: this.product.id } });
   }
 
+  navigateToReviews(event: MouseEvent): void {
+    this.navigateToSection(event, 'reviews');
+  }
+
+  navigateToFaq(event: MouseEvent): void {
+    this.navigateToSection(event, 'faq');
+  }
+
+  private navigateToSection(event: MouseEvent, section: 'reviews' | 'faq'): void {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    void this.router.navigateByUrl(`/product-details/${encodeURIComponent(this.product.id)}#${section}`);
+  }
+
   addToCart(): void {
     this.cart.add(this.product);
     this.cartOpen = true;
@@ -155,10 +169,10 @@ export class ProductDetails implements OnInit {
         this.loadError = 'This product could not be found.';
         return;
       }
-      this.product = selected;
+      this.product = await this.productApi.getProduct(selected.id);
       this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
       try {
-        this.reviewSummary = await this.productApi.getProductReviews(selected.id);
+        this.reviewSummary = await this.productApi.getProductReviews(this.product.id);
       } catch {
         this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
       }

@@ -45,7 +45,7 @@ describe('App', () => {
   it('should provide a WhatsApp link to the seller on every route', async () => {
     const fixture = TestBed.createComponent(App);
     const whatsappLink = fixture.nativeElement.querySelector('.whatsapp-link') as HTMLAnchorElement;
-    expect(whatsappLink.href).toBe('https://wa.me/918590786095');
+    expect(whatsappLink.href).toBe('https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product.');
     expect(whatsappLink.target).toBe('_blank');
   });
 
