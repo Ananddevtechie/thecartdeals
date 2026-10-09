@@ -44,12 +44,7 @@
         </div>
         <div class="cancel-order-area">
           @if (canCancelOrder) {
-            <button type="button" class="cancel-order-button" (click)="cancelOrder()" [disabled]="isCancelling">
-              {{ isCancelling ? 'Cancelling…' : 'Cancel order' }}
-            </button>
-          }
-          @if (cancelMessage) {
-            <p class="cancel-order-message" [class.cancel-order-error]="cancelFailed" role="status" aria-live="polite">{{ cancelMessage }}</p>
+            <button type="button" class="cancel-order-button" (click)="reviewCancellation()">Cancel order</button>
           }
         </div>
       </article>

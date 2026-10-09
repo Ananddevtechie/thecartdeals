@@ -45,9 +45,6 @@ export class OrderSuccess {
   order: OrderConfirmation | null = null;
   delivery: DeliverySummary | null = null;
   stateResolved = false;
-  isCancelling = false;
-  cancelMessage = '';
-  cancelFailed = false;
 
   constructor() {
     afterNextRender(() => {
@@ -67,33 +64,12 @@ export class OrderSuccess {
       && Boolean(this.delivery?.mobile);
   }
 
-  async cancelOrder(): Promise<void> {
-    if (!this.order || !this.delivery?.mobile || this.isCancelling) return;
-    if (!window.confirm('Cancel this COD order? This cannot be undone.')) return;
-
-    this.isCancelling = true;
-    this.cancelMessage = '';
-    this.cancelFailed = false;
-    try {
-      const response = await fetch(`/api/orders/${encodeURIComponent(this.order.order_id)}/cancel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile: this.delivery.mobile }),
-      });
-      const result = await response.json() as { order_status?: string; detail?: string };
-      if (!response.ok || result.order_status !== 'CANCELLED') {
-        throw new Error(result.detail ?? 'We could not cancel this order. Please try again.');
-      }
-      this.order.order_status = 'CANCELLED';
-      this.cancelMessage = 'Your order has been cancelled.';
-    } catch (error) {
-      this.cancelFailed = true;
-      this.cancelMessage = error instanceof Error
-        ? error.message
-        : 'We could not cancel this order. Please try again.';
-    } finally {
-      this.isCancelling = false;
-    }
+  reviewCancellation(): void {
+    if (!this.order || !this.delivery?.mobile) return;
+    void this.router.navigateByUrl(
+      `/order/cancel-review/${encodeURIComponent(this.order.order_id)}`,
+      { state: { order: this.order, checkout: this.delivery } },
+    );
   }
 
   continueShopping(): void {

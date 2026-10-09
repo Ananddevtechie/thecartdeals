@@ -1,0 +1,101 @@
+<main class="cancel-review-page">
+  <header class="cancel-review-header">
+    <a class="cancel-review-brand" routerLink="/" aria-label="TheCart home">
+      <img src="/app-icon.png" alt="" />
+      <span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
+    </a>
+    <span class="secure-label">Secure checkout</span>
+  </header>
+
+  <section class="cancel-review-content" aria-live="polite">
+    @if (!stateResolved) {
+      <article class="review-panel" role="status"><span class="review-spinner" aria-hidden="true"></span>Loading order details…</article>
+    } @else if (!order || !checkout?.mobile) {
+      <article class="review-panel" role="alert">
+        <span class="review-eyebrow">ORDER CANCELLATION</span>
+        <h1>Order details unavailable</h1>
+        <p>Return to your order confirmation to review cancellation options.</p>
+        <a class="primary-action" routerLink="/">Continue shopping</a>
+      </article>
+    } @else if (order.order_status === 'CANCELLED') {
+      <article class="review-panel" role="status">
+        <span class="review-eyebrow">ORDER {{ order.order_id }}</span>
+        <h1>Your order has been cancelled</h1>
+        <p>The cancellation is confirmed. You can continue browsing the store.</p>
+        <a class="primary-action" routerLink="/">Continue shopping</a>
+      </article>
+    } @else {
+      <article class="review-panel">
+        <span class="review-eyebrow">ORDER {{ order.order_id }}</span>
+        <h1>Before you cancel</h1>
+        <p class="order-summary">Your order for <strong>{{ order.product_title }}</strong> is confirmed.</p>
+
+        <section class="customer-review-proof" aria-labelledby="customer-review-title">
+          <div class="customer-review-heading">
+            <div>
+              <span class="review-proof-eyebrow">CUSTOMER REVIEWS</span>
+              <h2 id="customer-review-title">What customers say</h2>
+            </div>
+            @if (reviewSummary?.review_count) {
+              <div class="review-average">
+                <strong>{{ reviewSummary.average_rating.toFixed(1) }}</strong>
+                <span class="review-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span>
+                <small>{{ reviewSummary.review_count }} reviews</small>
+              </div>
+            }
+          </div>
+
+          @if (reviewsLoading) {
+            <p class="review-state" role="status">Loading customer reviews…</p>
+          } @else if (reviewsUnavailable) {
+            <p class="review-state">Customer reviews aren’t available right now.</p>
+          } @else if (!reviewSummary?.review_count) {
+            <p class="review-state">No customer reviews yet.</p>
+          } @else {
+            <div class="customer-review-list">
+              @for (review of visibleReviews; track review.id) {
+                <article class="customer-review-item">
+                  <header>
+                    <strong>{{ review.reviewer_name }}</strong>
+                    <span class="review-stars" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span>
+                    <time [attr.datetime]="review.created_at">{{ formatReviewDate(review.created_at) }}</time>
+                  </header>
+                  <p>{{ review.comment }}</p>
+                  @if (review.image_urls.length) {
+                    <div class="customer-review-photos" aria-label="Customer photos">
+                      @for (imageUrl of review.image_urls; track imageUrl) {
+                        <a [href]="imageUrl" target="_blank" rel="noopener noreferrer">
+                          <img [src]="imageUrl" alt="Photo shared by {{ review.reviewer_name }}" loading="lazy" />
+                        </a>
+                      }
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <p class="cancel-disclosure">If you cancel, this order will end. You can place a new order later, subject to availability.</p>
+        @if (cancelError) { <p class="cancel-error" role="alert">{{ cancelError }}</p> }
+
+        <div class="review-actions">
+          <button class="primary-action" type="button" (click)="keepOrder()" [disabled]="isCancelling || cancelSuccessVisible">Keep my order</button>
+          <button class="confirm-cancel-action" type="button" (click)="confirmCancellation()" [disabled]="isCancelling || cancelSuccessVisible">
+            {{ isCancelling ? 'Cancelling…' : 'Confirm cancellation' }}
+          </button>
+        </div>
+      </article>
+    }
+  </section>
+  @if (cancelSuccessVisible) {
+    <div class="cancel-success-backdrop" role="presentation">
+      <section class="cancel-success-popup" role="status" aria-live="assertive" aria-atomic="true">
+        <span class="cancel-success-mark" aria-hidden="true">✓</span>
+        <span class="cancel-success-label">ORDER CANCELLED</span>
+        <h2>Cancelled successfully</h2>
+        <p>Taking you back to the home page…</p>
+      </section>
+    </div>
+  }
+</main>
