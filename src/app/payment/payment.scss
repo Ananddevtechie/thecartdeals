@@ -166,7 +166,9 @@
   .summary-column { display: flex; flex-direction: column; gap: 11px; margin-top: 19px; }
   .summary-card-body { padding: 16px; }
   .payment-footer { gap: 9px; margin-top: 20px; padding-top: 16px; }
-  .payment-footer .trust-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 8px; }
+  .payment-footer .trust-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 7px; }
+  .payment-footer .trust-row span { gap: 4px; white-space: nowrap; }
+  .payment-footer .trust-row i { font-size: 11px; }
   .payment-cta { width: 100%; min-width: 0; min-height: 48px; justify-self: stretch; font-size: 10px; }
   .provider-note { width: 100%; justify-self: stretch; font-size: 8px; }
   .cod-consent { font-size: 8px; }
@@ -188,6 +190,9 @@
   .method-card { grid-template-columns: 17px minmax(0,1fr) 25px; gap: 8px; padding: 13px 10px; }
   .method-title { font-size: 11px; }
   .coming-tag { font-size: 5px; }
+  .payment-footer .trust-row { gap: 3px; font-size: 6px; }
+  .payment-footer .trust-row span { gap: 3px; }
+  .payment-footer .trust-row i { font-size: 10px; }
   .mobile-payment-bar { padding-right: 11px; padding-left: 11px; }
   .mobile-payment-bar button { padding: 0 9px; font-size: 8px; }
 }
