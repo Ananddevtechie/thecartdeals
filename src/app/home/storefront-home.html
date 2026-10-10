@@ -8,7 +8,7 @@
   </header>
 
   <main>
-    <section class="shop-intro" aria-labelledby="shop-title">
+    <section class="shop-intro" id="about-us" aria-labelledby="shop-title">
       <div><p class="eyebrow">THECART</p><h1 id="shop-title">Find your next<br /><em>everyday favourite.</em></h1></div>
       <p class="intro-copy">Useful little upgrades, picked for the way you live.<br />Browse the collection and find something worth keeping.</p>
       <span class="intro-mark" aria-hidden="true">T</span>
@@ -79,5 +79,67 @@
       </div>
     </section>
   </main>
-  <footer class="shop-footer"><a class="footer-brand" routerLink="/">TheCart</a><span>Everyday, a little better.</span></footer>
+  <footer class="shop-footer" aria-label="Store information">
+    <div class="footer-main">
+      <div class="footer-intro">
+        <a class="footer-brand" routerLink="/" aria-label="TheCart home"><img src="/app-icon.png" alt="" /><span>TheCart</span></a>
+        <p>Everyday finds, thoughtfully picked.</p>
+      </div>
+
+      <nav class="footer-columns" aria-label="Footer navigation">
+        <section class="footer-column" [class.is-expanded]="footerExpanded.customerService">
+          <h3>Customer Service</h3>
+          <button class="footer-column-toggle" type="button" aria-controls="footer-customer-service" [attr.aria-expanded]="footerExpanded.customerService" (click)="toggleFooterSection('customerService')">Customer Service <span aria-hidden="true">{{ footerExpanded.customerService ? '−' : '+' }}</span></button>
+          <div class="footer-links" id="footer-customer-service">
+            <a [href]="supportLink('help with my order')" target="_blank" rel="noopener noreferrer">Contact Us</a>
+            <a href="/product-details#faq">FAQs</a>
+            <a routerLink="/track-order">Track My Order</a>
+            <a [href]="supportLink('Shipping & Delivery Policy')" target="_blank" rel="noopener noreferrer">Shipping &amp; Delivery Policy</a>
+            <a [href]="supportLink('Return & Refund Policy')" target="_blank" rel="noopener noreferrer">Return &amp; Refund Policy</a>
+            <a [href]="supportLink('Cancellation Policy')" target="_blank" rel="noopener noreferrer">Cancellation Policy</a>
+          </div>
+        </section>
+
+        <section class="footer-column" [class.is-expanded]="footerExpanded.aboutUs">
+          <h3>About Us</h3>
+          <button class="footer-column-toggle" type="button" aria-controls="footer-about-us" [attr.aria-expanded]="footerExpanded.aboutUs" (click)="toggleFooterSection('aboutUs')">About Us <span aria-hidden="true">{{ footerExpanded.aboutUs ? '−' : '+' }}</span></button>
+          <div class="footer-links" id="footer-about-us">
+            <a href="#about-us">About Us</a>
+            <a href="#about-us">Our Story</a>
+            <a href="#catalog">Shop All Products</a>
+            <a href="#catalog" (click)="showCategories()">All Categories</a>
+            <a href="/product-details#reviews">Customer Reviews</a>
+          </div>
+        </section>
+
+        <section class="footer-column" [class.is-expanded]="footerExpanded.policies">
+          <h3>Policies</h3>
+          <button class="footer-column-toggle" type="button" aria-controls="footer-policies" [attr.aria-expanded]="footerExpanded.policies" (click)="toggleFooterSection('policies')">Policies <span aria-hidden="true">{{ footerExpanded.policies ? '−' : '+' }}</span></button>
+          <div class="footer-links" id="footer-policies">
+            <a [href]="supportLink('Privacy Policy')" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            <a [href]="supportLink('Terms & Conditions')" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
+            <a [href]="supportLink('Payment Policy')" target="_blank" rel="noopener noreferrer">Payment Policy</a>
+            <a [href]="supportLink('Grievance Redressal')" target="_blank" rel="noopener noreferrer">Grievance Redressal</a>
+          </div>
+        </section>
+
+        <section class="footer-column" [class.is-expanded]="footerExpanded.stayConnected">
+          <h3>Stay Connected</h3>
+          <button class="footer-column-toggle" type="button" aria-controls="footer-stay-connected" [attr.aria-expanded]="footerExpanded.stayConnected" (click)="toggleFooterSection('stayConnected')">Stay Connected <span aria-hidden="true">{{ footerExpanded.stayConnected ? '−' : '+' }}</span></button>
+          <div class="footer-links" id="footer-stay-connected">
+            <a class="footer-whatsapp" [href]="supportLink('help from TheCart support')" target="_blank" rel="noopener noreferrer">WhatsApp Support <span aria-hidden="true">↗</span></a>
+            <span class="footer-contact">+91 85907 86095</span>
+            <span class="footer-contact-note">Chat with our support team</span>
+          </div>
+        </section>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 TheCart. All rights reserved.</span>
+      <span>Accepted payments: UPI · Cash on Delivery</span>
+      <span>Secure checkout via Razorpay</span>
+      <span>Store: TheCart · Support: +91 85907 86095</span>
+    </div>
+  </footer>
 </div>

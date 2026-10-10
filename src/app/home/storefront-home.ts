@@ -25,6 +25,12 @@ export class StorefrontHome implements OnInit {
   minimumPrice = '';
   maximumPrice = '';
   sortOrder = 'featured';
+  footerExpanded = {
+    customerService: false,
+    aboutUs: false,
+    policies: false,
+    stayConnected: false,
+  };
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) void this.loadProducts();
@@ -57,6 +63,19 @@ export class StorefrontHome implements OnInit {
 
   toggleFilters(): void {
     this.filtersOpen = !this.filtersOpen;
+  }
+
+  showCategories(): void {
+    this.filtersOpen = true;
+  }
+
+  toggleFooterSection(section: keyof typeof this.footerExpanded): void {
+    this.footerExpanded[section] = !this.footerExpanded[section];
+  }
+
+  supportLink(topic: string): string {
+    const message = `Hi, I have a question about ${topic}.`;
+    return `https://wa.me/918590786095?text=${encodeURIComponent(message)}`;
   }
 
   setMinimumPrice(event: Event): void {
