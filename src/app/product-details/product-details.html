@@ -117,8 +117,12 @@
     </section>
 
     <section class="reviews-section section-wrap" id="reviews">
-      <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Real experiences with this product.</p></div><div class="reviews-count"><strong>{{ reviewSummary.review_count ? reviewSummary.average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary.review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span> }<span>{{ reviewSummary.review_count }} REVIEWS</span></div></div>
-      @if (reviewSummary.review_count) {
+      <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Reviews sourced from Meesho customers.</p></div><div class="reviews-count"><strong>{{ reviewSummary.review_count ? reviewSummary.average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary.review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span> }<span>{{ reviewSummary.review_count }} REVIEWS</span></div></div>
+      @if (reviewsLoading) {
+        <div class="reviews-empty" role="status"><strong>Loading customer reviews…</strong><p>This may take a moment while the review source is checked.</p></div>
+      } @else if (reviewsError) {
+        <div class="reviews-empty" role="alert"><strong>Reviews unavailable.</strong><p>{{ reviewsError }}</p></div>
+      } @else if (reviewSummary.review_count) {
         <div class="customer-reviews">
           @for (review of reviewSummary.reviews; track review.id) {
             <article class="customer-review">

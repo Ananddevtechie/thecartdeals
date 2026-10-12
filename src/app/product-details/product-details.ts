@@ -52,6 +52,8 @@ export class ProductDetails implements OnInit {
   catalog: StoreProduct[] = [];
   relatedProducts: StoreProduct[] = [];
   reviewSummary: ProductReviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+  reviewsLoading = false;
+  reviewsError = '';
   relatedPage = 0;
   readonly relatedPageSize = 10;
   media: ProductMedia[] = [];
@@ -170,12 +172,7 @@ export class ProductDetails implements OnInit {
         return;
       }
       this.product = await this.productApi.getProduct(selected.id);
-      this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
-      try {
-        this.reviewSummary = await this.productApi.getProductReviews(this.product.id);
-      } catch {
-        this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
-      }
+      this.loadProductReviews(this.product);
       this.relatedProducts = this.catalog
         .filter((item) => item.id !== selected.id)
         .sort((first, second) => Number(second.category === selected.category) - Number(first.category === selected.category));
@@ -193,6 +190,25 @@ export class ProductDetails implements OnInit {
     } finally {
       this.loading = false;
       this.changeDetector.detectChanges();
+    }
+  }
+
+  private async loadProductReviews(product: StoreProduct): Promise<void> {
+    this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+    this.reviewsError = '';
+    this.reviewsLoading = true;
+    try {
+      const summary = await this.productApi.getMeeshoProductReviews(product.id);
+      if (this.product.id === product.id) this.reviewSummary = summary;
+    } catch (error) {
+      if (this.product.id === product.id) {
+        this.reviewsError = error instanceof Error ? error.message : 'Could not load Meesho reviews.';
+      }
+    } finally {
+      if (this.product.id === product.id) {
+        this.reviewsLoading = false;
+        this.changeDetector.detectChanges();
+      }
     }
   }
 }

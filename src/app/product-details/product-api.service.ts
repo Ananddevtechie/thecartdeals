@@ -162,6 +162,15 @@ export class ProductApiService {
     return result;
   }
 
+  async getMeeshoProductReviews(slug: string): Promise<ProductReviewSummary> {
+    const response = await fetch(`/api/products/${encodeURIComponent(slug)}/meesho-reviews`);
+    const result = await response.json() as ProductReviewSummary | { detail?: string };
+    if (!response.ok || !('reviews' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not load Meesho reviews.' : 'Could not load Meesho reviews.');
+    }
+    return result;
+  }
+
   async listAdminProductReviews(username: string, password: string, slug: string): Promise<ProductReviewSummary> {
     const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews`, {
       headers: this.adminHeaders(username, password),
