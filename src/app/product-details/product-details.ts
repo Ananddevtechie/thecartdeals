@@ -54,6 +54,8 @@ export class ProductDetails implements OnInit {
   reviewSummary: ProductReviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
   reviewsLoading = false;
   reviewsError = '';
+  reviewPage = 0;
+  readonly reviewPageSize = 10;
   relatedPage = 0;
   readonly relatedPageSize = 10;
   media: ProductMedia[] = [];
@@ -73,6 +75,39 @@ export class ProductDetails implements OnInit {
 
   get savings(): number {
     return Math.max(0, this.product.mrp - this.product.price);
+  }
+
+  get sortedReviews(): ProductReviewSummary['reviews'] {
+    return [...this.reviewSummary.reviews].sort((first, second) => {
+      const ratingOrder = second.rating - first.rating;
+      if (ratingOrder !== 0) return ratingOrder;
+      return Number(second.image_urls.length > 0) - Number(first.image_urls.length > 0);
+    });
+  }
+
+  get visibleReviews(): ProductReviewSummary['reviews'] {
+    const start = this.reviewPage * this.reviewPageSize;
+    return this.sortedReviews.slice(start, start + this.reviewPageSize);
+  }
+
+  get totalReviewPages(): number {
+    return Math.ceil(this.sortedReviews.length / this.reviewPageSize);
+  }
+
+  get firstReviewNumber(): number {
+    return this.sortedReviews.length ? this.reviewPage * this.reviewPageSize + 1 : 0;
+  }
+
+  get lastReviewNumber(): number {
+    return Math.min((this.reviewPage + 1) * this.reviewPageSize, this.sortedReviews.length);
+  }
+
+  previousReviewPage(): void {
+    this.reviewPage = Math.max(0, this.reviewPage - 1);
+  }
+
+  nextReviewPage(): void {
+    this.reviewPage = Math.min(this.totalReviewPages - 1, this.reviewPage + 1);
   }
 
   get visibleRelatedProducts(): StoreProduct[] {
@@ -195,6 +230,7 @@ export class ProductDetails implements OnInit {
 
   private async loadProductReviews(product: StoreProduct): Promise<void> {
     this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+    this.reviewPage = 0;
     this.reviewsError = '';
     this.reviewsLoading = true;
     try {

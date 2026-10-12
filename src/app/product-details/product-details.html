@@ -124,7 +124,7 @@
         <div class="reviews-empty" role="alert"><strong>Reviews unavailable.</strong><p>{{ reviewsError }}</p></div>
       } @else if (reviewSummary.review_count) {
         <div class="customer-reviews">
-          @for (review of reviewSummary.reviews; track review.id) {
+          @for (review of visibleReviews; track review.id) {
             <article class="customer-review">
               <div class="customer-review-header"><div><strong>{{ review.reviewer_name }}</strong><span class="customer-review-rating" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span></div><time>{{ formatReviewDate(review.created_at) }}</time></div>
               <p>{{ review.comment }}</p>
@@ -136,6 +136,16 @@
             </article>
           }
         </div>
+        @if (totalReviewPages > 1) {
+          <nav class="customer-reviews" aria-label="Customer review pages">
+            <span>Showing {{ firstReviewNumber }}-{{ lastReviewNumber }} of {{ sortedReviews.length }} reviews</span>
+            <div class="related-controls">
+              <button type="button" (click)="previousReviewPage()" [disabled]="reviewPage === 0" aria-label="Previous review page">‹</button>
+              <span aria-live="polite">Page {{ reviewPage + 1 }} of {{ totalReviewPages }}</span>
+              <button type="button" (click)="nextReviewPage()" [disabled]="reviewPage + 1 >= totalReviewPages" aria-label="Next review page">›</button>
+            </div>
+          </nav>
+        }
       } @else {
         <div class="reviews-empty"><div class="empty-stars">☆☆☆☆☆</div><strong>No customer reviews yet.</strong><p>Customer feedback will appear here.</p></div>
       }
