@@ -1,0 +1,110 @@
+<main class="reviews-admin-shell">
+  <header class="admin-header">
+    <a class="admin-brand" routerLink="/" aria-label="TheCart home">
+      <img class="brand-mark" src="/app-icon.png" alt="" />
+      <span><strong>TheCart</strong><small>REVIEW ADMIN</small></span>
+    </a>
+    <nav aria-label="Admin navigation">
+      <a routerLink="/admin/orders">Manage orders</a>
+      <a routerLink="/admin/products/add">Product catalog</a>
+      <a routerLink="/">View storefront ↗</a>
+    </nav>
+  </header>
+
+  @if (!unlocked) {
+    <section class="access-panel">
+      <p class="kicker">RESTRICTED ACCESS</p>
+      <h1>Add reviews</h1>
+      <p class="intro">Sign in with the admin account to import and manage product reviews.</p>
+      <form (submit)="unlock($event)">
+        <label for="review-admin-username">Username</label>
+        <input id="review-admin-username" name="username" type="text" autocomplete="username" required />
+        <label for="review-admin-password">Password</label>
+        <input id="review-admin-password" name="password" type="password" autocomplete="current-password" required />
+        @if (error) { <p class="message-error" role="alert">{{ error }}</p> }
+        <button type="submit" [disabled]="busy">{{ busy ? 'Checking…' : 'Continue' }} <span>→</span></button>
+      </form>
+    </section>
+  } @else {
+    <section class="page-intro">
+      <div><p class="kicker">STOREFRONT CONTENT</p><h1>Add reviews</h1></div>
+      <p>Select a product, provide its Meesho page URL, and import up to 100 customer reviews. Imports may take several minutes.</p>
+    </section>
+
+    @if (error) { <p class="message-error" role="alert">{{ error }}</p> }
+    @if (notice) { <p class="message-success" role="status">{{ notice }}</p> }
+
+    <section class="review-panel">
+      <label class="field">Store product
+        <select [value]="selectedProductId" (change)="selectProduct($event)" [disabled]="busy || !products.length" required>
+          <option value="">Select a product</option>
+          @for (product of products; track product.id) {
+            <option [value]="product.id">{{ product.title }}</option>
+          }
+        </select>
+      </label>
+
+      @if (selectedProduct; as product) {
+        <form class="import-form" (submit)="importReviews($event)">
+          <label class="field">Meesho product URL
+            <input name="meeshoUrl" type="url" [value]="meeshoUrl" (input)="meeshoUrl = $any($event.currentTarget).value" placeholder="https://www.meesho.com/…" required />
+          </label>
+          <button class="primary-button" type="submit" [disabled]="busy || !meeshoUrl.trim()">
+            {{ busy ? 'Importing reviews…' : 'Import up to 100 reviews' }} <span>→</span>
+          </button>
+          <p class="help-copy">Scraping may incur Apify charges. Re-importing skips saved reviews but adds their customer photos if missing.</p>
+        </form>
+
+        <div class="reviews-heading">
+          <div><p class="kicker">SAVED FOR THIS PRODUCT</p><h2>{{ product.title }}</h2></div>
+          <span>{{ reviewSummary?.review_count ?? 0 }} reviews</span>
+        </div>
+        @if (reviewsLoading) {
+          <p class="empty-state" role="status">Loading saved reviews…</p>
+        } @else if (reviews.length) {
+          <ul class="review-list">
+            @for (review of reviews; track review.id) {
+              <li>
+                @if (editingReviewId === review.id) {
+                  <form class="edit-form" (submit)="saveReview($event, review)">
+                    <label class="field">Reviewer name<input name="reviewerName" [value]="editReviewerName" (input)="editReviewerName = $any($event.currentTarget).value" maxlength="120" required /></label>
+                    <label class="field">Rating
+                      <select name="rating" [value]="editRating" (change)="editRating = +$any($event.currentTarget).value">
+                        @for (rating of [5, 4, 3, 2, 1]; track rating) { <option [value]="rating">{{ rating }} star{{ rating === 1 ? '' : 's' }}</option> }
+                      </select>
+                    </label>
+                    <label class="field">Feedback<textarea name="comment" [value]="editComment" (input)="editComment = $any($event.currentTarget).value" maxlength="2000" rows="4" required></textarea></label>
+                    <div class="review-actions">
+                      <button type="button" class="secondary-button" (click)="cancelEdit()" [disabled]="busy">Cancel</button>
+                      <button type="submit" class="primary-button" [disabled]="busy">{{ busy ? 'Saving…' : 'Save changes' }}</button>
+                    </div>
+                  </form>
+                } @else {
+                  <article class="review-item">
+                    <div class="review-meta"><strong>{{ review.reviewer_name }}</strong><span class="rating">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span><time>{{ formatReviewDate(review.created_at) }}</time></div>
+                    <p>{{ review.comment }}</p>
+                    @if (review.image_urls.length) {
+                      <div class="review-images" aria-label="Saved review images">
+                        @for (imageUrl of review.image_urls; track imageUrl) {
+                          <img [src]="imageUrl" alt="Customer review photo" loading="lazy" />
+                        }
+                      </div>
+                    }
+                    <div class="review-actions">
+                      <button type="button" class="secondary-button" (click)="editReview(review)" [disabled]="busy">Edit</button>
+                      <button type="button" class="delete-button" (click)="deleteReview(review)" [disabled]="busy">Delete</button>
+                    </div>
+                  </article>
+                }
+              </li>
+            }
+          </ul>
+        } @else if (!reviewsLoading) {
+          <p class="empty-state">No saved reviews for this product yet.</p>
+        }
+      } @else if (products.length === 0 && !busy) {
+        <p class="empty-state">No store products are available.</p>
+      }
+    </section>
+  }
+</main>

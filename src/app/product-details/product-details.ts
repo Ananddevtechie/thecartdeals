@@ -198,11 +198,11 @@ export class ProductDetails implements OnInit {
     this.reviewsError = '';
     this.reviewsLoading = true;
     try {
-      const summary = await this.productApi.getMeeshoProductReviews(product.id);
+      const summary = await this.productApi.getProductReviews(product.id);
       if (this.product.id === product.id) this.reviewSummary = summary;
     } catch (error) {
       if (this.product.id === product.id) {
-        this.reviewsError = error instanceof Error ? error.message : 'Could not load Meesho reviews.';
+        this.reviewsError = error instanceof Error ? error.message : 'Could not load customer reviews.';
       }
     } finally {
       if (this.product.id === product.id) {

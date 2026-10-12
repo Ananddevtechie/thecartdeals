@@ -9,6 +9,7 @@ import { StorefrontHome } from './home/storefront-home';
 import { AdminOrders } from './admin-orders/admin-orders';
 import { OrderTrackingPage } from './order-tracking/order-tracking';
 import { CancelOrderReview } from './order-success/cancel-order-review';
+import { AdminReviews } from './admin-reviews/admin-reviews';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: StorefrontHome, title: 'Shop | TheCart' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
 	{ path: 'admin/products', component: AdminProducts, title: 'Add products | TheCart Admin' },
 	{ path: 'admin/products/add', component: AdminProducts, title: 'Add a product | TheCart Admin' },
 	{ path: 'admin/orders', component: AdminOrders, title: 'Manage orders | TheCart Admin' },
+	{ path: 'admin/reviews', component: AdminReviews, title: 'Add reviews | TheCart Admin' },
 	{ path: 'checkout', component: Checkout, title: 'Secure checkout | TheCart' },
 	{ path: 'payment', component: Payment, title: 'Payment | TheCart' },
 	{ path: 'online-payment', component: OnlinePayment, title: 'Online payment | TheCart' },

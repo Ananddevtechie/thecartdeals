@@ -60,6 +60,15 @@ export interface ProductReviewSummary {
   reviews: ProductReview[];
 }
 
+export interface ProductReviewImportResult {
+  imported_count: number;
+  skipped_count: number;
+  backfilled_review_count: number;
+  saved_image_count: number;
+  skipped_image_count: number;
+  reviews: ProductReviewSummary;
+}
+
 interface ProductResponse {
   id: string;
   sku: string;
@@ -162,15 +171,6 @@ export class ProductApiService {
     return result;
   }
 
-  async getMeeshoProductReviews(slug: string): Promise<ProductReviewSummary> {
-    const response = await fetch(`/api/products/${encodeURIComponent(slug)}/meesho-reviews`);
-    const result = await response.json() as ProductReviewSummary | { detail?: string };
-    if (!response.ok || !('reviews' in result)) {
-      throw new Error('detail' in result ? result.detail ?? 'Could not load Meesho reviews.' : 'Could not load Meesho reviews.');
-    }
-    return result;
-  }
-
   async listAdminProductReviews(username: string, password: string, slug: string): Promise<ProductReviewSummary> {
     const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews`, {
       headers: this.adminHeaders(username, password),
@@ -180,6 +180,57 @@ export class ProductApiService {
       throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
     }
     return result;
+  }
+
+  async importMeeshoReviews(
+    username: string,
+    password: string,
+    slug: string,
+    meeshoUrl: string,
+  ): Promise<ProductReviewImportResult> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews/import`, {
+      method: 'POST',
+      headers: { ...this.adminHeaders(username, password), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meesho_url: meeshoUrl }),
+    });
+    const result = await response.json() as ProductReviewImportResult | { detail?: string };
+    if (!response.ok || !('reviews' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not import reviews.' : 'Could not import reviews.');
+    }
+    return result;
+  }
+
+  async updateProductReview(
+    username: string,
+    password: string,
+    slug: string,
+    review: Pick<ProductReview, 'id' | 'reviewer_name' | 'rating' | 'comment'>,
+  ): Promise<ProductReview> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews/${encodeURIComponent(review.id)}`, {
+      method: 'PUT',
+      headers: { ...this.adminHeaders(username, password), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reviewer_name: review.reviewer_name,
+        rating: review.rating,
+        comment: review.comment,
+      }),
+    });
+    const result = await response.json() as ProductReview | { detail?: string };
+    if (!response.ok || !('rating' in result)) {
+      throw new Error('detail' in result ? result.detail ?? 'Could not update review.' : 'Could not update review.');
+    }
+    return result;
+  }
+
+  async deleteProductReview(username: string, password: string, slug: string, reviewId: string): Promise<void> {
+    const response = await fetch(`/api/admin/products/${encodeURIComponent(slug)}/reviews/${encodeURIComponent(reviewId)}`, {
+      method: 'DELETE',
+      headers: this.adminHeaders(username, password),
+    });
+    if (!response.ok) {
+      const result = await response.json() as { detail?: string };
+      throw new Error(result.detail ?? 'Could not delete review.');
+    }
   }
 
   async createProductReview(

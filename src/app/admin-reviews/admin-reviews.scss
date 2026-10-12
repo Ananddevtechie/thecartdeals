@@ -1,0 +1,56 @@
+:host { display: block; min-height: 100vh; color: #1e3029; font-family: 'Avenir Next', Avenir, sans-serif; background: #f4f6f3; }
+button, input, textarea, select { font: inherit; }
+.reviews-admin-shell { width: min(1000px, calc(100% - 48px)); margin: 0 auto; padding-bottom: 60px; }
+.admin-header { height: 76px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dce4dc; }
+.admin-brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: #285b49; }
+.admin-brand > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+.admin-brand strong { font-family: Georgia, serif; font-size: 16px; }
+.admin-brand small, .kicker { color: #778579; font-size: 9px; font-weight: 750; letter-spacing: .12em; }
+.admin-header nav { display: flex; gap: 20px; }
+.admin-header nav a { color: #315e4d; text-decoration: none; font-size: 12px; font-weight: 650; }
+.page-intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding: 39px 0 24px; }
+.page-intro h1, .access-panel h1 { margin: 7px 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 34px; font-weight: 500; }
+.page-intro > p, .intro { max-width: 420px; margin: 0; color: #718075; font-size: 12px; line-height: 1.7; }
+.review-panel { padding: 24px; border: 1px solid #dde5dd; border-radius: 7px; background: #fff; }
+.field { display: flex; flex-direction: column; gap: 6px; color: #4b5b50; font-size: 11px; font-weight: 650; }
+.field input, .field select, .field textarea, .access-panel input { box-sizing: border-box; width: 100%; min-height: 40px; padding: 9px 10px; border: 1px solid #dbe3dc; border-radius: 5px; background: #fff; color: #23362c; font-size: 12px; font-weight: 400; }
+.field textarea { resize: vertical; line-height: 1.5; }
+.import-form { max-width: 640px; display: grid; gap: 14px; margin-top: 21px; }
+.primary-button, .access-panel button { min-height: 42px; display: inline-flex; justify-content: space-between; align-items: center; gap: 12px; padding: 0 14px; border: 0; border-radius: 5px; background: #285b49; color: white; font-size: 12px; font-weight: 700; cursor: pointer; }
+.primary-button:disabled, .access-panel button:disabled, .secondary-button:disabled, .delete-button:disabled { opacity: .6; cursor: wait; }
+.help-copy, .empty-state { color: #829085; font-size: 11px; line-height: 1.6; }
+.help-copy { margin: -6px 0 0; }
+.reviews-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 34px; padding-bottom: 15px; border-bottom: 1px solid #e9eee9; }
+.reviews-heading .kicker { margin: 0 0 6px; }
+.reviews-heading h2 { margin: 0; color: #25382e; font-size: 15px; }
+.reviews-heading > span { color: #5c6c60; font-size: 11px; }
+.review-list { display: grid; gap: 12px; margin: 0; padding: 15px 0 0; list-style: none; }
+.review-list > li { padding: 15px; border: 1px solid #e5ebe5; border-radius: 5px; }
+.review-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: #334439; font-size: 11px; }
+.review-meta time { margin-left: auto; color: #879388; font-size: 10px; }
+.rating { color: #c18722; letter-spacing: .08em; }
+.review-item > p { color: #526357; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+.review-images { display: flex; flex-wrap: wrap; gap: 8px; }
+.review-images img { width: 78px; height: 78px; border-radius: 5px; background: #edf0ed; object-fit: cover; }
+.review-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.secondary-button, .delete-button { min-height: 34px; padding: 0 12px; border: 1px solid #dbe3dc; border-radius: 5px; background: #fff; color: #315e4d; font-size: 11px; font-weight: 650; cursor: pointer; }
+.delete-button { border-color: #efd8d0; color: #a34430; }
+.edit-form { display: grid; gap: 12px; }
+.access-panel { width: min(410px, 100%); box-sizing: border-box; margin: 12vh auto 0; padding: 29px; border: 1px solid #dce5dc; border-radius: 7px; background: #fff; }
+.access-panel .kicker { margin: 0; }
+.access-panel form { display: grid; gap: 8px; margin-top: 24px; }
+.access-panel label { color: #4b5b50; font-size: 10px; font-weight: 650; }
+.access-panel button { margin-top: 7px; }
+.message-error, .message-success { margin: 12px 0; padding: 10px 11px; border-radius: 4px; font-size: 11px; }
+.message-error { background: #fff0eb; color: #a34430; }
+.message-success { background: #edf5ef; color: #326449; }
+@media (max-width: 650px) {
+  .reviews-admin-shell { width: min(calc(100% - 28px), 1000px); }
+  .admin-header { height: auto; min-height: 70px; align-items: flex-start; padding: 15px 0; gap: 16px; }
+  .admin-header nav { flex-wrap: wrap; justify-content: flex-end; gap: 10px 14px; }
+  .admin-header nav a { font-size: 10px; }
+  .page-intro { display: block; }
+  .page-intro > p { margin-top: 12px; }
+  .review-panel { padding: 16px; }
+}
