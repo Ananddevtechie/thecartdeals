@@ -10,6 +10,7 @@ import { AdminOrders } from './admin-orders/admin-orders';
 import { OrderTrackingPage } from './order-tracking/order-tracking';
 import { CancelOrderReview } from './order-success/cancel-order-review';
 import { AdminReviews } from './admin-reviews/admin-reviews';
+import { TheCartDetailsAndPolicy } from './thecartdetailsandpolicy/thecartdetailsandpolicy';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: StorefrontHome, title: 'Shop | TheCart' },
@@ -26,5 +27,7 @@ export const routes: Routes = [
 	{ path: 'order/cancel-review/:orderId', component: CancelOrderReview, title: 'Review order cancellation | TheCart' },
 	{ path: 'track-order', component: OrderTrackingPage, title: 'Track your order | TheCart' },
 	{ path: 'track-order/:orderId', component: OrderTrackingPage, title: 'Track your order | TheCart' },
+	{ path: 'thecartdetailsandpolicy', component: TheCartDetailsAndPolicy, title: 'Help & policies | TheCart' },
+	{ path: 'thecartdetailsandpolicy/:section', component: TheCartDetailsAndPolicy, title: 'Help & policies | TheCart' },
 	{ path: '**', redirectTo: '' },
 ];

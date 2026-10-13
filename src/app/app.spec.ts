@@ -69,4 +69,73 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-storefront-home')).toBeTruthy();
   });
+
+  it('should route to the selected help and policy section', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/thecartdetailsandpolicy/cancellation');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h2')?.textContent).toContain('Cancellation Policy');
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h3')?.textContent).toContain('Before dispatch');
+  });
+
+  it('should not show the order tracking link in the storefront footer', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.footer-links a[routerLink="/track-order"]')).toBeNull();
+    expect(compiled.querySelector('.footer-links a[routerLink="/thecartdetailsandpolicy/faq"]')?.textContent).toContain('FAQs');
+  });
+
+  it('should route the About Us footer link to the story section', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/thecartdetailsandpolicy/about-us');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h2')?.textContent).toContain('About Us / Our Story');
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h3')?.textContent).toContain('Our story');
+  });
+
+  it('should remove the requested product shortcuts from the storefront footer', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).not.toContain('Shop All Products');
+    expect(compiled.textContent).not.toContain('All Categories');
+    expect(compiled.textContent).not.toContain('Customer Reviews');
+  });
+
+  it('should route to the Privacy Policy section', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/thecartdetailsandpolicy/privacy');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await Promise.resolve();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h2')?.textContent).toContain('Privacy Policy');
+    expect(compiled.querySelector('app-thecartdetailsandpolicy h3')?.textContent).toContain('Information you provide');
+  });
+
+  it('should link all footer policies to their help page sections', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.footer-links a[routerLink="/thecartdetailsandpolicy/terms"]')?.textContent).toContain('Terms');
+    expect(compiled.querySelector('.footer-links a[routerLink="/thecartdetailsandpolicy/payment"]')?.textContent).toContain('Payment');
+    expect(compiled.querySelector('.footer-links a[routerLink="/thecartdetailsandpolicy/grievance"]')?.textContent).toContain('Grievance');
+  });
 });

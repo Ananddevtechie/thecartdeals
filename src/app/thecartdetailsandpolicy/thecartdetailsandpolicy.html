@@ -1,0 +1,180 @@
+<main class="help-page">
+  <header class="help-heading">
+    <a class="back-link" routerLink="/">← Back to shopping</a>
+    <p class="eyebrow">THECART CUSTOMER CARE</p>
+    <h1>How can we help?</h1>
+    <p class="intro">Find answers and the details you need about your order.</p>
+  </header>
+
+  <div class="help-layout">
+    <nav class="section-nav" aria-label="Help topics">
+      <p class="nav-heading">HELP &amp; POLICIES</p>
+      @for (section of sections; track section.id) {
+        <a
+          [routerLink]="['/thecartdetailsandpolicy', section.id]"
+          [class.is-active]="activeSection === section.id"
+          [attr.aria-current]="activeSection === section.id ? 'page' : null"
+        >{{ section.label }} <span aria-hidden="true">→</span></a>
+      }
+    </nav>
+
+    <article class="section-content" aria-live="polite">
+      <div class="content-eyebrow">THECART HELP CENTRE</div>
+      <h2>{{ activeSectionLabel }}</h2>
+
+      @if (activeSection === 'faq') {
+        <p class="section-intro">A few quick answers to common questions about shopping with TheCart.</p>
+        <div class="faq-list">
+          @for (item of frequentlyAskedQuestions; track item.question) {
+            <section class="faq-item">
+              <h3>{{ item.question }}</h3>
+              <p>{{ item.answer }}</p>
+            </section>
+          }
+        </div>
+      } @else if (activeSection === 'shipping-delivery') {
+        <p class="section-intro">We aim to get every order to you safely and as quickly as possible.</p>
+        <section class="policy-block">
+          <h3>Order processing</h3>
+          <p>Orders are generally processed within 1–2 business days. Business days exclude Sundays and public holidays. We will contact you if an item needs extra time to prepare.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Delivery timelines</h3>
+          <p>Most orders arrive within 3–7 business days after dispatch. Delivery to remote areas can take longer. Timelines are estimates and may be affected by weather, local restrictions, or courier delays.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Delivery charges and serviceability</h3>
+          <p>Delivery is free where available. Serviceability and any location-specific charge are confirmed at checkout after you enter your PIN code.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Delivery assistance</h3>
+          <p>Please make sure your phone number and delivery address are correct when placing your order. For help with a delayed delivery, message us with your order number.</p>
+        </section>
+      } @else if (activeSection === 'returns-refunds') {
+        <p class="section-intro">We want you to be happy with your purchase. Here is how returns and refunds work.</p>
+        <section class="policy-block">
+          <h3>Return window and eligibility</h3>
+          <p>Contact us within 7 days of delivery to request a return. Items should be unused, unwashed, and returned with their original packaging, tags, and included accessories. Some products may not be returnable for hygiene or product-specific reasons; check the listing or contact us before ordering.</p>
+        </section>
+        <section class="policy-block">
+          <h3>How to request a return</h3>
+          <p>Message TheCart support on WhatsApp with your order number, the item you wish to return, and the reason. Our team will confirm eligibility and share the next steps. Please wait for return instructions before sending an item back.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Refunds</h3>
+          <p>Once an approved return is received and checked, we will confirm the refund. Refunds for prepaid orders are sent to the original payment method; cash-on-delivery refunds are arranged with support. Please allow 5–7 business days after approval for the refund to appear, depending on your payment provider.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Damaged or incorrect items</h3>
+          <p>If an item arrives damaged or incorrect, contact us within 48 hours of delivery with your order number and clear photos of the item and packaging so we can review and help.</p>
+        </section>
+      } @else if (activeSection === 'cancellation') {
+        <p class="section-intro">Need to change your mind? These are the steps for cancelling an order.</p>
+        <section class="policy-block">
+          <h3>Before dispatch</h3>
+          <p>You may request cancellation while your order is still being prepared. Contact support as soon as possible with your order number. We will confirm whether the order can still be stopped.</p>
+        </section>
+        <section class="policy-block">
+          <h3>After dispatch</h3>
+          <p>Once an order has been handed to the courier, it can no longer be cancelled through our support team. If your item is eligible, you can contact us after delivery to request a return under the Return &amp; Refund Policy.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Refund for a cancelled prepaid order</h3>
+          <p>If we confirm cancellation of a prepaid order, the refund will be sent to the original payment method. It may take 5–7 business days to appear, depending on your payment provider.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Contact us</h3>
+          <p>Message TheCart support on WhatsApp with your order number. Cancellation is complete only after we confirm it to you.</p>
+        </section>
+      } @else if (activeSection === 'about-us') {
+        <p class="section-intro">Everyday finds, thoughtfully picked.</p>
+        <section class="policy-block">
+          <h3>Our story</h3>
+          <p>TheCart was created to make discovering useful, delightful products feel simple. We bring together thoughtful everyday finds and make them easy to browse, compare, and order from the comfort of your home.</p>
+        </section>
+        <section class="policy-block">
+          <h3>What we believe</h3>
+          <p>Shopping should be clear, convenient, and dependable. From product details to delivery updates and customer support, we work to make every step of your experience straightforward.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Here for you</h3>
+          <p>We are a growing store, and your feedback helps us improve. If you have a question, need help with an order, or would like to share a suggestion, our support team is happy to hear from you.</p>
+        </section>
+      } @else if (activeSection === 'privacy') {
+        <p class="section-intro">This policy explains what information TheCart uses to help you shop and how you can contact us about it.</p>
+        <section class="policy-block">
+          <h3>Information you provide</h3>
+          <p>When you place an order or contact us, we use details such as your name, phone number, delivery address, order information, and messages to process and support your purchase.</p>
+        </section>
+        <section class="policy-block">
+          <h3>How information is used</h3>
+          <p>We use order and contact details to confirm, fulfil, deliver, and provide support for orders; to communicate important order updates; and to maintain records needed to operate the store.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Payments and service providers</h3>
+          <p>Online payments are handled through the payment provider shown at checkout. TheCart does not ask you to share your UPI PIN, card PIN, password, or one-time password through support chat. Delivery and technology providers may receive only the details needed to perform their service.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Your choices and questions</h3>
+          <p>Contact us to ask about or request a correction to information associated with your order. We retain records for as long as reasonably needed to serve you, meet applicable requirements, and resolve order issues.</p>
+        </section>
+      } @else if (activeSection === 'terms') {
+        <p class="section-intro">By using TheCart or placing an order, you agree to the following store terms.</p>
+        <section class="policy-block">
+          <h3>Product information and availability</h3>
+          <p>We try to keep product descriptions, images, prices, and availability accurate. Colours and appearance can vary by screen. An item is available for purchase only while it is in stock and serviceable to your delivery PIN code.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Orders and pricing</h3>
+          <p>An order request is subject to confirmation, stock availability, successful payment where applicable, and delivery serviceability. The price and applicable delivery details shown at checkout apply to your order. If we cannot fulfil an order, we will contact you and arrange any applicable refund for a prepaid order.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Account and contact details</h3>
+          <p>Please provide accurate contact and delivery information and keep access to your phone secure. Contact us promptly if you notice an issue with an order placed using your details.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Changes and applicable policies</h3>
+          <p>Order changes, cancellations, returns, refunds, and payments are handled under their respective policies on this page. We may update store information or these terms; the version displayed here applies when you use the store.</p>
+        </section>
+      } @else if (activeSection === 'payment') {
+        <p class="section-intro">Available payment methods are shown during checkout and may vary by order or delivery location.</p>
+        <section class="policy-block">
+          <h3>Online payments</h3>
+          <p>Where available, you can pay online using the methods supported by the secure payment provider shown at checkout, such as UPI. Follow the provider’s payment flow and return to the store to check your order status.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Cash on delivery</h3>
+          <p>Cash on Delivery may be offered for eligible orders and PIN codes. If available, the option will appear at checkout. Please have the payable amount ready when the order arrives.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Payment confirmation and issues</h3>
+          <p>An order is treated as prepaid after payment is confirmed by the payment provider. If money is debited but the order is not confirmed, contact us with your order reference and payment transaction details. Never share a PIN, password, or one-time password with anyone claiming to be support.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Refunds</h3>
+          <p>Approved refunds for prepaid orders are sent to the original payment method. Processing and credit times depend on the payment provider; see the Return &amp; Refund Policy for return-related details.</p>
+        </section>
+      } @else {
+        <p class="section-intro">We want to help resolve order and service concerns clearly and fairly.</p>
+        <section class="policy-block">
+          <h3>Contact customer support</h3>
+          <p>For help or to raise a concern, message TheCart support on WhatsApp. Include your order number, a short description of the issue, and a way for us to reach you. Please do not send passwords, PINs, or one-time passwords.</p>
+        </section>
+        <section class="policy-block">
+          <h3>What happens next</h3>
+          <p>Our support team will review the information and guide you through the relevant order or store policy. If your concern is not resolved, reply to the same conversation asking for it to be escalated for further review.</p>
+        </section>
+        <section class="policy-block">
+          <h3>Keep your reference</h3>
+          <p>Keep your order number and support conversation available so we can follow up. We will communicate any next steps through the contact channel associated with your request.</p>
+        </section>
+      }
+
+      <aside class="support-note">
+        <strong>Still need a hand?</strong>
+        <span>Our team is happy to help with your order.</span>
+        <a href="https://wa.me/918590786095?text=Hi%2C%20I%20need%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer">Chat with TheCart support <span aria-hidden="true">↗</span></a>
+      </aside>
+    </article>
+  </div>
+</main>

@@ -3,7 +3,7 @@
   <header class="shop-header">
     <a class="shop-brand" routerLink="/" aria-label="TheCart home">
       <img class="brand-mark" src="/app-icon.png" alt="" />
-      <span><strong>TheCart</strong><small>GOOD THINGS, FOUND.</small></span>
+      <span><strong>TheCart</strong><small>Everyday finds, thoughtfully picked.</small></span>
     </a>
   </header>
 
@@ -92,11 +92,10 @@
           <button class="footer-column-toggle" type="button" aria-controls="footer-customer-service" [attr.aria-expanded]="footerExpanded.customerService" (click)="toggleFooterSection('customerService')">Customer Service <span aria-hidden="true">{{ footerExpanded.customerService ? '−' : '+' }}</span></button>
           <div class="footer-links" id="footer-customer-service">
             <a [href]="supportLink('help with my order')" target="_blank" rel="noopener noreferrer">Contact Us</a>
-            <a href="/product-details#faq">FAQs</a>
-            <a routerLink="/track-order">Track My Order</a>
-            <a [href]="supportLink('Shipping & Delivery Policy')" target="_blank" rel="noopener noreferrer">Shipping &amp; Delivery Policy</a>
-            <a [href]="supportLink('Return & Refund Policy')" target="_blank" rel="noopener noreferrer">Return &amp; Refund Policy</a>
-            <a [href]="supportLink('Cancellation Policy')" target="_blank" rel="noopener noreferrer">Cancellation Policy</a>
+            <a routerLink="/thecartdetailsandpolicy/faq">FAQs</a>
+            <a routerLink="/thecartdetailsandpolicy/shipping-delivery">Shipping &amp; Delivery Policy</a>
+            <a routerLink="/thecartdetailsandpolicy/returns-refunds">Return &amp; Refund Policy</a>
+            <a routerLink="/thecartdetailsandpolicy/cancellation">Cancellation Policy</a>
           </div>
         </section>
 
@@ -104,11 +103,7 @@
           <h3>About Us</h3>
           <button class="footer-column-toggle" type="button" aria-controls="footer-about-us" [attr.aria-expanded]="footerExpanded.aboutUs" (click)="toggleFooterSection('aboutUs')">About Us <span aria-hidden="true">{{ footerExpanded.aboutUs ? '−' : '+' }}</span></button>
           <div class="footer-links" id="footer-about-us">
-            <a href="#about-us">About Us</a>
-            <a href="#about-us">Our Story</a>
-            <a href="#catalog">Shop All Products</a>
-            <a href="#catalog" (click)="showCategories()">All Categories</a>
-            <a href="/product-details#reviews">Customer Reviews</a>
+            <a routerLink="/thecartdetailsandpolicy/about-us">About Us / Our Story</a>
           </div>
         </section>
 
@@ -116,10 +111,10 @@
           <h3>Policies</h3>
           <button class="footer-column-toggle" type="button" aria-controls="footer-policies" [attr.aria-expanded]="footerExpanded.policies" (click)="toggleFooterSection('policies')">Policies <span aria-hidden="true">{{ footerExpanded.policies ? '−' : '+' }}</span></button>
           <div class="footer-links" id="footer-policies">
-            <a [href]="supportLink('Privacy Policy')" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-            <a [href]="supportLink('Terms & Conditions')" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a>
-            <a [href]="supportLink('Payment Policy')" target="_blank" rel="noopener noreferrer">Payment Policy</a>
-            <a [href]="supportLink('Grievance Redressal')" target="_blank" rel="noopener noreferrer">Grievance Redressal</a>
+            <a routerLink="/thecartdetailsandpolicy/privacy">Privacy Policy</a>
+            <a routerLink="/thecartdetailsandpolicy/terms">Terms &amp; Conditions</a>
+            <a routerLink="/thecartdetailsandpolicy/payment">Payment Policy</a>
+            <a routerLink="/thecartdetailsandpolicy/grievance">Grievance Redressal</a>
           </div>
         </section>
 
@@ -128,8 +123,6 @@
           <button class="footer-column-toggle" type="button" aria-controls="footer-stay-connected" [attr.aria-expanded]="footerExpanded.stayConnected" (click)="toggleFooterSection('stayConnected')">Stay Connected <span aria-hidden="true">{{ footerExpanded.stayConnected ? '−' : '+' }}</span></button>
           <div class="footer-links" id="footer-stay-connected">
             <a class="footer-whatsapp" [href]="supportLink('help from TheCart support')" target="_blank" rel="noopener noreferrer">WhatsApp Support <span aria-hidden="true">↗</span></a>
-            <span class="footer-contact">+91 85907 86095</span>
-            <span class="footer-contact-note">Chat with our support team</span>
           </div>
         </section>
       </nav>
@@ -137,9 +130,9 @@
 
     <div class="footer-bottom">
       <span>© 2026 TheCart. All rights reserved.</span>
-      <span>Accepted payments: UPI · Cash on Delivery</span>
+      <span>Accepted payments: UPI &amp; Cash on Delivery</span>
       <span>Secure checkout via Razorpay</span>
-      <span>Store: TheCart · Support: +91 85907 86095</span>
+      <span>Store: TheCart · Support available via WhatsApp</span>
     </div>
   </footer>
 </div>
