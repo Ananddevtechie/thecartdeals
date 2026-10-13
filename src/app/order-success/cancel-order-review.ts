@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ProductApiService, ProductReviewSummary } from '../product-details/product-api.service';
+import { displayReviewerName, ProductApiService, ProductReviewSummary } from '../product-details/product-api.service';
 
 interface CancellationOrder {
   order_id: string;
@@ -79,6 +79,10 @@ export class CancelOrderReview {
 
   formatReviewDate(value: string): string {
     return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+  }
+
+  displayReviewerName(name: string): string {
+    return displayReviewerName(name);
   }
 
   keepOrder(): void {

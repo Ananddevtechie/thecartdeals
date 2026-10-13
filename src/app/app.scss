@@ -5,6 +5,7 @@
 	right: max(12px, env(safe-area-inset-right));
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 7px;
 	min-height: 38px;
 	padding: 0 11px;
@@ -44,4 +45,14 @@
 .whatsapp-link svg path + path {
 	fill: currentColor;
 	stroke: none;
+}
+
+@media (max-width: 767px) {
+	.whatsapp-link {
+		top: auto;
+		right: max(12px, env(safe-area-inset-right));
+		bottom: max(12px, env(safe-area-inset-bottom));
+		min-height: 38px;
+		padding: 0 11px;
+	}
 }

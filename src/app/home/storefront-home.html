@@ -2,8 +2,8 @@
   <div class="shop-announcement"><span>EVERYDAY FINDS, THOUGHTFULLY PICKED</span><span>DELIVERY ACROSS INDIA <b aria-hidden="true">↗</b></span></div>
   <header class="shop-header">
     <a class="shop-brand" routerLink="/" aria-label="TheCart home">
-      <img class="brand-mark" src="/app-icon.png" alt="" />
-      <span><strong>TheCart</strong><small>Everyday finds, thoughtfully picked.</small></span>
+      <img class="brand-mark" src="/app-icon-display.png" alt="" />
+      <span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
     </a>
   </header>
 
@@ -56,10 +56,10 @@
             <div class="catalog-state" role="alert"><h3>We couldn't load the collection.</h3><p>{{ loadError }}</p><button type="button" (click)="retryLoad()">Try again</button></div>
           } @else if (filteredProducts.length) {
             <div class="product-grid">
-              @for (product of filteredProducts; track product.id) {
+              @for (product of filteredProducts; track product.id; let first = $first) {
                 <article class="product-card">
                   <a class="product-image" [routerLink]="['/product-details', product.id]" [attr.aria-label]="'View ' + product.title">
-                    <img [src]="product.imageUrl" [alt]="product.title" loading="lazy" />
+                    <img [src]="product.imageUrl" [alt]="product.title" [attr.loading]="first ? 'eager' : 'lazy'" />
                     @if (savingsPercent(product)) { <span class="discount-tag">{{ savingsPercent(product) }}% OFF</span> }
                     <span class="image-arrow" aria-hidden="true">↗</span>
                   </a>
@@ -82,8 +82,8 @@
   <footer class="shop-footer" aria-label="Store information">
     <div class="footer-main">
       <div class="footer-intro">
-        <a class="footer-brand" routerLink="/" aria-label="TheCart home"><img src="/app-icon.png" alt="" /><span>TheCart</span></a>
-        <p>Everyday finds, thoughtfully picked.</p>
+        <a class="footer-brand" routerLink="/" aria-label="TheCart home"><img src="/app-icon-display.png" alt="" /><span>TheCart</span></a>
+        <p>EVERYDAY, ELEVATED</p>
       </div>
 
       <nav class="footer-columns" aria-label="Footer navigation">

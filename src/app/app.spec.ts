@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { vi } from 'vitest';
 import { App } from './app';
 import { routes } from './app.routes';
-import { ProductApiService, StoreProduct } from './product-details/product-api.service';
+import { displayReviewerName, ProductApiService, ProductReviewSummary, StoreProduct } from './product-details/product-api.service';
 
 const testProduct: StoreProduct = {
   id: 'test-product',
@@ -34,6 +35,37 @@ describe('App', () => {
         { provide: ProductApiService, useValue: { listProducts: async () => [testProduct] } },
       ],
     }).compileComponents();
+  });
+
+  it('should omit Meesho from displayed reviewer names', () => {
+    expect(displayReviewerName('Meesho User')).toBe(' ');
+    expect(displayReviewerName('Customer Meesho')).toBe(' ');
+    expect(displayReviewerName('**Meesho User**')).toBe(' ');
+    expect(displayReviewerName('Verified Customer')).toBe('Verified Customer');
+  });
+
+  it('should share and cache one product reviews request', async () => {
+    const summary: ProductReviewSummary = { average_rating: 5, review_count: 0, reviews: [] };
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => summary,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    try {
+      const service = new ProductApiService();
+      const results = await Promise.all([
+        service.getProductReviews('test-product'),
+        service.getProductReviews('test-product'),
+      ]);
+      await service.getProductReviews('test-product');
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(results[0]).toBe(summary);
+      expect(results[1]).toBe(summary);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('should create the app', () => {

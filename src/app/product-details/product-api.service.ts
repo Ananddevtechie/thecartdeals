@@ -60,6 +60,10 @@ export interface ProductReviewSummary {
   reviews: ProductReview[];
 }
 
+export function displayReviewerName(name: string): string {
+  return /meesho/i.test(name) ? ' ' : name;
+}
+
 export interface ProductReviewImportResult {
   imported_count: number;
   skipped_count: number;
@@ -105,6 +109,8 @@ export class ProductApiService {
   private productsRequest: Promise<StoreProduct[]> | null = null;
   private readonly productCache = new Map<string, { expiresAt: number; product: StoreProduct }>();
   private readonly productRequests = new Map<string, Promise<StoreProduct>>();
+  private readonly productReviewsCache = new Map<string, { expiresAt: number; summary: ProductReviewSummary }>();
+  private readonly productReviewsRequests = new Map<string, Promise<ProductReviewSummary>>();
   private cacheGeneration = 0;
   private adminCredentials: { username: string; password: string } | null = null;
 
@@ -163,12 +169,30 @@ export class ProductApiService {
   }
 
   async getProductReviews(slug: string): Promise<ProductReviewSummary> {
-    const response = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews`);
-    const result = await response.json() as ProductReviewSummary | { detail?: string };
-    if (!response.ok || !('reviews' in result)) {
-      throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
+    const cached = this.productReviewsCache.get(slug);
+    if (cached && cached.expiresAt > Date.now()) return cached.summary;
+
+    const pendingRequest = this.productReviewsRequests.get(slug);
+    if (pendingRequest) return pendingRequest;
+
+    const request = (async () => {
+      const response = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews`);
+      const result = await response.json() as ProductReviewSummary | { detail?: string };
+      if (!response.ok || !('reviews' in result)) {
+        throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
+      }
+      this.productReviewsCache.set(slug, {
+        expiresAt: Date.now() + this.publicCacheTtlMs,
+        summary: result,
+      });
+      return result;
+    })();
+    this.productReviewsRequests.set(slug, request);
+    try {
+      return await request;
+    } finally {
+      if (this.productReviewsRequests.get(slug) === request) this.productReviewsRequests.delete(slug);
     }
-    return result;
   }
 
   async listAdminProductReviews(username: string, password: string, slug: string): Promise<ProductReviewSummary> {
@@ -197,6 +221,7 @@ export class ProductApiService {
     if (!response.ok || !('reviews' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not import reviews.' : 'Could not import reviews.');
     }
+    this.invalidateProductReviews(slug);
     return result;
   }
 
@@ -219,6 +244,7 @@ export class ProductApiService {
     if (!response.ok || !('rating' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not update review.' : 'Could not update review.');
     }
+    this.invalidateProductReviews(slug);
     return result;
   }
 
@@ -231,6 +257,7 @@ export class ProductApiService {
       const result = await response.json() as { detail?: string };
       throw new Error(result.detail ?? 'Could not delete review.');
     }
+    this.invalidateProductReviews(slug);
   }
 
   async createProductReview(
@@ -256,6 +283,7 @@ export class ProductApiService {
     if (!response.ok || !('rating' in result)) {
       throw new Error('detail' in result ? result.detail ?? 'Could not save this review.' : 'Could not save this review.');
     }
+    this.invalidateProductReviews(slug);
     return result;
   }
 
@@ -362,6 +390,11 @@ export class ProductApiService {
     this.productsRequest = null;
     this.productCache.clear();
     this.productRequests.clear();
+  }
+
+  private invalidateProductReviews(slug: string): void {
+    this.productReviewsCache.delete(slug);
+    this.productReviewsRequests.delete(slug);
   }
 
   private adminHeaders(username: string, password: string): HeadersInit {

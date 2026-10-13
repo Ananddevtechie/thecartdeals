@@ -2,9 +2,9 @@ import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angul
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ShoppingCartService, ShoppingCartItem } from '../cart/shopping-cart.service';
-import { ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
+import { displayReviewerName, ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
 
 interface ProductMedia {
   src: string;
@@ -36,6 +36,7 @@ const emptyProduct: StoreProduct = {
 @Component({
   selector: 'app-product-details',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './product-details.html',
   styleUrl: './product-details.scss',
 })
@@ -190,6 +191,10 @@ export class ProductDetails implements OnInit {
 
   formatReviewDate(value: string): string {
     return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+  }
+
+  displayReviewerName(name: string): string {
+    return displayReviewerName(name);
   }
 
   private async loadProduct(slug: string | null): Promise<void> {

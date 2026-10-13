@@ -1,7 +1,7 @@
 <main class="cancel-review-page">
   <header class="cancel-review-header">
     <a class="cancel-review-brand" routerLink="/" aria-label="TheCart home">
-      <img src="/app-icon.png" alt="" />
+      <img src="/app-icon-display.png" alt="" />
       <span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
     </a>
     <span class="secure-label">Secure checkout</span>
@@ -56,7 +56,7 @@
               @for (review of visibleReviews; track review.id) {
                 <article class="customer-review-item">
                   <header>
-                    <strong>{{ review.reviewer_name }}</strong>
+                    <strong>{{ displayReviewerName(review.reviewer_name) }}</strong>
                     <span class="review-stars" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span>
                     <time [attr.datetime]="review.created_at">{{ formatReviewDate(review.created_at) }}</time>
                   </header>
@@ -65,7 +65,7 @@
                     <div class="customer-review-photos" aria-label="Customer photos">
                       @for (imageUrl of review.image_urls; track imageUrl) {
                         <a [href]="imageUrl" target="_blank" rel="noopener noreferrer">
-                          <img [src]="imageUrl" alt="Photo shared by {{ review.reviewer_name }}" loading="lazy" />
+                          <img [src]="imageUrl" alt="Photo shared by {{ displayReviewerName(review.reviewer_name) }}" loading="lazy" />
                         </a>
                       }
                     </div>

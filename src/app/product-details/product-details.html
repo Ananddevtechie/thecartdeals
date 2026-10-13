@@ -13,7 +13,7 @@
 
   <header class="site-header">
     <a class="brand" href="#top" aria-label="The Good Edit home">
-      <img class="brand-mark" src="/app-icon.png" alt="" />
+      <img class="brand-mark" src="/app-icon-display.png" alt="" />
       <span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
     </a>
     <nav class="header-links" aria-label="Page navigation">
@@ -88,15 +88,6 @@
       </div>
     </section>
 
-    <section class="benefits-section section-wrap">
-      <div class="section-heading"><span class="section-kicker">A BETTER EVERYDAY</span><h2>Small upgrade.<br /><em>Big difference.</em></h2><p>Everything you need for a simpler everyday experience.</p></div>
-      <div class="benefit-grid">
-        @for (benefit of product.benefits; track benefit.title; let i = $index) {
-          <article class="benefit-card" [class.benefit-featured]="i === 0"><span class="benefit-number">0{{ i + 1 }}</span><span class="benefit-icon">{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.copy }}</p></article>
-        }
-      </div>
-    </section>
-
     <section class="details-section">
       <div class="section-wrap details-layout">
         <div class="details-intro"><span class="section-kicker">THE DETAILS MATTER</span><h2>Thought through,<br /><em>down to the details.</em></h2><p>Useful by design, with no unnecessary fuss.</p><div class="details-image"><img [src]="media[0].src" [alt]="media[0].alt" /><span>{{ product.title }}</span></div></div>
@@ -126,7 +117,7 @@
         <div class="customer-reviews">
           @for (review of visibleReviews; track review.id) {
             <article class="customer-review">
-              <div class="customer-review-header"><div><strong>{{ review.reviewer_name }}</strong><span class="customer-review-rating" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span></div><time>{{ formatReviewDate(review.created_at) }}</time></div>
+              <div class="customer-review-header"><div><strong>{{ displayReviewerName(review.reviewer_name) }}</strong><span class="customer-review-rating" [attr.aria-label]="review.rating + ' out of 5 stars'">{{ ratingStars(review.rating) }}</span></div><time>{{ formatReviewDate(review.created_at) }}</time></div>
               <p>{{ review.comment }}</p>
               @if (review.image_urls.length) {
                 <div class="customer-review-images" aria-label="Customer review photos">
@@ -149,6 +140,15 @@
       } @else {
         <div class="reviews-empty"><div class="empty-stars">☆☆☆☆☆</div><strong>No customer reviews yet.</strong><p>Customer feedback will appear here.</p></div>
       }
+    </section>
+
+    <section class="benefits-section section-wrap">
+      <div class="section-heading"><span class="section-kicker">A BETTER EVERYDAY</span><h2>Small upgrade.<br /><em>Big difference.</em></h2><p>Everything you need for a simpler everyday experience.</p></div>
+      <div class="benefit-grid">
+        @for (benefit of product.benefits; track benefit.title; let i = $index) {
+          <article class="benefit-card" [class.benefit-featured]="i === 0"><span class="benefit-number">0{{ i + 1 }}</span><span class="benefit-icon">{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.copy }}</p></article>
+        }
+      </div>
     </section>
 
     <section class="final-offer">
@@ -193,7 +193,18 @@
   </main>
 
   <footer class="site-footer" id="support">
-    <div class="section-wrap footer-main"><a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a><p class="footer-note">Everyday things, chosen with a little more thought.</p><div class="footer-links"><a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Customer support</a><a href="#faq">Shipping &amp; returns</a><a href="#support">Privacy</a><a href="#support">Terms</a><a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Contact ↗</a></div></div>
+    <div class="section-wrap footer-main">
+      <a class="brand footer-brand" href="#top"><img class="brand-mark" src="/app-icon-display.png" alt="" /><span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a>
+      <p class="footer-note">Everyday things, chosen with a little more thought.</p>
+      <nav class="footer-links" aria-label="Store links">
+        <a href="https://wa.me/918590786095?text=Hi%2C%20I%20need%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer">Customer support</a>
+        <a routerLink="/thecartdetailsandpolicy/shipping-delivery">Shipping &amp; Delivery</a>
+        <a routerLink="/thecartdetailsandpolicy/returns-refunds">Returns &amp; Refunds</a>
+        <a routerLink="/thecartdetailsandpolicy/privacy">Privacy</a>
+        <a routerLink="/thecartdetailsandpolicy/terms">Terms</a>
+        <a href="https://wa.me/918590786095?text=Hi%2C%20I%20have%20a%20question%20for%20TheCart%20support." target="_blank" rel="noopener noreferrer">Contact ↗</a>
+      </nav>
+    </div>
     <div class="section-wrap footer-bottom"><span>© {{ product.title }} · TheCart</span><span>Thoughtfully picked. Happily used.</span></div>
   </footer>
 
