@@ -55,4 +55,8 @@
 		min-height: 38px;
 		padding: 0 11px;
 	}
+
+	:host(:has(.mobile-sticky-cta)) .whatsapp-link {
+		bottom: calc(67px + max(12px, env(safe-area-inset-bottom)));
+	}
 }

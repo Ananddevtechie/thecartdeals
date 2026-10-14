@@ -142,14 +142,16 @@
       }
     </section>
 
-    <section class="benefits-section section-wrap">
-      <div class="section-heading"><span class="section-kicker">A BETTER EVERYDAY</span><h2>Small upgrade.<br /><em>Big difference.</em></h2><p>Everything you need for a simpler everyday experience.</p></div>
-      <div class="benefit-grid">
-        @for (benefit of product.benefits; track benefit.title; let i = $index) {
-          <article class="benefit-card" [class.benefit-featured]="i === 0"><span class="benefit-number">0{{ i + 1 }}</span><span class="benefit-icon">{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.copy }}</p></article>
-        }
-      </div>
-    </section>
+    @if (product.benefits.length) {
+      <section class="benefits-section section-wrap">
+        <div class="section-heading"><span class="section-kicker">A BETTER EVERYDAY</span><h2>Small upgrade.<br /><em>Big difference.</em></h2><p>Everything you need for a simpler everyday experience.</p></div>
+        <div class="benefit-grid">
+          @for (benefit of product.benefits; track benefit.title; let i = $index) {
+            <article class="benefit-card" [class.benefit-featured]="i === 0"><span class="benefit-number">0{{ i + 1 }}</span><span class="benefit-icon">{{ benefit.icon }}</span><h3>{{ benefit.title }}</h3><p>{{ benefit.copy }}</p></article>
+          }
+        </div>
+      </section>
+    }
 
     <section class="final-offer">
       <div class="section-wrap final-offer-inner">
