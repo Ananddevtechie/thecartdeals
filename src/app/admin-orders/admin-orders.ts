@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ProductApiService } from '../product-details/product-api.service';
 import {
   AdminOrderTracking,
-  DeliveryStatus,
   DELIVERY_STAGES,
+  DeliveryStatus,
   OrderTrackingApiService,
 } from '../order-tracking/order-tracking-api.service';
 
@@ -25,13 +25,15 @@ export class AdminOrders implements OnInit {
   private password = '';
   orders: AdminOrderTracking[] = [];
   selectedOrder: AdminOrderTracking | null = null;
-  selectedStatus: DeliveryStatus = 'ORDER_CONFIRMED';
-  deliveryDate = '';
   loading = true;
-  saving = false;
   error = '';
-  notice = '';
-  readonly stages = DELIVERY_STAGES;
+  updateNotice = '';
+  savingUpdates = false;
+  deliveryStatusDraft: DeliveryStatus = 'ORDER_CONFIRMED';
+  estimatedDeliveryDateDraft = '';
+  meeshoUrlDraft = '';
+  readonly deliveryStages = DELIVERY_STAGES;
+  readonly copyNotice = signal('');
 
   ngOnInit(): void {
     const credentials = this.productApi.getAdminCredentials();
@@ -64,48 +66,14 @@ export class AdminOrders implements OnInit {
 
   selectOrder(order: AdminOrderTracking): void {
     this.selectedOrder = order;
-    this.selectedStatus = order.delivery_status;
-    this.deliveryDate = order.estimated_delivery_date ?? '';
     this.error = '';
-    this.notice = '';
+    this.updateNotice = '';
+    this.deliveryStatusDraft = order.delivery_status;
+    this.estimatedDeliveryDateDraft = order.estimated_delivery_date ?? '';
+    this.meeshoUrlDraft = order.meesho_url ?? '';
   }
 
-  setStatus(event: Event): void {
-    this.selectedStatus = (event.currentTarget as HTMLSelectElement).value as DeliveryStatus;
-  }
-
-  setDeliveryDate(event: Event): void {
-    this.deliveryDate = (event.currentTarget as HTMLInputElement).value;
-  }
-
-  async saveTracking(): Promise<void> {
-    const order = this.selectedOrder;
-    if (!order || this.saving) return;
-    this.saving = true;
-    this.error = '';
-    this.notice = '';
-    try {
-      const updated = await this.trackingApi.updateAdminOrder(
-        this.username,
-        this.password,
-        order.order_id,
-        this.selectedStatus,
-        this.deliveryDate || null,
-      );
-      this.orders = this.orders.map((entry) => entry.order_id === updated.order_id ? updated : entry);
-      this.selectedOrder = updated;
-      this.selectedStatus = updated.delivery_status;
-      this.deliveryDate = updated.estimated_delivery_date ?? '';
-      this.notice = 'Order tracking was updated.';
-    } catch (error) {
-      this.error = error instanceof Error ? error.message : 'Could not update order tracking.';
-    } finally {
-      this.saving = false;
-      this.changeDetector.markForCheck();
-    }
-  }
-
-  statusLabel(status: DeliveryStatus): string {
+  deliveryStatusLabel(status: DeliveryStatus): string {
     return {
       ORDER_CONFIRMED: 'Order confirmed',
       PROCESSING: 'Processing',
@@ -118,24 +86,101 @@ export class AdminOrders implements OnInit {
     }[status];
   }
 
+  onDeliveryStatusChange(event: Event): void {
+    if (!(event.target instanceof HTMLSelectElement)) return;
+    const value = event.target.value;
+    const status = this.deliveryStages.find((stage) => stage === value);
+    if (status) this.deliveryStatusDraft = status;
+  }
+
+  onDeliveryDateChange(event: Event): void {
+    if (event.target instanceof HTMLInputElement) this.estimatedDeliveryDateDraft = event.target.value;
+  }
+
+  onMeeshoUrlChange(event: Event): void {
+    if (event.target instanceof HTMLInputElement) this.meeshoUrlDraft = event.target.value;
+  }
+
+  whatsappUrl(order: AdminOrderTracking): string {
+    const phone = order.customer_mobile.replace(/\D/g, '');
+    return `https://wa.me/91${phone}`;
+  }
+
+  canUpdateDelivery(order: AdminOrderTracking): boolean {
+    return order.delivery_status !== 'CANCELLED'
+      && (order.payment_status === 'PAID'
+        || order.payment_status === 'COD_PENDING');
+  }
+
+  async saveOrderUpdates(): Promise<void> {
+    if (!this.selectedOrder || this.savingUpdates) return;
+
+    this.savingUpdates = true;
+    this.error = '';
+    this.updateNotice = '';
+    try {
+      const updatedOrder = await this.trackingApi.updateAdminOrder(
+        this.username,
+        this.password,
+        this.selectedOrder.order_id,
+        this.deliveryStatusDraft,
+        this.estimatedDeliveryDateDraft || null,
+        this.meeshoUrlDraft.trim() || null,
+      );
+      this.selectedOrder = updatedOrder;
+      this.orders = this.orders.map((order) => order.order_id === updatedOrder.order_id ? updatedOrder : order);
+      this.deliveryStatusDraft = updatedOrder.delivery_status;
+      this.estimatedDeliveryDateDraft = updatedOrder.estimated_delivery_date ?? '';
+      this.meeshoUrlDraft = updatedOrder.meesho_url ?? '';
+      this.updateNotice = 'Delivery details saved.';
+    } catch (error) {
+      this.error = error instanceof Error ? error.message : 'Could not save delivery details.';
+    } finally {
+      this.savingUpdates = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
   formatDate(value: string): string {
-    return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(value));
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+      timeZone: 'UTC',
+    }).format(new Date(value)) + ' UTC';
   }
 
-  formatAddress(order: AdminOrderTracking): string {
-    return [order.address_line1, order.address_line2, order.landmark, order.city, order.state, order.pincode]
-      .filter(Boolean).join(', ');
+  formatMoney(value: number | string): string {
+    return Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  canUpdate(order: AdminOrderTracking): boolean {
-    return order.payment_status === 'PAID' || order.payment_status === 'COD_PENDING';
+  async copyField(label: string, value: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(value);
+      this.copyNotice.set(`${label} copied.`);
+    } catch {
+      this.copyNotice.set(`Could not copy ${label.toLocaleLowerCase()}. Check clipboard permissions and try again.`);
+    }
+  }
+
+  isPaymentPending(order: AdminOrderTracking): boolean {
+    return order.payment_status === 'PAYMENT_PENDING' || order.payment_status === 'COD_PENDING';
   }
 
   paymentLabel(order: AdminOrderTracking): string {
-    return order.payment_status === 'PAYMENT_PENDING'
+    return order.delivery_status === 'CANCELLED'
+      ? 'Cancelled'
+      : order.payment_status === 'PAYMENT_PENDING'
       ? 'Payment pending'
       : order.payment_status === 'PAYMENT_FAILED'
         ? 'Payment failed'
-        : this.statusLabel(order.delivery_status);
+        : order.payment_status === 'COD_PENDING'
+          ? 'COD · Pending'
+          : order.payment_status === 'PAID'
+            ? 'Paid'
+            : 'Cancelled';
   }
 }

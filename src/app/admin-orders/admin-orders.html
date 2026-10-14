@@ -15,10 +15,9 @@
     <div><p class="kicker">FULFILMENT</p><h1>Manage orders</h1></div>
     <button type="button" class="refresh-button" (click)="loadOrders()" [disabled]="loading">↻ Refresh orders</button>
   </section>
-  <p class="intro-copy">Update delivery progress and the expected delivery date. Customers can follow each update from their order page.</p>
+  <p class="intro-copy">Review customer, product and payment details for each order.</p>
 
   @if (error) { <p class="message-error" role="alert">{{ error }}</p> }
-  @if (notice) { <p class="message-success" role="status">{{ notice }}</p> }
 
   <div class="orders-layout">
     <section class="orders-list-panel" aria-labelledby="orders-list-title">
@@ -31,7 +30,7 @@
             <li>
               <button class="order-row" type="button" [class.is-selected]="selectedOrder?.order_id === order.order_id" (click)="selectOrder(order)">
                 <span class="order-row-main"><strong>{{ order.customer_name }}</strong><small>#{{ order.order_id }} · {{ formatDate(order.order_date) }}</small><span>{{ order.product_title }} × {{ order.quantity }}</span></span>
-                <span class="order-row-side"><b [class.payment-pending]="!canUpdate(order)">{{ paymentLabel(order) }}</b><small>{{ order.currency }} {{ order.total }}</small></span>
+                <span class="order-row-side"><b [class.payment-pending]="isPaymentPending(order)">{{ paymentLabel(order) }}</b><small>{{ order.currency }} {{ order.total }}</small></span>
               </button>
             </li>
           }
@@ -43,40 +42,75 @@
 
     <section class="order-detail-panel" aria-labelledby="order-detail-title">
       @if (selectedOrder; as order) {
-        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2></div><span class="payment-pill" [class.payment-pill-pending]="!canUpdate(order)">{{ order.payment_method === 'UPI' ? 'Online payment' : 'Cash on delivery' }} · {{ order.payment_status }}</span></header>
-        <div class="customer-block"><strong>{{ order.customer_name }}</strong><a [href]="'tel:' + order.customer_mobile">{{ order.customer_mobile }}</a><p>{{ formatAddress(order) }}</p></div>
-        <div class="product-block"><div><strong>{{ order.product_title }}</strong><small>SKU {{ order.product_sku }} · Qty {{ order.quantity }}</small></div><strong>{{ order.currency }} {{ order.total }}</strong></div>
-
-        @if (canUpdate(order)) {
-          <form class="tracking-form" (submit)="$event.preventDefault(); saveTracking()">
-            <label class="field">Current delivery status
-              <select [value]="selectedStatus" (change)="setStatus($event)" [disabled]="saving" required>
-                @for (stage of stages; track stage) { <option [value]="stage">{{ statusLabel(stage) }}</option> }
-              </select>
-            </label>
-            <label class="field">Estimated delivery date
-              <input type="date" [value]="deliveryDate" (input)="setDeliveryDate($event)" [disabled]="saving" />
-            </label>
-            <button class="save-button" type="submit" [disabled]="saving">{{ saving ? 'Saving…' : 'Save tracking update' }} <span aria-hidden="true">→</span></button>
-          </form>
-        } @else {
-          <p class="payment-warning">Delivery updates are enabled after payment is confirmed or a COD order is placed.</p>
-        }
-
-        <section class="history" aria-labelledby="history-title">
-          <h3 id="history-title">Tracking update history</h3>
-          @if (order.tracking_events.length) {
-            <ol>
-              @for (event of order.tracking_events; track event.created_at + event.status) {
-                <li><span class="history-dot" aria-hidden="true"></span><div><strong>{{ statusLabel(event.status) }}</strong><time>{{ formatDate(event.created_at) }}</time>@if (event.estimated_delivery_date) { <small>Estimated delivery {{ formatDate(event.estimated_delivery_date) }}</small> }</div></li>
-              }
-            </ol>
-          } @else {
-            <p class="empty-state">Tracking history will appear once this order is confirmed.</p>
+        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2><time>{{ formatDate(order.order_date) }}</time></div><span class="payment-pill" [class.payment-pill-pending]="isPaymentPending(order)">{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} · {{ paymentLabel(order) }}</span></header>
+        <section class="customer-block" aria-labelledby="customer-details-title">
+          <h3 id="customer-details-title">Customer</h3>
+          @if (copyNotice()) { <p class="copy-notice" role="status">{{ copyNotice() }}</p> }
+          <div class="detail-row"><span>Name</span><span class="detail-value"><strong>{{ order.customer_name }}</strong><button type="button" class="copy-button" aria-label="Copy name" title="Copy name" (click)="copyField('Name', order.customer_name)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          <div class="detail-row"><span>Phone</span><span class="detail-value"><a [href]="'tel:+91' + order.customer_mobile">+91 {{ order.customer_mobile }}</a><button type="button" class="copy-button" aria-label="Copy phone number" title="Copy phone number" (click)="copyField('Phone number', '+91 ' + order.customer_mobile)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          <div class="detail-row"><span>WhatsApp</span><span class="detail-value"><a [href]="whatsappUrl(order)" target="_blank" rel="noopener noreferrer">Open chat with customer ↗</a></span></div>
+          <div class="detail-row"><span>Alternate phone</span><span class="detail-value"><strong>{{ order.alternate_mobile ? '+91 ' + order.alternate_mobile : 'Not provided' }}</strong>@if (order.alternate_mobile) { <button type="button" class="copy-button" aria-label="Copy alternate phone number" title="Copy alternate phone number" (click)="copyField('Alternate phone number', '+91 ' + order.alternate_mobile)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button> }</span></div>
+          <div class="detail-row"><span>Email</span><span class="detail-value">@if (order.customer_email; as email) { <strong>{{ email }}</strong><button type="button" class="copy-button" aria-label="Copy email" title="Copy email" (click)="copyField('Email', email)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button> } @else { <strong>Not provided</strong> }</span></div>
+          <h3 class="address-subheading">Delivery address</h3>
+          <div class="detail-row"><span>House / building</span><span class="detail-value"><strong>{{ order.address_line1 }}</strong><button type="button" class="copy-button" aria-label="Copy house or building" title="Copy house or building" (click)="copyField('House or building', order.address_line1)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          <div class="detail-row"><span>Road / area</span><span class="detail-value"><strong>{{ order.address_line2 }}</strong><button type="button" class="copy-button" aria-label="Copy road or area" title="Copy road or area" (click)="copyField('Road or area', order.address_line2)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          @if (order.landmark; as landmark) { <div class="detail-row"><span>Landmark</span><span class="detail-value"><strong>{{ landmark }}</strong><button type="button" class="copy-button" aria-label="Copy landmark" title="Copy landmark" (click)="copyField('Landmark', landmark)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div> }
+          <div class="detail-row"><span>City</span><span class="detail-value"><strong>{{ order.city }}</strong><button type="button" class="copy-button" aria-label="Copy city" title="Copy city" (click)="copyField('City', order.city)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          <div class="detail-row"><span>State</span><span class="detail-value"><strong>{{ order.state }}</strong><button type="button" class="copy-button" aria-label="Copy state" title="Copy state" (click)="copyField('State', order.state)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+          <div class="detail-row"><span>PIN code</span><span class="detail-value"><strong>{{ order.pincode }}</strong><button type="button" class="copy-button" aria-label="Copy PIN code" title="Copy PIN code" (click)="copyField('PIN code', order.pincode)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
+        </section>
+        <section class="product-block" aria-labelledby="product-details-title">
+          <h3 id="product-details-title">Product</h3>
+          <div class="detail-row"><span>Product</span><strong>{{ order.product_title }}</strong></div>
+          <div class="detail-row"><span>SKU</span><strong>{{ order.product_sku }}</strong></div>
+          <div class="detail-row"><span>Quantity</span><strong>{{ order.quantity }}</strong></div>
+          @if (order.meesho_url) {
+            <div class="detail-row"><span>Current Meesho link</span><span class="detail-value"><a [href]="order.meesho_url" target="_blank" rel="noopener noreferrer">Open Meesho product ↗</a></span></div>
           }
         </section>
+        <section class="delivery-block" aria-labelledby="delivery-details-title">
+          <h3 id="delivery-details-title">Delivery details</h3>
+          @if (updateNotice) { <p class="update-notice" role="status">{{ updateNotice }}</p> }
+          <label class="delivery-field">
+            <span>Delivery status</span>
+            <select [value]="deliveryStatusDraft" (change)="onDeliveryStatusChange($event)">
+              @for (status of deliveryStages; track status) {
+                <option [value]="status">{{ deliveryStatusLabel(status) }}</option>
+              }
+            </select>
+          </label>
+          <label class="delivery-field">
+            <span>Expected delivery date</span>
+            <input type="date" [value]="estimatedDeliveryDateDraft" (input)="onDeliveryDateChange($event)" />
+          </label>
+          <label class="delivery-field">
+            <span>Meesho product link</span>
+            <input type="url" maxlength="2048" placeholder="https://www.meesho.com/…" [value]="meeshoUrlDraft" (input)="onMeeshoUrlChange($event)" />
+          </label>
+          <p class="delivery-help">The Meesho link is shared with this product in the catalog.</p>
+          <button type="button" class="save-delivery-button" (click)="saveOrderUpdates()" [disabled]="savingUpdates || !canUpdateDelivery(order)">
+            {{ savingUpdates ? 'Saving…' : 'Save delivery details' }}
+          </button>
+          @if (!canUpdateDelivery(order)) {
+            <p class="delivery-help">Delivery status and date can be updated after payment is confirmed or a COD order is placed.</p>
+          }
+        </section>
+        <section class="payment-block" aria-labelledby="payment-details-title">
+          <h3 id="payment-details-title">Payment</h3>
+          <div class="detail-row"><span>Method</span><strong>{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} ({{ order.payment_status }})</strong></div>
+          <div class="detail-row"><span>MRP</span><strong>{{ order.currency }} {{ formatMoney(order.mrp) }}</strong></div>
+          <div class="detail-row"><span>Discount</span><strong class="discount-value">−{{ order.currency }} {{ formatMoney(order.discount) }}</strong></div>
+          <div class="detail-row"><span>Shipping</span><strong>{{ order.currency }} {{ formatMoney(order.shipping) }}</strong></div>
+          <div class="detail-row"><span>Tax</span><strong>{{ order.currency }} {{ formatMoney(order.tax) }}</strong></div>
+          @if (order.payment_method === 'COD') {
+            <div class="detail-row"><span>COD fee</span><strong>{{ order.currency }} {{ formatMoney(order.cod_fee) }}</strong></div>
+          }
+          <div class="detail-row"><span>Payment reference</span><strong>{{ order.payment_reference || 'Not applicable' }}</strong></div>
+          <div class="detail-row total-row"><span>Total</span><strong>{{ order.currency }} {{ formatMoney(order.total) }}</strong></div>
+        </section>
+
       } @else {
-        <div class="detail-empty"><span aria-hidden="true">↖</span><strong>Select an order</strong><p>Order, delivery and customer details will appear here.</p></div>
+        <div class="detail-empty"><span aria-hidden="true">↖</span><strong>Select an order</strong><p>Order and customer details will appear here.</p></div>
       }
     </section>
   </div>

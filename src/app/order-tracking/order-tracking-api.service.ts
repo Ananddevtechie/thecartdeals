@@ -37,12 +37,21 @@ export interface OrderTracking {
 export interface AdminOrderTracking extends OrderTracking {
   customer_name: string;
   customer_mobile: string;
+  alternate_mobile: string | null;
+  customer_email: string | null;
   address_line1: string;
   address_line2: string;
   landmark: string | null;
   city: string;
   state: string;
   pincode: string;
+  mrp: number | string;
+  discount: number | string;
+  shipping: number | string;
+  tax: number | string;
+  cod_fee: number | string;
+  payment_reference: string | null;
+  meesho_url: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -64,6 +73,7 @@ export class OrderTrackingApiService {
     orderId: string,
     deliveryStatus: DeliveryStatus,
     estimatedDeliveryDate: string | null,
+    meeshoUrl: string | null,
   ): Promise<AdminOrderTracking> {
     const response = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/tracking`, {
       method: 'PUT',
@@ -71,6 +81,7 @@ export class OrderTrackingApiService {
       body: JSON.stringify({
         delivery_status: deliveryStatus,
         estimated_delivery_date: estimatedDeliveryDate || null,
+        meesho_url: meeshoUrl,
       }),
     });
     const result = await response.json() as AdminOrderTracking | { detail?: string };

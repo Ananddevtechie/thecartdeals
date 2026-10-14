@@ -1,0 +1,213 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { afterEach, vi } from 'vitest';
+import { ProductApiService } from '../product-details/product-api.service';
+import { OrderTrackingApiService } from '../order-tracking/order-tracking-api.service';
+import { AdminOrders } from './admin-orders';
+
+const order = {
+  order_id: 'ORD-QA-001',
+  product_title: 'Test product',
+  product_sku: 'TEST-001',
+  quantity: 1,
+  total: '199.00',
+  currency: 'INR' as const,
+  payment_method: 'COD' as const,
+  payment_status: 'COD_PENDING',
+  delivery_status: 'ORDER_CONFIRMED' as const,
+  estimated_delivery_date: null,
+  order_date: '2026-10-14T00:00:00Z',
+  tracking_events: [{ status: 'ORDER_CONFIRMED' as const, estimated_delivery_date: null, created_at: '2026-10-14T00:00:00Z' }],
+  customer_name: 'QA Customer',
+  customer_mobile: '9876543210',
+  alternate_mobile: null,
+  customer_email: null,
+  address_line1: '12 Test Residency',
+  address_line2: 'Example Main Road',
+  landmark: null,
+  city: 'Bengaluru',
+  state: 'Karnataka',
+  pincode: '560001',
+  mrp: '399.00',
+  discount: '200.00',
+  shipping: '0.00',
+  tax: '0.00',
+  cod_fee: '0.00',
+  payment_reference: null,
+  meesho_url: 'https://www.meesho.com/test-product/p/123',
+};
+
+describe('AdminOrders', () => {
+  let fixture: ComponentFixture<AdminOrders>;
+  const listAdminOrders = vi.fn(async () => [order]);
+  const updateAdminOrder = vi.fn(async (_username: string, _password: string, _orderId: string, deliveryStatus: typeof order.delivery_status, estimatedDeliveryDate: string | null, meeshoUrl: string | null) => ({
+    ...order,
+    delivery_status: deliveryStatus,
+    estimated_delivery_date: estimatedDeliveryDate,
+    meesho_url: meeshoUrl,
+  }));
+  afterEach(() => fixture?.destroy());
+
+  beforeEach(async () => {
+    listAdminOrders.mockClear();
+    updateAdminOrder.mockClear();
+    await TestBed.configureTestingModule({
+      imports: [AdminOrders],
+      providers: [
+        provideRouter([]),
+        { provide: ProductApiService, useValue: { getAdminCredentials: () => ({ username: 'admin', password: 'test' }) } },
+        { provide: OrderTrackingApiService, useValue: { listAdminOrders, updateAdminOrder } },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AdminOrders);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+  });
+
+  it('shows order details without delivery tracking controls or history', () => {
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    expect(row.textContent).toContain('COD · Pending');
+    row.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.customer-block')?.textContent).toContain('QA Customer');
+    expect(fixture.nativeElement.querySelector('.product-block')?.textContent).toContain('Test product');
+    expect(fixture.nativeElement.querySelector('.tracking-form')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.history')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Save tracking update');
+    expect(fixture.nativeElement.textContent).not.toContain('Tracking update history');
+  });
+
+  it('renders the requested customer, product, payment breakdown, and UTC order date', () => {
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.detectChanges();
+
+    const detailText = fixture.nativeElement.querySelector('.order-detail-panel')?.textContent ?? '';
+    expect(detailText).toContain('ORD-QA-001');
+    expect(detailText).toContain('QA Customer');
+    expect(detailText).toContain('+91 9876543210');
+    expect(detailText).toContain('Alternate phone');
+    expect(detailText).toContain('Not provided');
+    expect(detailText).toContain('Email');
+    expect(detailText).toContain('12 Test Residency');
+    expect(detailText).toContain('Example Main Road');
+    expect(detailText).toContain('Bengaluru');
+    expect(detailText).toContain('Karnataka');
+    expect(detailText).toContain('560001');
+    expect(detailText).toContain('TEST-001');
+    expect(detailText).toContain('Payment reference');
+    expect(detailText).toContain('MRP');
+    expect(detailText).toContain('Discount');
+    expect(detailText).toContain('COD fee');
+    expect(detailText).toContain('Total');
+    expect(detailText).toContain('14/10/2026, 00:00 UTC');
+  });
+
+  it('renders each delivery address field as a visible row with its own copy action', () => {
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.detectChanges();
+
+    const addressSection = fixture.nativeElement.querySelector('.customer-block') as HTMLElement;
+    expect(addressSection.querySelector('.address-subheading')?.textContent).toContain('Delivery address');
+    for (const [label, value, ariaLabel] of [
+      ['House / building', '12 Test Residency', 'Copy house or building'],
+      ['Road / area', 'Example Main Road', 'Copy road or area'],
+      ['City', 'Bengaluru', 'Copy city'],
+      ['State', 'Karnataka', 'Copy state'],
+      ['PIN code', '560001', 'Copy PIN code'],
+    ]) {
+      const detailRow = [...addressSection.querySelectorAll('.detail-row')]
+        .find((element) => element.querySelector(':scope > span:first-child')?.textContent?.trim() === label);
+      expect(detailRow?.querySelector('.detail-value strong')?.textContent).toContain(value);
+      expect(detailRow?.querySelector(`[aria-label="${ariaLabel}"]`)).not.toBeNull();
+    }
+  });
+
+  it('shows a WhatsApp chat link and lets the admin update delivery status, date, and Meesho link', async () => {
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.customer-block a[href="https://wa.me/919876543210"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.product-block a[href="https://www.meesho.com/test-product/p/123"]')).not.toBeNull();
+
+    const status = fixture.nativeElement.querySelector('.delivery-field select') as HTMLSelectElement;
+    status.value = 'IN_TRANSIT';
+    status.dispatchEvent(new Event('change'));
+    const date = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+    date.value = '2026-10-20';
+    date.dispatchEvent(new Event('input'));
+    const link = fixture.nativeElement.querySelector('input[type="url"]') as HTMLInputElement;
+    link.value = 'https://www.meesho.com/updated/p/456';
+    link.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('.save-delivery-button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(updateAdminOrder).toHaveBeenCalledWith(
+      'admin',
+      'test',
+      'ORD-QA-001',
+      'IN_TRANSIT',
+      '2026-10-20',
+      'https://www.meesho.com/updated/p/456',
+    );
+    expect(fixture.nativeElement.querySelector('.update-notice')?.textContent).toContain('Delivery details saved.');
+  });
+
+  it('copies a single selected customer or address field', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    try {
+      const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+      row.click();
+      fixture.detectChanges();
+
+      (fixture.nativeElement.querySelector('[aria-label="Copy phone number"]') as HTMLButtonElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(writeText).toHaveBeenCalledWith('+91 9876543210');
+      expect(fixture.nativeElement.querySelector('.copy-notice')?.textContent).toContain('Phone number copied.');
+      expect(fixture.nativeElement.querySelectorAll('.copy-button').length).toBeGreaterThanOrEqual(7);
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
+  });
+
+  it('announces clipboard permission failures without throwing', async () => {
+    const originalClipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockRejectedValue(new Error('Permission denied')) },
+    });
+
+    try {
+      const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+      row.click();
+      fixture.detectChanges();
+      (fixture.nativeElement.querySelector('[aria-label="Copy name"]') as HTMLButtonElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.copy-notice')?.textContent)
+        .toContain('Could not copy name');
+    } finally {
+      if (originalClipboard) Object.defineProperty(navigator, 'clipboard', originalClipboard);
+      else Reflect.deleteProperty(navigator, 'clipboard');
+    }
+  });
+});
