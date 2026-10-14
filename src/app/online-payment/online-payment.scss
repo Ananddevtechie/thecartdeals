@@ -59,22 +59,7 @@ button:focus-visible,a:focus-visible { outline:3px solid rgba(240,201,121,.85);o
 .upi-symbol { width:35px;height:35px;display:grid;place-items:center;flex:0 0 35px;border:1px solid rgba(139,196,162,.23);border-radius:10px;background:rgba(139,196,162,.12);color:#b1dfbd;font-size:17px; }
 .upi-card-heading h2 { margin:0;color:#f2f6ef;font-size:15px;font-weight:700; }
 .upi-card-heading p { margin:4px 0 0;color:#b7c6b9;font-size:10px;line-height:1.5; }
-.upi-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px; }
-.upi-option { position:relative;min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:11px 7px 10px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(255,255,255,.045);color:#eaf0e9;cursor:pointer;transition:border-color .18s,background .18s,transform .18s; }
-.upi-option:hover { transform:translateY(-1px);border-color:rgba(240,185,93,.45);background:rgba(255,255,255,.075); }
-.upi-option.is-selected { border-color:#f0c979;background:linear-gradient(145deg,rgba(240,185,93,.17),rgba(255,255,255,.06));box-shadow:inset 0 1px rgba(255,255,255,.08); }
-.upi-option input { position:absolute;width:1px;height:1px;opacity:0; }
-.upi-option:focus-within { outline:3px solid rgba(240,201,121,.78);outline-offset:2px; }
-.app-mark { min-width:34px;height:34px;display:grid;place-items:center;padding:0 5px;border-radius:10px;background:#edf4ed;color:#183226;font-size:14px;font-weight:800; }
-.app-mark[data-brand='google'] { border-radius:50%;color:#4285f4;font-size:20px; }
-.app-mark[data-brand='phonepe'] { border-radius:50%;background:#5f259f;color:#fff;font-size:15px; }
-.app-mark[data-brand='paytm'] { color:#00a5df;font-size:10px;letter-spacing:-.06em; }
-.app-mark[data-brand='bhim'] { background:#f0b95d;color:#20352b;font-size:9px; }
-.app-mark[data-brand='amazon'] { color:#172d42;font:700 21px/1 Georgia,serif; }
-.app-mark[data-brand='other'] { background:#d5eadb;color:#275b3d;font-size:9px; }
-.app-name { max-width:100%;color:#e7eee7;font-size:9px;font-weight:650;line-height:1.25;text-align:center; }
-.app-radio { position:absolute;top:7px;right:7px;width:13px;height:13px;border:1px solid #91a596;border-radius:50%; }
-.upi-option.is-selected .app-radio { border:4px solid #f0c979; }
+.upi-provider-choice { margin:0;padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.045);color:#c1ccc2;font-size:10px;line-height:1.55; }
 .razorpay-security { display:flex;align-items:center;justify-content:center;gap:6px;margin:15px 0;color:#bdcbbf;font-size:9px; }
 .razorpay-security>span { color:#f0c979;font-size:13px; }
 .razorpay-security strong { color:#e7eee7;font-weight:750; }
@@ -120,16 +105,10 @@ button:focus-visible,a:focus-visible { outline:3px solid rgba(240,201,121,.85);o
   .amount-summary { margin-bottom:14px;padding:13px; }
   .amount-summary strong { font-size:23px; }
   .upi-card { padding:13px 11px; }
-  .upi-grid { gap:7px; }
-  .upi-option { min-height:83px;gap:7px;padding:9px 4px; }
-  .app-mark { min-width:31px;height:31px; }
-  .app-name { font-size:8px; }
   .success-amount { font-size:31px; }
 }
 @media(max-width:360px) {
   .online-payment-page { padding-right:12px;padding-left:12px; }
   .payment-card { padding:19px 13px; }
-  .upi-option { min-height:78px; }
-  .app-name { font-size:7px; }
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important;transition-duration:.01ms!important; } }

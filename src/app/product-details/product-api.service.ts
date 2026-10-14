@@ -168,30 +168,32 @@ export class ProductApiService {
     }
   }
 
-  async getProductReviews(slug: string): Promise<ProductReviewSummary> {
-    const cached = this.productReviewsCache.get(slug);
+  async getProductReviews(slug: string, offset = 0, limit = 10): Promise<ProductReviewSummary> {
+    const cacheKey = `${slug}:${offset}:${limit}`;
+    const cached = this.productReviewsCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.summary;
 
-    const pendingRequest = this.productReviewsRequests.get(slug);
+    const pendingRequest = this.productReviewsRequests.get(cacheKey);
     if (pendingRequest) return pendingRequest;
 
     const request = (async () => {
-      const response = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews`);
+      const query = new URLSearchParams({ offset: String(offset), limit: String(limit) });
+      const response = await fetch(`/api/products/${encodeURIComponent(slug)}/reviews?${query}`);
       const result = await response.json() as ProductReviewSummary | { detail?: string };
       if (!response.ok || !('reviews' in result)) {
         throw new Error('detail' in result ? result.detail ?? 'Could not load reviews.' : 'Could not load reviews.');
       }
-      this.productReviewsCache.set(slug, {
+      this.productReviewsCache.set(cacheKey, {
         expiresAt: Date.now() + this.publicCacheTtlMs,
         summary: result,
       });
       return result;
     })();
-    this.productReviewsRequests.set(slug, request);
+    this.productReviewsRequests.set(cacheKey, request);
     try {
       return await request;
     } finally {
-      if (this.productReviewsRequests.get(slug) === request) this.productReviewsRequests.delete(slug);
+      if (this.productReviewsRequests.get(cacheKey) === request) this.productReviewsRequests.delete(cacheKey);
     }
   }
 
@@ -393,8 +395,12 @@ export class ProductApiService {
   }
 
   private invalidateProductReviews(slug: string): void {
-    this.productReviewsCache.delete(slug);
-    this.productReviewsRequests.delete(slug);
+    for (const cacheKey of [...this.productReviewsCache.keys()]) {
+      if (cacheKey.startsWith(`${slug}:`)) this.productReviewsCache.delete(cacheKey);
+    }
+    for (const requestKey of [...this.productReviewsRequests.keys()]) {
+      if (requestKey.startsWith(`${slug}:`)) this.productReviewsRequests.delete(requestKey);
+    }
   }
 
   private adminHeaders(username: string, password: string): HeadersInit {

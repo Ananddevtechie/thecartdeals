@@ -16,14 +16,14 @@
 
     @if (!stateResolved) {
       <div class="payment-card loading-state" role="status"><span class="payment-spinner" aria-hidden="true"></span>Loading payment details…</div>
-    } @else if (!checkout || !product) {
+    } @else if (screen() === 'selection' && (!checkout || !product)) {
       <article class="payment-card result-card" role="alert">
         <span class="eyebrow">PAYMENT</span>
         <h1 id="online-payment-title">Payment details unavailable</h1>
         <p>Your checkout details have expired. Return to checkout to continue.</p>
         <button class="primary-action" type="button" (click)="backToCheckout()">Back to Checkout <span aria-hidden="true">→</span></button>
       </article>
-    } @else if (screen() === 'selection') {
+    } @else if (screen() === 'selection' && checkout && product) {
       <article class="payment-card selection-card" aria-labelledby="online-payment-title">
         <div class="screen-heading">
           <span class="eyebrow">SECURE PAYMENT</span>
@@ -41,16 +41,7 @@
             <span class="upi-symbol" aria-hidden="true">↗</span>
             <div><h2 id="upi-title">UPI</h2><p>Pay instantly using your preferred UPI app</p></div>
           </header>
-          <div class="upi-grid" role="radiogroup" aria-label="Preferred UPI app">
-            @for (app of upiApps; track app.id) {
-              <label class="upi-option" [class.is-selected]="selectedApp() === app.id">
-                <input type="radio" name="upi-app" [value]="app.id" [checked]="selectedApp() === app.id" (change)="selectApp(app.id)" />
-                <span class="app-mark" [attr.data-brand]="app.style" aria-hidden="true">{{ app.mark }}</span>
-                <span class="app-name">{{ app.name }}</span>
-                <span class="app-radio" aria-hidden="true"></span>
-              </label>
-            }
-          </div>
+          <p class="upi-provider-choice">Choose a supported UPI app in the secure Razorpay checkout.</p>
         </section>
 
         @if (notice()) { <div class="payment-notice" role="alert">{{ notice() }}</div> }
@@ -78,8 +69,10 @@
         <h1 id="online-payment-title">Payment Failed</h1>
         <p>We couldn't complete your payment. No amount should be considered paid until the payment is successfully verified.</p>
         @if (notice()) { <div class="payment-notice" role="alert">{{ notice() }}</div> }
-        <button class="primary-action" type="button" (click)="tryAgain()">Try Again <span aria-hidden="true">→</span></button>
-        <button class="secondary-action" type="button" (click)="tryAgain()">Change Payment Method</button>
+        @if (checkout && product) {
+          <button class="primary-action" type="button" (click)="tryAgain()">Try Again <span aria-hidden="true">→</span></button>
+          <button class="secondary-action" type="button" (click)="tryAgain()">Change Payment Method</button>
+        }
         <button class="text-action" type="button" (click)="backToCheckout()">Back to Checkout</button>
       </article>
     } @else {
@@ -87,7 +80,7 @@
         <span class="result-icon success-icon" aria-hidden="true">✓</span>
         <span class="eyebrow">PAYMENT CONFIRMED</span>
         <h1 id="online-payment-title">Payment Successful</h1>
-        <strong class="success-amount">{{ product.currency }}{{ formattedTotal }} <span>Paid</span></strong>
+        <strong class="success-amount">{{ paidOrder()?.currency ?? 'INR' }} {{ formattedTotal }} <span>Paid</span></strong>
         <div class="status-order"><span>Order</span><strong>#{{ paidOrder()?.order_id }}</strong></div>
         <p class="confirmed-status"><span aria-hidden="true">✓</span> Payment Confirmed</p>
         <button class="primary-action" type="button" (click)="viewOrder()">View Order <span aria-hidden="true">→</span></button>

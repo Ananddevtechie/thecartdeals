@@ -46,7 +46,7 @@ describe('App', () => {
 
   it('should share and cache one product reviews request', async () => {
     const summary: ProductReviewSummary = { average_rating: 5, review_count: 0, reviews: [] };
-    const fetchMock = vi.fn(async () => ({
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({
       ok: true,
       json: async () => summary,
     }));
@@ -63,6 +63,28 @@ describe('App', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(results[0]).toBe(summary);
       expect(results[1]).toBe(summary);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('should cache review pages independently and request the requested offset', async () => {
+    const summary: ProductReviewSummary = { average_rating: 4.5, review_count: 21, reviews: [] };
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => summary,
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    try {
+      const service = new ProductApiService();
+      await service.getProductReviews('test-product', 10, 10);
+      await service.getProductReviews('test-product', 10, 10);
+      await service.getProductReviews('test-product', 20, 10);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(fetchMock.mock.calls[0][0]).toBe('/api/products/test-product/reviews?offset=10&limit=10');
+      expect(fetchMock.mock.calls[1][0]).toBe('/api/products/test-product/reviews?offset=20&limit=10');
     } finally {
       vi.unstubAllGlobals();
     }

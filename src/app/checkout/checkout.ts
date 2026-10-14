@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, afterNextRender, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, afterNextRender, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -34,23 +34,31 @@ export class Checkout {
   private readonly customerApi = inject(CustomerApiService);
   private readonly productApi = inject(ProductApiService);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   product: StoreProduct | null = null;
   productLoading = true;
   productError = '';
   readonly checkoutDraft = this.readCheckoutDraft();
   readonly indianStates = [
+    'Andaman and Nicobar Islands',
     'Andhra Pradesh',
     'Arunachal Pradesh',
     'Assam',
     'Bihar',
+    'Chandigarh',
     'Chhattisgarh',
+    'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi',
     'Goa',
     'Gujarat',
     'Haryana',
     'Himachal Pradesh',
+    'Jammu and Kashmir',
     'Jharkhand',
     'Karnataka',
     'Kerala',
+    'Ladakh',
+    'Lakshadweep',
     'Madhya Pradesh',
     'Maharashtra',
     'Manipur',
@@ -58,6 +66,7 @@ export class Checkout {
     'Mizoram',
     'Nagaland',
     'Odisha',
+    'Puducherry',
     'Punjab',
     'Rajasthan',
     'Sikkim',
@@ -126,6 +135,7 @@ export class Checkout {
         : 'Could not save your delivery details. Please try again.';
     } finally {
       this.isSubmitting = false;
+      if (!this.destroyRef.destroyed) this.changeDetector.detectChanges();
     }
   }
 

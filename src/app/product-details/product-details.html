@@ -1,7 +1,7 @@
-<div class="storefront">
-  @if (loading || loadError) {
+<div class="storefront" [attr.inert]="cartOpen() ? '' : null" [attr.aria-hidden]="cartOpen() ? 'true' : null">
+  @if (loading() || loadError) {
     <section class="product-state" aria-live="polite">
-      @if (loading) { <p>Loading product…</p> }
+      @if (loading()) { <p>Loading product…</p> }
       @else { <h1>{{ loadError }}</h1><a href="/admin/products">Open product admin <span>↗</span></a> }
     </section>
   } @else {
@@ -12,7 +12,7 @@
   </div>
 
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="The Good Edit home">
+    <a class="brand" routerLink="/" aria-label="TheCart home">
       <img class="brand-mark" src="/app-icon-display.png" alt="" />
       <span class="brand-copy"><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span>
     </a>
@@ -22,7 +22,7 @@
       <a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product." target="_blank" rel="noopener noreferrer">Support</a>
     </nav>
     <button class="header-order" type="button" (click)="navigateToCheckout()">Order now <span>↗</span></button>
-    <button class="cart-trigger" type="button" (click)="cartOpen = true" [attr.aria-label]="'Open cart, ' + cart.itemCount() + ' items'" aria-haspopup="dialog">
+    <button #cartTrigger class="cart-trigger" type="button" (click)="openCart()" [attr.aria-label]="'Open cart, ' + cart.itemCount() + ' items'" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.4L21 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg>
       @if (cart.itemCount()) { <span class="cart-count">{{ cart.itemCount() }}</span> }
     </button>
@@ -55,9 +55,9 @@
         <p class="hero-description">{{ product.description }}</p>
 
         <div class="rating-line">
-          <span class="rating-stars" [attr.aria-label]="reviewSummary.review_count ? reviewSummary.average_rating + ' out of 5 stars' : 'No reviews yet'">{{ reviewSummary.review_count ? ratingStars(reviewSummary.average_rating) : '☆☆☆☆☆' }}</span>
-          @if (reviewSummary.review_count) {
-            <span class="rating-copy">{{ reviewSummary.average_rating.toFixed(1) }}</span>
+          <span class="rating-stars" [attr.aria-label]="reviewSummary().review_count ? reviewSummary().average_rating + ' out of 5 stars' : 'No reviews yet'">{{ reviewSummary().review_count ? ratingStars(reviewSummary().average_rating) : '☆☆☆☆☆' }}</span>
+          @if (reviewSummary().review_count) {
+            <span class="rating-copy">{{ reviewSummary().average_rating.toFixed(1) }}</span>
           }
           <span class="rating-divider"></span>
           <span class="rating-proof">Thoughtfully picked for you</span>
@@ -108,12 +108,12 @@
     </section>
 
     <section class="reviews-section section-wrap" id="reviews">
-      <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Customer reviews</p></div><div class="reviews-count"><strong>{{ reviewSummary.review_count ? reviewSummary.average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary.review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary.average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary.average_rating) }}</span> }<span>{{ reviewSummary.review_count }} REVIEWS</span></div></div>
-      @if (reviewsLoading) {
+      <div class="reviews-top"><div><span class="section-kicker">CUSTOMER REVIEWS</span><h2>Loved by customers.</h2><p>Customer reviews</p></div><div class="reviews-count"><strong>{{ reviewSummary().review_count ? reviewSummary().average_rating.toFixed(1) : '—' }}</strong>@if (reviewSummary().review_count) { <span class="average-stars" [attr.aria-label]="reviewSummary().average_rating + ' out of 5 stars'">{{ ratingStars(reviewSummary().average_rating) }}</span> }<span>{{ reviewSummary().review_count }} REVIEWS</span></div></div>
+      @if (reviewsLoading()) {
         <div class="reviews-empty" role="status"><strong>Loading customer reviews…</strong></div>
-      } @else if (reviewsError) {
-        <div class="reviews-empty" role="alert"><strong>Reviews unavailable.</strong><p>{{ reviewsError }}</p></div>
-      } @else if (reviewSummary.review_count) {
+      } @else if (reviewsError()) {
+        <div class="reviews-empty" role="alert"><strong>Reviews unavailable.</strong><p>{{ reviewsError() }}</p></div>
+      } @else if (reviewSummary().review_count) {
         <div class="customer-reviews">
           @for (review of visibleReviews; track review.id) {
             <article class="customer-review">
@@ -129,7 +129,7 @@
         </div>
         @if (totalReviewPages > 1) {
           <nav class="customer-reviews" aria-label="Customer review pages">
-            <span>Showing {{ firstReviewNumber }}-{{ lastReviewNumber }} of {{ sortedReviews.length }} reviews</span>
+            <span>Showing {{ firstReviewNumber }}-{{ lastReviewNumber }} of {{ reviewSummary().review_count }} reviews</span>
             <div class="related-controls">
               <button type="button" (click)="previousReviewPage()" [disabled]="reviewPage === 0" aria-label="Previous review page">‹</button>
               <span aria-live="polite">Page {{ reviewPage + 1 }} of {{ totalReviewPages }}</span>
@@ -214,10 +214,10 @@
   }
 </div>
 
-@if (cartOpen) {
+@if (cartOpen()) {
   <div class="cart-backdrop" (click)="closeCart()">
     <section class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" (click)="$event.stopPropagation()">
-      <header class="cart-heading"><div><span class="eyebrow">YOUR PICKS</span><h2 id="cart-title">Shopping cart <small>{{ cart.itemCount() }}</small></h2></div><button class="cart-close" type="button" (click)="closeCart()" aria-label="Close cart">×</button></header>
+      <header class="cart-heading"><div><span class="eyebrow">YOUR PICKS</span><h2 id="cart-title">Shopping cart <small>{{ cart.itemCount() }}</small></h2></div><button #cartCloseButton class="cart-close" type="button" (click)="closeCart()" aria-label="Close cart">×</button></header>
       @if (cart.storageError()) { <p class="cart-storage-warning" role="alert">{{ cart.storageError() }}</p> }
       @if (cart.items().length) {
         <ul class="cart-items">

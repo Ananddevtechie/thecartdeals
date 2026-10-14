@@ -105,13 +105,30 @@ export class PaymentApiService {
   }
 
   private async request<T extends object>(url: string, init?: RequestInit): Promise<T> {
-    const response = await fetch(url, init);
-    const result = await response.json() as T | { detail?: string };
+    let response: Response;
+    try {
+      response = await fetch(url, init);
+    } catch {
+      throw new Error('Could not connect to the payment service. Please check your connection and try again.');
+    }
+
+    let result: unknown;
+    try {
+      result = await response.json();
+    } catch {
+      if (!response.ok) throw new Error('Payment service is temporarily unavailable.');
+      throw new Error('The payment service returned an invalid response. Please try again.');
+    }
+
+    const payload = typeof result === 'object' && result !== null
+      ? result as T & { detail?: string }
+      : null;
     if (!response.ok) {
-      throw new Error('detail' in result && result.detail
-        ? result.detail
+      throw new Error(typeof payload?.detail === 'string' && payload.detail
+        ? payload.detail
         : 'Payment service is temporarily unavailable.');
     }
-    return result as T;
+    if (!payload) throw new Error('The payment service returned an invalid response. Please try again.');
+    return payload;
   }
 }

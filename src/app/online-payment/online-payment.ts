@@ -28,13 +28,6 @@ interface CheckoutSummary {
   productId?: string;
 }
 
-interface UpiApp {
-  id: string;
-  name: string;
-  mark: string;
-  style: string;
-}
-
 type PaymentScreen = 'selection' | 'pending' | 'failed' | 'success';
 
 declare global {
@@ -75,22 +68,13 @@ export class OnlinePayment implements OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly paymentApi = inject(PaymentApiService);
-  private readonly productApi = inject(ProductApiService);
+  private   readonly productApi = inject(ProductApiService);
   private statusTimer: ReturnType<typeof setTimeout> | undefined;
   product: StoreProduct | null = null;
-  readonly upiApps: UpiApp[] = [
-    { id: 'google-pay', name: 'Google Pay', mark: 'G', style: 'google' },
-    { id: 'phonepe', name: 'PhonePe', mark: 'पे', style: 'phonepe' },
-    { id: 'paytm', name: 'Paytm', mark: 'paytm', style: 'paytm' },
-    { id: 'bhim', name: 'BHIM', mark: 'BHIM', style: 'bhim' },
-    { id: 'amazon-pay', name: 'Amazon Pay', mark: 'a', style: 'amazon' },
-    { id: 'other', name: 'Other UPI Apps', mark: 'UPI', style: 'other' },
-  ];
   checkout: CheckoutSummary | null = null;
   quantity = 1;
   stateResolved = false;
   readonly screen = signal<PaymentScreen>('selection');
-  readonly selectedApp = signal('google-pay');
   readonly payableTotal = signal(0);
   readonly notice = signal('');
   readonly isSubmitting = signal(false);
@@ -111,11 +95,6 @@ export class OnlinePayment implements OnDestroy {
     return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(this.payableTotal());
   }
 
-  selectApp(appId: string): void {
-    this.selectedApp.set(appId);
-    this.notice.set('');
-  }
-
   async payNow(): Promise<void> {
     if (this.isSubmitting()) return;
     if (!this.checkout || !this.product) {
@@ -126,12 +105,12 @@ export class OnlinePayment implements OnDestroy {
     this.notice.set('');
     this.isSubmitting.set(true);
     try {
-      const orderResult = await this.paymentApi.createOrder(this.buildOrderRequest());
-      this.activeOrderId.set(orderResult.order_id);
-      this.payableTotal.set(orderResult.amount / 100);
       await this.paymentApi.loadCheckoutScript();
       if (!window.Razorpay) throw new Error('Razorpay checkout is unavailable. Please try again.');
 
+      const orderResult = await this.paymentApi.createOrder(this.buildOrderRequest());
+      this.activeOrderId.set(orderResult.order_id);
+      this.payableTotal.set(orderResult.amount / 100);
       const checkout = new window.Razorpay({
         key: orderResult.key_id,
         amount: orderResult.amount,

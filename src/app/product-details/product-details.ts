@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -49,12 +59,15 @@ export class ProductDetails implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
 
+  @ViewChild('cartTrigger') private cartTrigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('cartCloseButton') private cartCloseButton?: ElementRef<HTMLButtonElement>;
+
   product = emptyProduct;
   catalog: StoreProduct[] = [];
   relatedProducts: StoreProduct[] = [];
-  reviewSummary: ProductReviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
-  reviewsLoading = false;
-  reviewsError = '';
+  reviewSummary = signal<ProductReviewSummary>({ average_rating: 0, review_count: 0, reviews: [] });
+  reviewsLoading = signal(false);
+  reviewsError = signal('');
   reviewPage = 0;
   readonly reviewPageSize = 10;
   relatedPage = 0;
@@ -63,9 +76,10 @@ export class ProductDetails implements OnInit {
   selectedMedia = 0;
   openFaq = -1;
   zoomed = false;
-  loading = true;
+  loading = signal(true);
   loadError = '';
-  cartOpen = false;
+  cartOpen = signal(false);
+  private reviewRequestGeneration = 0;
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -79,36 +93,36 @@ export class ProductDetails implements OnInit {
   }
 
   get sortedReviews(): ProductReviewSummary['reviews'] {
-    return [...this.reviewSummary.reviews].sort((first, second) => {
-      const ratingOrder = second.rating - first.rating;
-      if (ratingOrder !== 0) return ratingOrder;
-      return Number(second.image_urls.length > 0) - Number(first.image_urls.length > 0);
-    });
+    return this.reviewSummary().reviews;
   }
 
   get visibleReviews(): ProductReviewSummary['reviews'] {
-    const start = this.reviewPage * this.reviewPageSize;
-    return this.sortedReviews.slice(start, start + this.reviewPageSize);
+    return this.reviewSummary().reviews;
   }
 
   get totalReviewPages(): number {
-    return Math.ceil(this.sortedReviews.length / this.reviewPageSize);
+    return Math.ceil(this.reviewSummary().review_count / this.reviewPageSize);
   }
 
   get firstReviewNumber(): number {
-    return this.sortedReviews.length ? this.reviewPage * this.reviewPageSize + 1 : 0;
+    return this.reviewSummary().review_count ? this.reviewPage * this.reviewPageSize + 1 : 0;
   }
 
   get lastReviewNumber(): number {
-    return Math.min((this.reviewPage + 1) * this.reviewPageSize, this.sortedReviews.length);
+    return Math.min(
+      this.reviewPage * this.reviewPageSize + this.reviewSummary().reviews.length,
+      this.reviewSummary().review_count,
+    );
   }
 
   previousReviewPage(): void {
-    this.reviewPage = Math.max(0, this.reviewPage - 1);
+    const previousPage = Math.max(0, this.reviewPage - 1);
+    if (previousPage !== this.reviewPage) void this.loadReviewPage(previousPage);
   }
 
   nextReviewPage(): void {
-    this.reviewPage = Math.min(this.totalReviewPages - 1, this.reviewPage + 1);
+    const nextPage = Math.min(this.totalReviewPages - 1, this.reviewPage + 1);
+    if (nextPage !== this.reviewPage) void this.loadReviewPage(nextPage);
   }
 
   get visibleRelatedProducts(): StoreProduct[] {
@@ -158,11 +172,52 @@ export class ProductDetails implements OnInit {
 
   addToCart(): void {
     this.cart.add(this.product);
-    this.cartOpen = true;
+    this.openCart();
+  }
+
+  openCart(): void {
+    if (this.cartOpen()) return;
+    this.cartOpen.set(true);
+    window.setTimeout(() => {
+      if (this.cartOpen()) this.cartCloseButton?.nativeElement.focus();
+    });
   }
 
   closeCart(): void {
-    this.cartOpen = false;
+    this.cartOpen.set(false);
+    window.setTimeout(() => this.cartTrigger?.nativeElement.focus());
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleCartKeydown(event: KeyboardEvent): void {
+    if (!this.cartOpen()) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeCart();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+
+    const dialog = document.querySelector<HTMLElement>('.cart-drawer');
+    const focusable = dialog?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focusable?.length) {
+      event.preventDefault();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!dialog?.contains(document.activeElement)) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    } else if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   changeCartQuantity(item: ShoppingCartItem, amount: number): void {
@@ -198,7 +253,7 @@ export class ProductDetails implements OnInit {
   }
 
   private async loadProduct(slug: string | null): Promise<void> {
-    this.loading = true;
+    this.loading.set(true);
     this.loadError = '';
     try {
       this.catalog = await this.productApi.listProducts();
@@ -228,26 +283,40 @@ export class ProductDetails implements OnInit {
     } catch (error) {
       this.loadError = error instanceof Error ? error.message : 'Could not load this product.';
     } finally {
-      this.loading = false;
+      this.loading.set(false);
       this.changeDetector.detectChanges();
     }
   }
 
   private async loadProductReviews(product: StoreProduct): Promise<void> {
-    this.reviewSummary = { average_rating: 0, review_count: 0, reviews: [] };
+    this.reviewSummary.set({ average_rating: 0, review_count: 0, reviews: [] });
     this.reviewPage = 0;
-    this.reviewsError = '';
-    this.reviewsLoading = true;
+    this.reviewsError.set('');
+    await this.loadReviewPage(0, product);
+  }
+
+  private async loadReviewPage(page: number, product = this.product): Promise<void> {
+    if (!product.id || page < 0 || (page >= this.totalReviewPages && page !== 0)) return;
+    const requestGeneration = ++this.reviewRequestGeneration;
+    this.reviewPage = page;
+    this.reviewsLoading.set(true);
+    this.reviewsError.set('');
     try {
-      const summary = await this.productApi.getProductReviews(product.id);
-      if (this.product.id === product.id) this.reviewSummary = summary;
+      const summary = await this.productApi.getProductReviews(
+        product.id,
+        page * this.reviewPageSize,
+        this.reviewPageSize,
+      );
+      if (this.product.id === product.id && requestGeneration === this.reviewRequestGeneration) {
+        this.reviewSummary.set(summary);
+      }
     } catch (error) {
-      if (this.product.id === product.id) {
-        this.reviewsError = error instanceof Error ? error.message : 'Could not load customer reviews.';
+      if (this.product.id === product.id && requestGeneration === this.reviewRequestGeneration) {
+        this.reviewsError.set(error instanceof Error ? error.message : 'Could not load customer reviews.');
       }
     } finally {
-      if (this.product.id === product.id) {
-        this.reviewsLoading = false;
+      if (this.product.id === product.id && requestGeneration === this.reviewRequestGeneration) {
+        this.reviewsLoading.set(false);
         this.changeDetector.detectChanges();
       }
     }

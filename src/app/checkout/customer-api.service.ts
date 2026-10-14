@@ -17,21 +17,39 @@ interface CustomerSaveResponse {
   detail?: string;
 }
 
+const SAVE_ERROR = 'Could not save your delivery details. Please try again.';
+
 @Injectable({ providedIn: 'root' })
 export class CustomerApiService {
   async saveCustomer(request: CustomerSaveRequest): Promise<string> {
-    const response = await fetch('/api/customers/upsert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    });
-    const result = await response.json() as CustomerSaveResponse;
-    if (!response.ok) {
-      throw new Error(result.detail ?? 'Could not save your delivery details. Please try again.');
+    let response: Response;
+    try {
+      response = await fetch('/api/customers/upsert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+    } catch {
+      throw new Error('Could not connect to save your delivery details. Please check your connection and try again.');
     }
-    if (!result.customer_id) {
+
+    let result: unknown;
+    try {
+      result = await response.json();
+    } catch {
+      if (!response.ok) throw new Error(SAVE_ERROR);
+      throw new Error('The server returned an invalid response. Please try again.');
+    }
+
+    const payload = typeof result === 'object' && result !== null
+      ? result as CustomerSaveResponse
+      : null;
+    if (!response.ok) {
+      throw new Error(typeof payload?.detail === 'string' ? payload.detail : SAVE_ERROR);
+    }
+    if (typeof payload?.customer_id !== 'string' || !payload.customer_id) {
       throw new Error('The server did not confirm your delivery details. Please try again.');
     }
-    return result.customer_id;
+    return payload.customer_id;
   }
 }

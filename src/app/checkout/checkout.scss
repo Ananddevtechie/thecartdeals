@@ -35,7 +35,7 @@
 .form-field > span:first-child { color: #e1e9e1; font-size: 11px; font-weight: 650; }
 .form-field > span:first-child small { color: #b4c0b5; font-size: 10px; font-weight: 450; }
 .required-mark { margin-left: 3px; color: #f0c979; font-size: 13px; font-weight: 800; }
-.form-field input, .form-field textarea, .form-field select { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 8px; outline: none; background: rgba(10,24,17,.32); color: #edf2eb; font: inherit; font-size: 12px; transition: border-color .2s, box-shadow .2s; }
+.form-field input, .form-field textarea, .form-field select { box-sizing: border-box; width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 8px; outline: none; background: rgba(10,24,17,.32); color: #edf2eb; font: inherit; font-size: 12px; transition: border-color .2s, box-shadow .2s; }
 .form-field textarea { min-height: 70px; resize: vertical; padding-top: 11px; }
 .form-field input::placeholder, .form-field textarea::placeholder, .form-field select:invalid { color: #a8b6aa; }
 .form-field input:focus, .form-field textarea:focus, .form-field select:focus, .input-prefix:focus-within { border-color: rgba(240,185,93,.72); box-shadow: 0 0 0 3px rgba(240,185,93,.12); }
@@ -95,7 +95,8 @@
 
 @media (max-width: 380px) {
   .form-grid { grid-template-columns: minmax(0, 1fr); }
-  .field-wide { grid-column: auto; }
+  .field-wide, .form-field:nth-child(5), .form-field:nth-child(6),
+  .state-field, .quantity-field { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
