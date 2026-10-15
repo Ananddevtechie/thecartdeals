@@ -21,34 +21,56 @@
 
   <div class="orders-layout">
     <section class="orders-list-panel" aria-labelledby="orders-list-title">
-      <header class="panel-heading"><div><p class="kicker">RECENT ACTIVITY</p><h2 id="orders-list-title">All orders</h2></div><span>{{ orders.length }}</span></header>
+      <header class="panel-heading"><div><p class="kicker">RECENT ACTIVITY</p><h2 id="orders-list-title">All orders</h2></div><span>{{ filteredOrders.length }}</span></header>
+      <div class="order-filters" aria-label="Filter orders">
+        <label class="order-filter-field">
+          <span>Expected delivery date</span>
+          <input type="date" [value]="expectedDeliveryDateFilter" (input)="onExpectedDeliveryFilterChange($event)" />
+        </label>
+        <label class="order-filter-field">
+          <span>Payment</span>
+          <select [value]="paymentFilter" (change)="onPaymentFilterChange($event)">
+            <option value="ALL">All payments</option>
+            <option value="COD">COD</option>
+            <option value="PAID">Paid</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </label>
+        @if (expectedDeliveryDateFilter || paymentFilter !== 'ALL') {
+          <button type="button" class="clear-filters-button" (click)="clearOrderFilters()">Clear filters</button>
+        }
+      </div>
       @if (loading) {
         <p class="empty-state" role="status">Loading orders…</p>
-      } @else if (orders.length) {
+      } @else if (filteredOrders.length) {
         <ul class="orders-list">
-          @for (order of orders; track order.order_id) {
+          @for (order of filteredOrders; track order.order_id) {
             <li>
               <button class="order-row" type="button" [class.is-selected]="selectedOrder?.order_id === order.order_id" (click)="selectOrder(order)">
                 <span class="order-row-main"><strong>{{ order.customer_name }}</strong><small>#{{ order.order_id }} · {{ formatDate(order.order_date) }}</small><span>{{ order.product_title }} × {{ order.quantity }}</span></span>
-                <span class="order-row-side"><b [class.payment-pending]="isPaymentPending(order)">{{ paymentLabel(order) }}</b><small>{{ order.currency }} {{ order.total }}</small></span>
+                <span class="order-row-side">
+                  <b class="delivery-status" [class.delivery-status-complete]="order.delivery_status === 'DELIVERED'">{{ deliveryStatusLabel(order.delivery_status) }}</b>
+                  @if (order.estimated_delivery_date) { <small class="order-delivery-date">Expected {{ formatDeliveryDate(order.estimated_delivery_date) }}</small> }
+                  <small class="payment-status" [class.payment-paid]="paymentTone(order) === 'paid'" [class.payment-pending]="paymentTone(order) === 'pending'" [class.payment-cancelled]="paymentTone(order) === 'cancelled'">{{ paymentLabel(order) }}</small>
+                  <small>{{ order.currency }} {{ order.total }}</small>
+                </span>
               </button>
             </li>
           }
         </ul>
       } @else {
-        <p class="empty-state">No orders have been placed yet.</p>
+        <p class="empty-state">{{ orders.length ? 'No orders match these filters.' : 'No orders have been placed yet.' }}</p>
       }
     </section>
 
     <section class="order-detail-panel" aria-labelledby="order-detail-title">
       @if (selectedOrder; as order) {
-        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2><time>{{ formatDate(order.order_date) }}</time></div><span class="payment-pill" [class.payment-pill-pending]="isPaymentPending(order)">{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} · {{ paymentLabel(order) }}</span></header>
+        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2><time>{{ formatDate(order.order_date) }}</time></div><span class="payment-pill" [class.payment-paid]="paymentTone(order) === 'paid'" [class.payment-pending]="paymentTone(order) === 'pending'" [class.payment-cancelled]="paymentTone(order) === 'cancelled'">{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} · {{ paymentLabel(order) }}</span></header>
         <section class="customer-block" aria-labelledby="customer-details-title">
-          <h3 id="customer-details-title">Customer</h3>
+          <div class="customer-heading"><h3 id="customer-details-title">Customer</h3><a class="whatsapp-button" [href]="whatsappUrl(order)" target="_blank" rel="noopener noreferrer">Chat with customer on WhatsApp ↗</a></div>
           @if (copyNotice()) { <p class="copy-notice" role="status">{{ copyNotice() }}</p> }
           <div class="detail-row"><span>Name</span><span class="detail-value"><strong>{{ order.customer_name }}</strong><button type="button" class="copy-button" aria-label="Copy name" title="Copy name" (click)="copyField('Name', order.customer_name)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
           <div class="detail-row"><span>Phone</span><span class="detail-value"><a [href]="'tel:+91' + order.customer_mobile">+91 {{ order.customer_mobile }}</a><button type="button" class="copy-button" aria-label="Copy phone number" title="Copy phone number" (click)="copyField('Phone number', '+91 ' + order.customer_mobile)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button></span></div>
-          <div class="detail-row"><span>WhatsApp</span><span class="detail-value"><a [href]="whatsappUrl(order)" target="_blank" rel="noopener noreferrer">Open chat with customer ↗</a></span></div>
           <div class="detail-row"><span>Alternate phone</span><span class="detail-value"><strong>{{ order.alternate_mobile ? '+91 ' + order.alternate_mobile : 'Not provided' }}</strong>@if (order.alternate_mobile) { <button type="button" class="copy-button" aria-label="Copy alternate phone number" title="Copy alternate phone number" (click)="copyField('Alternate phone number', '+91 ' + order.alternate_mobile)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button> }</span></div>
           <div class="detail-row"><span>Email</span><span class="detail-value">@if (order.customer_email; as email) { <strong>{{ email }}</strong><button type="button" class="copy-button" aria-label="Copy email" title="Copy email" (click)="copyField('Email', email)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg></button> } @else { <strong>Not provided</strong> }</span></div>
           <h3 class="address-subheading">Delivery address</h3>
@@ -83,11 +105,6 @@
             <span>Expected delivery date</span>
             <input type="date" [value]="estimatedDeliveryDateDraft" (input)="onDeliveryDateChange($event)" />
           </label>
-          <label class="delivery-field">
-            <span>Meesho product link</span>
-            <input type="url" maxlength="2048" placeholder="https://www.meesho.com/…" [value]="meeshoUrlDraft" (input)="onMeeshoUrlChange($event)" />
-          </label>
-          <p class="delivery-help">The Meesho link is shared with this product in the catalog.</p>
           <button type="button" class="save-delivery-button" (click)="saveOrderUpdates()" [disabled]="savingUpdates || !canUpdateDelivery(order)">
             {{ savingUpdates ? 'Saving…' : 'Save delivery details' }}
           </button>

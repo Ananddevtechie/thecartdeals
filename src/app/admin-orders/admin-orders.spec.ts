@@ -40,11 +40,10 @@ const order = {
 describe('AdminOrders', () => {
   let fixture: ComponentFixture<AdminOrders>;
   const listAdminOrders = vi.fn(async () => [order]);
-  const updateAdminOrder = vi.fn(async (_username: string, _password: string, _orderId: string, deliveryStatus: typeof order.delivery_status, estimatedDeliveryDate: string | null, meeshoUrl: string | null) => ({
+  const updateAdminOrder = vi.fn(async (_username: string, _password: string, _orderId: string, deliveryStatus: typeof order.delivery_status, estimatedDeliveryDate: string | null) => ({
     ...order,
     delivery_status: deliveryStatus,
     estimated_delivery_date: estimatedDeliveryDate,
-    meesho_url: meeshoUrl,
   }));
   afterEach(() => fixture?.destroy());
 
@@ -79,6 +78,57 @@ describe('AdminOrders', () => {
     expect(fixture.nativeElement.querySelector('.history')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Save tracking update');
     expect(fixture.nativeElement.textContent).not.toContain('Tracking update history');
+  });
+
+  it('colors paid, COD pending, and cancelled orders distinctly', () => {
+    const paidOrder = { ...order, order_id: 'ORD-PAID', payment_status: 'PAID' };
+    const pendingOrder = { ...order, order_id: 'ORD-PENDING', payment_status: 'COD_PENDING' };
+    const cancelledOrder = { ...order, order_id: 'ORD-CANCELLED', delivery_status: 'CANCELLED' as const };
+    expect(fixture.componentInstance.paymentTone(paidOrder)).toBe('paid');
+    expect(fixture.componentInstance.paymentTone(pendingOrder)).toBe('pending');
+    expect(fixture.componentInstance.paymentTone(cancelledOrder)).toBe('cancelled');
+    expect(fixture.nativeElement.querySelector('.order-row .payment-status')?.classList.contains('payment-pending')).toBe(true);
+  });
+
+  it('filters orders by exact expected delivery date and payment category together', () => {
+    const paidOrder = {
+      ...order,
+      order_id: 'ORD-PAID',
+      payment_method: 'UPI' as const,
+      payment_status: 'PAID',
+      estimated_delivery_date: '2026-10-20',
+    };
+    const codOrder = {
+      ...order,
+      order_id: 'ORD-COD',
+      estimated_delivery_date: '2026-10-20',
+    };
+    const cancelledOrder = {
+      ...order,
+      order_id: 'ORD-CANCELLED',
+      delivery_status: 'CANCELLED' as const,
+      estimated_delivery_date: '2026-10-20',
+    };
+    const differentDateOrder = {
+      ...paidOrder,
+      order_id: 'ORD-OTHER-DATE',
+      estimated_delivery_date: '2026-10-21',
+    };
+    fixture.componentInstance.orders = [paidOrder, codOrder, cancelledOrder, differentDateOrder];
+
+    fixture.componentInstance.expectedDeliveryDateFilter = '2026-10-20';
+    fixture.componentInstance.paymentFilter = 'COD';
+    expect(fixture.componentInstance.filteredOrders.map((item) => item.order_id)).toEqual(['ORD-COD']);
+
+    fixture.componentInstance.paymentFilter = 'PAID';
+    expect(fixture.componentInstance.filteredOrders.map((item) => item.order_id)).toEqual(['ORD-PAID']);
+
+    fixture.componentInstance.paymentFilter = 'CANCELLED';
+    expect(fixture.componentInstance.filteredOrders.map((item) => item.order_id)).toEqual(['ORD-CANCELLED']);
+
+    fixture.componentInstance.clearOrderFilters();
+    expect(fixture.componentInstance.filteredOrders.map((item) => item.order_id))
+      .toEqual(['ORD-PAID', 'ORD-COD', 'ORD-CANCELLED', 'ORD-OTHER-DATE']);
   });
 
   it('renders the requested customer, product, payment breakdown, and UTC order date', () => {
@@ -128,23 +178,21 @@ describe('AdminOrders', () => {
     }
   });
 
-  it('shows a WhatsApp chat link and lets the admin update delivery status, date, and Meesho link', async () => {
+  it('shows WhatsApp and Meesho product links and lets the admin update delivery status and date', async () => {
     const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
     row.click();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.customer-block a[href="https://wa.me/919876543210"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.customer-block .whatsapp-button[href="https://wa.me/919876543210"]')?.textContent)
+      .toContain('Chat with customer on WhatsApp');
     expect(fixture.nativeElement.querySelector('.product-block a[href="https://www.meesho.com/test-product/p/123"]')).not.toBeNull();
 
     const status = fixture.nativeElement.querySelector('.delivery-field select') as HTMLSelectElement;
     status.value = 'IN_TRANSIT';
     status.dispatchEvent(new Event('change'));
-    const date = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+    const date = fixture.nativeElement.querySelector('.delivery-block input[type="date"]') as HTMLInputElement;
     date.value = '2026-10-20';
     date.dispatchEvent(new Event('input'));
-    const link = fixture.nativeElement.querySelector('input[type="url"]') as HTMLInputElement;
-    link.value = 'https://www.meesho.com/updated/p/456';
-    link.dispatchEvent(new Event('input'));
     fixture.detectChanges();
 
     (fixture.nativeElement.querySelector('.save-delivery-button') as HTMLButtonElement).click();
@@ -157,9 +205,12 @@ describe('AdminOrders', () => {
       'ORD-QA-001',
       'IN_TRANSIT',
       '2026-10-20',
-      'https://www.meesho.com/updated/p/456',
     );
     expect(fixture.nativeElement.querySelector('.update-notice')?.textContent).toContain('Delivery details saved.');
+    expect(fixture.nativeElement.querySelector('input[type="url"]')).toBeNull();
+    const updatedRow = fixture.nativeElement.querySelector('.order-row') as HTMLElement;
+    expect(updatedRow.querySelector('.delivery-status')?.textContent).toContain('In transit');
+    expect(updatedRow.querySelector('.order-delivery-date')?.textContent).toContain('20 Oct 2026');
   });
 
   it('copies a single selected customer or address field', async () => {

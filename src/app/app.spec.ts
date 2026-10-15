@@ -32,7 +32,13 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideRouter(routes),
-        { provide: ProductApiService, useValue: { listProducts: async () => [testProduct] } },
+        {
+          provide: ProductApiService,
+          useValue: {
+            listProducts: async () => [testProduct],
+            getAdminCredentials: () => null,
+          },
+        },
       ],
     }).compileComponents();
   });
@@ -96,11 +102,23 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should provide a WhatsApp link to the seller on every route', async () => {
+  it('should provide the seller WhatsApp link on storefront routes', async () => {
     const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
     const whatsappLink = fixture.nativeElement.querySelector('.whatsapp-link') as HTMLAnchorElement;
     expect(whatsappLink.href).toBe('https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20to%20know%20more%20about%20the%20product.');
     expect(whatsappLink.target).toBe('_blank');
+  });
+
+  it('should hide the seller WhatsApp button on admin routes', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/admin/orders');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.whatsapp-link')).toBeNull();
   });
 
   it('should route to the product details component', async () => {

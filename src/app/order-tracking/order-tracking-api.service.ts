@@ -73,7 +73,6 @@ export class OrderTrackingApiService {
     orderId: string,
     deliveryStatus: DeliveryStatus,
     estimatedDeliveryDate: string | null,
-    meeshoUrl: string | null,
   ): Promise<AdminOrderTracking> {
     const response = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/tracking`, {
       method: 'PUT',
@@ -81,7 +80,6 @@ export class OrderTrackingApiService {
       body: JSON.stringify({
         delivery_status: deliveryStatus,
         estimated_delivery_date: estimatedDeliveryDate || null,
-        meesho_url: meeshoUrl,
       }),
     });
     const result = await response.json() as AdminOrderTracking | { detail?: string };

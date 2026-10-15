@@ -20,6 +20,11 @@ button, input, select { font: inherit; }
 .panel-heading,.detail-heading { min-height: 69px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 17px; border-bottom: 1px solid rgba(255,255,255,.12); }
 .panel-heading h2,.detail-heading h2 { margin: 0; color: #f4f7f1; font-size: 16px; }
 .panel-heading>span { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: rgba(240,185,93,.14); color: #f0c979; font-size: 10px; font-weight: 750; }
+.order-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 10px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.order-filter-field { min-width: 0; display: grid; gap: 5px; color: #b4c0b5; font-size: 9px; }
+.order-filter-field input,.order-filter-field select { width: 100%; min-width: 0; min-height: 34px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 5px; background: #21372d; color: #edf2eb; font-size: 10px; }
+.order-filter-field input:focus-visible,.order-filter-field select:focus-visible { outline: 2px solid rgba(240,201,121,.85); outline-offset: 2px; }
+.clear-filters-button { grid-column: 1 / -1; justify-self: start; padding: 2px 0; border: 0; background: transparent; color: #f0c979; font-size: 9px; text-decoration: underline; cursor: pointer; }
 .orders-list { max-height: 70vh; overflow: auto; margin: 0; padding: 0; list-style: none; }
 .orders-list li+li { border-top: 1px solid rgba(255,255,255,.1); }
 .order-row { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 9px; padding: 15px 16px; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
@@ -27,15 +32,24 @@ button, input, select { font: inherit; }
 .order-row-main,.order-row-side { min-width: 0; display: grid; gap: 6px; }
 .order-row-main>strong { overflow: hidden; color: #edf2eb; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .order-row-main>small,.order-row-main>span,.order-row-side>small { color: #b4c0b5; font-size: 9px; line-height: 1.4; }
+.order-row-side>.payment-status { padding: 3px 7px; border: 1px solid transparent; border-radius: 12px; font-weight: 700; }
+.payment-paid { border-color: rgba(139,196,162,.3); background: rgba(139,196,162,.12); color: #a9dfbd !important; }
+.payment-pending { border-color: rgba(240,185,93,.3); background: rgba(240,185,93,.12); color: #f0c979 !important; }
+.payment-cancelled { border-color: rgba(230,120,110,.35); background: rgba(230,100,90,.13); color: #ff9b91 !important; }
 .order-row-main>span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .order-row-side { flex: 0 0 auto; justify-items: end; text-align: right; }
-.order-row-side>b { color: #a9dfbd; font-size: 9px; }
-.order-row-side>b.payment-pending { color: #efc781; }
+.order-row-side>.delivery-status { color: #a9dfbd; font-size: 9px; }
+.order-row-side>.delivery-status.delivery-status-complete { color: #80d6a0; }
+.order-row-side>.order-delivery-date { color: #f0c979; }
 .detail-heading { flex-wrap: wrap; }
 .payment-pill { padding: 6px 8px; border: 1px solid rgba(139,196,162,.25); border-radius: 20px; background: rgba(139,196,162,.1); color: #bce1c4; font-size: 8px; }
-.payment-pill-pending { border-color: rgba(240,185,93,.25); background: rgba(240,185,93,.1); color: #f0c979; }
 .customer-block,.product-block,.payment-block,.delivery-block { display: grid; gap: 10px; padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .customer-block h3,.product-block h3,.payment-block h3,.delivery-block h3 { margin: 0 0 2px; color: #f1f4ee; font-size: 10px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.customer-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.customer-heading h3 { margin: 0; }
+.whatsapp-button { min-height: 32px; display: inline-flex; align-items: center; justify-content: center; padding: 0 10px; border: 1px solid rgba(169,223,189,.36); border-radius: 5px; background: rgba(65,143,91,.18); color: #c0edce; font-size: 9px; font-weight: 700; text-align: center; text-decoration: none; }
+.whatsapp-button:hover { background: rgba(65,143,91,.3); }
+.whatsapp-button:focus-visible { outline: 2px solid #a9dfbd; outline-offset: 2px; }
 .detail-row { min-width: 0; display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 16px; color: #c3cec4; font-size: 9px; line-height: 1.6; }
 .detail-row>span:first-child { min-width: 0; color: #b4c0b5; }
 .detail-row>.detail-value { min-width: 0; width: 100%; display: flex; align-items: flex-start; justify-content: flex-end; gap: 8px; }
@@ -78,4 +92,5 @@ button, input, select { font: inherit; }
  .orders-intro { align-items: start; flex-direction: column; }
  .payment-pill { font-size: 7px; }
  .detail-row { grid-template-columns: 94px minmax(0, 1fr); gap: 10px; }
+ .whatsapp-button { max-width: 175px; }
 }
