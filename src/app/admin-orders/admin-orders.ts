@@ -178,12 +178,8 @@ export class AdminOrders implements OnInit {
     this.changeDetector.markForCheck();
 
     try {
-      const { jsPDF: PdfDocument } = await import('jspdf');
-      const pdf = new PdfDocument({ unit: 'mm', format: 'a4' });
-      const logo = await this.loadBrandLogo();
-      this.renderOrderPdf(pdf, order, logo);
-      const safeOrderId = order.order_id.replace(/[^a-zA-Z0-9_-]/g, '-');
-      pdf.save(`TheCart-order-${safeOrderId}.pdf`);
+      const { pdf, filename } = await this.createOrderPdf(order);
+      pdf.save(filename);
     } catch (error) {
       this.error = error instanceof Error
         ? `Could not download the order PDF: ${error.message}`
@@ -192,6 +188,68 @@ export class AdminOrders implements OnInit {
       this.downloadingPdf = false;
       this.changeDetector.markForCheck();
     }
+  }
+
+  async shareOrderPdf(order: AdminOrderTracking): Promise<void> {
+    if (this.downloadingPdf) return;
+
+    const shareFileSupported = typeof navigator.share === 'function'
+      && typeof navigator.canShare === 'function'
+      && navigator.canShare({
+        files: [new File([], 'order.pdf', { type: 'application/pdf' })],
+      });
+    const whatsappWindow = shareFileSupported ? null : window.open('about:blank', '_blank');
+
+    this.downloadingPdf = true;
+    this.error = '';
+    this.updateNotice = '';
+    this.changeDetector.markForCheck();
+
+    try {
+      const { pdf, filename } = await this.createOrderPdf(order);
+      const file = new File([pdf.output('blob')], filename, { type: 'application/pdf' });
+
+      if (shareFileSupported) {
+        await navigator.share({
+          files: [file],
+          title: `TheCart order ${order.order_id}`,
+          text: `Order summary for ${order.customer_name}`,
+        });
+        this.updateNotice = 'PDF shared. Choose WhatsApp and the customer chat to send it.';
+      } else {
+        pdf.save(filename);
+        const message = `Hello ${order.customer_name}, please find your TheCart order summary (${order.order_id}) attached.`;
+        const chatUrl = `${this.whatsappUrl(order)}?text=${encodeURIComponent(message)}`;
+        if (whatsappWindow) {
+          whatsappWindow.opener = null;
+          whatsappWindow.location.replace(chatUrl);
+          this.updateNotice = 'PDF downloaded and customer chat opened. Attach the downloaded PDF to send it.';
+        } else {
+          this.updateNotice = 'PDF downloaded. Pop-up was blocked; open the customer WhatsApp chat and attach the PDF.';
+        }
+      }
+    } catch (error) {
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        this.updateNotice = 'PDF sharing cancelled.';
+      } else {
+        this.error = error instanceof Error
+          ? `Could not share the order PDF: ${error.message}`
+          : 'Could not share the order PDF. Please try again.';
+      }
+    } finally {
+      this.downloadingPdf = false;
+      this.changeDetector.markForCheck();
+    }
+  }
+
+  private async createOrderPdf(order: AdminOrderTracking): Promise<{ pdf: jsPDF; filename: string }> {
+    const { jsPDF: PdfDocument } = await import('jspdf');
+    const pdf = new PdfDocument({ unit: 'mm', format: 'a4' });
+    const logo = await this.loadBrandLogo();
+    this.renderOrderPdf(pdf, order, logo);
+    const safeOrderId = order.order_id.replace(/[^a-zA-Z0-9_-]/g, '-');
+    return { pdf, filename: `TheCart-order-${safeOrderId}.pdf` };
   }
 
   private async loadBrandLogo(): Promise<string> {

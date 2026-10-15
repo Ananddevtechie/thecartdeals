@@ -64,6 +64,9 @@ vi.mock('jspdf', () => ({
       return 1;
     }
     setPage(): void {}
+    output(_type: 'blob'): Blob {
+      return new Blob(['PDF']);
+    }
     save(filename: string): void {
       pdfMock.savedFilename = filename;
     }
@@ -113,6 +116,7 @@ describe('AdminOrders', () => {
   afterEach(() => {
     fixture?.destroy();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   beforeEach(async () => {
@@ -272,6 +276,50 @@ describe('AdminOrders', () => {
     expect(pdfText).not.toContain('https://www.meesho.com');
     expect(pdfText).not.toContain('pay_TnrQdJWLdc1P2j');
     expect(pdfText).not.toContain('Payment reference');
+  });
+
+  it('shows a share action and downloads the PDF when file sharing is unsupported', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(new Blob(['logo']), { status: 200 }),
+    );
+    const openWindow = vi.spyOn(window, 'open').mockReturnValue(null);
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.detectChanges();
+
+    const shareButton = fixture.nativeElement.querySelector('.share-pdf-button') as HTMLButtonElement;
+    expect(shareButton).not.toBeNull();
+    expect(shareButton.getAttribute('aria-label')).toContain('WhatsApp');
+    shareButton.click();
+    await vi.waitFor(() => expect(fixture.componentInstance.downloadingPdf).toBe(false));
+
+    expect(pdfMock.savedFilename).toBe('TheCart-order-ORD-QA-001.pdf');
+    expect(openWindow).toHaveBeenCalledWith('about:blank', '_blank');
+    expect(fixture.componentInstance.updateNotice).toContain('attach the PDF');
+  });
+
+  it('shares the generated PDF file through the device share sheet when supported', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(new Blob(['logo']), { status: 200 }),
+    );
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', {
+      canShare: vi.fn(() => true),
+      share,
+    });
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('.share-pdf-button') as HTMLButtonElement).click();
+    await vi.waitFor(() => expect(fixture.componentInstance.downloadingPdf).toBe(false));
+
+    expect(share).toHaveBeenCalledOnce();
+    const shareData = share.mock.calls[0][0] as ShareData;
+    expect(shareData.files?.[0].name).toBe('TheCart-order-ORD-QA-001.pdf');
+    expect(shareData.files?.[0].type).toBe('application/pdf');
+    expect(pdfMock.savedFilename).toBe('');
+    expect(fixture.componentInstance.updateNotice).toContain('Choose WhatsApp');
   });
 
   it('renders each delivery address field as a visible row with its own copy action', () => {

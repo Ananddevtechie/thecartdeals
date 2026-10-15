@@ -73,6 +73,10 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"></path></svg>
               {{ downloadingPdf ? 'Preparing…' : 'Download PDF' }}
             </button>
+            <button type="button" class="share-pdf-button" (click)="shareOrderPdf(order)" [disabled]="downloadingPdf" aria-label="Share order PDF with customer on WhatsApp" title="Share PDF with customer on WhatsApp">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 13v6h14v-6"></path></svg>
+              {{ downloadingPdf ? 'Preparing…' : 'Share PDF' }}
+            </button>
           </div>
         </header>
         <section class="customer-block" aria-labelledby="customer-details-title">

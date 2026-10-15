@@ -44,11 +44,13 @@ button, input, select { font: inherit; }
 .detail-heading { flex-wrap: wrap; }
 .detail-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .payment-pill { padding: 6px 8px; border: 1px solid rgba(139,196,162,.25); border-radius: 20px; background: rgba(139,196,162,.1); color: #bce1c4; font-size: 8px; }
-.download-pdf-button { min-height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(240,201,121,.42); border-radius: 5px; background: rgba(240,185,93,.13); color: #f5d58d; font-size: 9px; font-weight: 750; cursor: pointer; }
+.download-pdf-button,.share-pdf-button { min-height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(240,201,121,.42); border-radius: 5px; background: rgba(240,185,93,.13); color: #f5d58d; font-size: 9px; font-weight: 750; cursor: pointer; }
 .download-pdf-button:hover { border-color: rgba(240,201,121,.75); background: rgba(240,185,93,.23); color: #fff0c7; }
-.download-pdf-button:focus-visible { outline: 2px solid rgba(240,201,121,.85); outline-offset: 2px; }
-.download-pdf-button:disabled { cursor: wait; opacity: .65; }
-.download-pdf-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.share-pdf-button { border-color: rgba(169,223,189,.36); background: rgba(65,143,91,.18); color: #c0edce; }
+.share-pdf-button:hover { border-color: rgba(169,223,189,.65); background: rgba(65,143,91,.3); color: #e0ffe9; }
+.download-pdf-button:focus-visible,.share-pdf-button:focus-visible { outline: 2px solid rgba(240,201,121,.85); outline-offset: 2px; }
+.download-pdf-button:disabled,.share-pdf-button:disabled { cursor: wait; opacity: .65; }
+.download-pdf-button svg,.share-pdf-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .customer-block,.product-block,.payment-block,.delivery-block { display: grid; gap: 10px; padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .customer-block h3,.product-block h3,.payment-block h3,.delivery-block h3 { margin: 0 0 2px; color: #f1f4ee; font-size: 10px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
 .customer-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
