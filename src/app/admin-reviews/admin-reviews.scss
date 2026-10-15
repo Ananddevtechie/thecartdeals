@@ -47,10 +47,32 @@ button, input, textarea, select { font: inherit; }
 .message-success { background: #edf5ef; color: #326449; }
 @media (max-width: 650px) {
   .reviews-admin-shell { width: min(calc(100% - 28px), 1000px); }
-  .admin-header { height: auto; min-height: 70px; align-items: flex-start; padding: 15px 0; gap: 16px; }
-  .admin-header nav { flex-wrap: wrap; justify-content: flex-end; gap: 10px 14px; }
-  .admin-header nav a { font-size: 10px; }
+  .admin-header { height: auto; min-height: 70px; flex-wrap: wrap; align-items: flex-start; padding: 12px 0; gap: 8px 16px; }
+  .admin-header nav { flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 4px 12px; }
+  .admin-header nav a { display: inline-flex; min-height: 38px; align-items: center; font-size: 11px; }
   .page-intro { display: block; }
   .page-intro > p { margin-top: 12px; }
   .review-panel { padding: 16px; }
+  .field { font-size: 12px; }
+  .field input, .field select, .field textarea, .access-panel input { min-height: 44px; font-size: 16px; }
+  .field textarea { min-height: 100px; }
+  .primary-button, .access-panel button { min-height: 44px; font-size: 13px; }
+  .help-copy, .empty-state, .message-error, .message-success { font-size: 12px; }
+  .review-list > li { padding: 13px; }
+  .review-meta { gap: 8px; font-size: 12px; }
+  .review-meta time { margin-left: 0; font-size: 11px; }
+  .review-item > p { font-size: 13px; }
+  .review-actions { flex-wrap: wrap; }
+  .secondary-button, .delete-button { min-height: 40px; font-size: 12px; }
+  .access-panel { margin-top: 7vh; padding: 23px 19px; }
+  .access-panel label { font-size: 12px; }
+}
+
+@media (max-width: 400px) {
+  .admin-header nav { flex-basis: 100%; justify-content: flex-start; }
+  .page-intro h1, .access-panel h1 { font-size: 29px; }
+  .reviews-heading { align-items: flex-start; }
+  .reviews-heading > span { flex: 0 0 auto; padding-top: 2px; }
+  .review-actions { justify-content: stretch; }
+  .review-actions button { flex: 1 1 110px; }
 }

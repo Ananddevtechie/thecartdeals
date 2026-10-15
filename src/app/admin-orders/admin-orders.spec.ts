@@ -348,8 +348,17 @@ describe('AdminOrders', () => {
     row.click();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.customer-block .whatsapp-button[href="https://wa.me/919876543210"]')?.textContent)
-      .toContain('Chat with customer on WhatsApp');
+    const whatsappLink = fixture.nativeElement.querySelector('.customer-block .whatsapp-button') as HTMLAnchorElement;
+    expect(whatsappLink.href).toContain('https://wa.me/919876543210?text=');
+    const whatsappMessage = new URL(whatsappLink.href).searchParams.get('text') ?? '';
+    expect(whatsappMessage).toContain('Thank you for placing your order with TheCart');
+    expect(whatsappMessage).toContain('Order ID: ORD-QA-001');
+    expect(whatsappMessage).toContain('Product\nTest product × 1');
+    expect(whatsappMessage).toContain('12 Test Residency, Example Main Road, Bengaluru, Karnataka 560001');
+    expect(whatsappMessage).toContain('Expected delivery date: Not set');
+    expect(whatsappMessage).toContain('We will share your delivery tracking link soon.');
+    expect(whatsappMessage).toContain('Cash on delivery · COD · Pending');
+    expect(whatsappMessage).toContain('Total: INR 199.00');
     expect(fixture.nativeElement.querySelector('.product-block a[href="https://www.meesho.com/test-product/p/123"]')).not.toBeNull();
 
     const status = fixture.nativeElement.querySelector('.delivery-field select') as HTMLSelectElement;

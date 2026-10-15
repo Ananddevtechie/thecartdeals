@@ -175,3 +175,37 @@ button, input, textarea { font: inherit; }
   .review-dialog-header, .review-overview { grid-column: 1; }
   .admin-review-list { border-top: 1px solid rgba(255,255,255,.12); border-left: 0; padding: 17px 0 0; }
 }
+
+@media (max-width: 760px) {
+  .admin-header { height: auto; min-height: 76px; flex-wrap: wrap; gap: 10px 16px; padding: 12px 0; }
+  .admin-nav { flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 4px 12px; }
+  .admin-nav .store-link { display: inline-flex; min-height: 38px; align-items: center; font-size: 11px; }
+  .page-intro { padding-top: 28px; }
+  .field { font-size: 12px; }
+  .field small { font-size: 11px; }
+  .field input:not([type="file"]), .field textarea { min-height: 44px; font-size: 16px; }
+  .field textarea { min-height: 100px; }
+  .field input[type="file"] { min-height: 44px; }
+  .product-summary strong { font-size: 12px; }
+  .product-summary small, .product-summary span { font-size: 11px; }
+  .product-actions { flex-wrap: wrap; gap: 6px 14px; }
+  .product-summary .edit-product, .product-summary .delete-product, .product-summary .review-product { min-height: 34px; font-size: 11px; }
+  .catalog-pagination { flex-wrap: wrap; font-size: 11px; }
+  .catalog-pagination button { min-height: 36px; padding: 5px 9px; font-size: 11px; }
+  .review-dialog-header h2 { overflow-wrap: anywhere; }
+  .review-field { font-size: 12px; }
+  .review-field input:not([type="file"]), .review-field textarea { min-height: 44px; font-size: 16px; }
+  .review-form-actions .save-button { min-height: 44px; }
+}
+
+@media (max-width: 430px) {
+  .admin-header { align-items: flex-start; }
+  .admin-nav { flex-basis: 100%; justify-content: flex-start; }
+  .admin-nav .store-link { min-height: 40px; }
+  .catalog-pagination { align-items: flex-start; flex-direction: column; }
+  .catalog-pagination > div { width: 100%; justify-content: space-between; gap: 6px; }
+  .review-backdrop { padding: 8px; }
+  .review-dialog { max-height: 96vh; padding: 16px 13px; }
+  .review-form-actions { flex-wrap: wrap; }
+  .review-form-actions .save-button { flex: 1 1 150px; }
+}

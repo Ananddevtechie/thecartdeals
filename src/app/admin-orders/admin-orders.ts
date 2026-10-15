@@ -132,9 +132,50 @@ export class AdminOrders implements OnInit {
     this.paymentFilter = 'ALL';
   }
 
-  whatsappUrl(order: AdminOrderTracking): string {
+  whatsappUrl(order: AdminOrderTracking, message = this.orderWhatsAppMessage(order)): string {
     const phone = order.customer_mobile.replace(/\D/g, '');
-    return `https://wa.me/91${phone}`;
+    return `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+  }
+
+  private orderWhatsAppMessage(order: AdminOrderTracking): string {
+    const address = [
+      order.address_line1,
+      order.address_line2,
+      order.landmark,
+      `${order.city}, ${order.state} ${order.pincode}`,
+    ].filter(Boolean).join(', ');
+    const paymentRows = [
+      `MRP: INR ${this.formatMoney(order.mrp)}`,
+      `Discount: - INR ${this.formatMoney(order.discount)}`,
+      `Shipping: INR ${this.formatMoney(order.shipping)}`,
+      `Tax: INR ${this.formatMoney(order.tax)}`,
+      ...(order.payment_method === 'COD' ? [`COD fee: INR ${this.formatMoney(order.cod_fee)}`] : []),
+      `Total: INR ${this.formatMoney(order.total)}`,
+    ];
+
+    return [
+      `Hello ${order.customer_name},`,
+      '',
+      'Thank you for placing your order with TheCart! Here are your order details:',
+      `Order ID: ${order.order_id}`,
+      `Order date: ${this.formatPdfDate(order.order_date)}`,
+      '',
+      'Product',
+      `${order.product_title} × ${order.quantity}`,
+      '',
+      'Delivery address',
+      address,
+      `Expected delivery date: ${order.estimated_delivery_date
+        ? this.formatDeliveryDate(order.estimated_delivery_date)
+        : 'Not set'}`,
+      'We will share your delivery tracking link soon.',
+      '',
+      'Payment details',
+      `${order.payment_method === 'UPI' ? 'UPI' : 'Cash on delivery'} · ${this.paymentLabel(order)}`,
+      ...paymentRows,
+      '',
+      'Thanks for shopping with TheCart. We appreciate your order!',
+    ].join('\n');
   }
 
   canUpdateDelivery(order: AdminOrderTracking): boolean {
@@ -219,7 +260,7 @@ export class AdminOrders implements OnInit {
       } else {
         pdf.save(filename);
         const message = `Hello ${order.customer_name}, please find your TheCart order summary (${order.order_id}) attached.`;
-        const chatUrl = `${this.whatsappUrl(order)}?text=${encodeURIComponent(message)}`;
+        const chatUrl = this.whatsappUrl(order, message);
         if (whatsappWindow) {
           whatsappWindow.opener = null;
           whatsappWindow.location.replace(chatUrl);

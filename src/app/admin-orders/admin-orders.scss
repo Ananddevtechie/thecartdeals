@@ -102,3 +102,44 @@ button, input, select { font: inherit; }
  .detail-row { grid-template-columns: 94px minmax(0, 1fr); gap: 10px; }
  .whatsapp-button { max-width: 175px; }
 }
+
+@media (max-width: 760px) {
+ .orders-header { height: auto; min-height: 66px; flex-wrap: wrap; gap: 10px 16px; padding: 12px 0; }
+ .orders-header nav { flex: 1 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 6px 14px; }
+ .orders-header nav a { display: inline-flex; min-height: 36px; align-items: center; font-size: 11px; }
+ .orders-list { max-height: min(52vh, 440px); }
+ .order-row { align-items: flex-start; padding: 13px 12px; }
+ .order-row-main { flex: 1 1 0; }
+ .order-row-side { flex: 0 1 40%; max-width: 40%; }
+ .order-row-main > strong { font-size: 12px; }
+ .order-row-main > small, .order-row-main > span, .order-row-side > small,
+ .order-row-side > .delivery-status { font-size: 10px; }
+ .detail-heading { align-items: flex-start; }
+ .detail-actions { justify-content: flex-start; }
+ .download-pdf-button, .share-pdf-button { min-height: 40px; font-size: 11px; }
+ .payment-pill { font-size: 9px; }
+ .customer-heading { align-items: stretch; flex-direction: column; }
+ .whatsapp-button { max-width: none; min-height: 40px; font-size: 11px; }
+ .customer-block h3, .product-block h3, .payment-block h3, .delivery-block h3 { font-size: 11px; }
+ .detail-row { font-size: 11px; }
+ .detail-value > strong, .detail-value > a, .detail-row > strong { font-size: 11px; }
+ .detail-heading time, .copy-notice, .update-notice, .delivery-help { font-size: 10px; }
+ .empty-state { font-size: 11px; }
+ .delivery-field, .delivery-help { font-size: 11px; }
+ .delivery-field input, .delivery-field select { min-height: 42px; font-size: 12px; }
+ .save-delivery-button { min-height: 42px; font-size: 11px; }
+}
+
+@media (max-width: 430px) {
+ .orders-header { align-items: flex-start; }
+ .orders-header nav { flex-basis: 100%; justify-content: flex-start; }
+ .orders-intro { margin-top: 23px; }
+ .order-filters { grid-template-columns: minmax(0, 1fr); }
+ .order-filter-field { font-size: 11px; }
+ .order-filter-field input, .order-filter-field select { min-height: 42px; font-size: 12px; }
+ .detail-heading { flex-direction: column; }
+ .detail-actions { width: 100%; }
+ .detail-row { grid-template-columns: minmax(90px, .65fr) minmax(0, 1fr); gap: 8px; }
+ .detail-value > strong, .detail-value > a, .detail-row > strong { overflow-wrap: anywhere; }
+ .customer-block, .product-block, .payment-block, .delivery-block { padding-right: 14px; padding-left: 14px; }
+}
