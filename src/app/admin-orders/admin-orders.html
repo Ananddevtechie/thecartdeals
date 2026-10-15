@@ -65,7 +65,16 @@
 
     <section class="order-detail-panel" aria-labelledby="order-detail-title">
       @if (selectedOrder; as order) {
-        <header class="detail-heading"><div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2><time>{{ formatDate(order.order_date) }}</time></div><span class="payment-pill" [class.payment-paid]="paymentTone(order) === 'paid'" [class.payment-pending]="paymentTone(order) === 'pending'" [class.payment-cancelled]="paymentTone(order) === 'cancelled'">{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} · {{ paymentLabel(order) }}</span></header>
+        <header class="detail-heading">
+          <div><p class="kicker">ORDER DETAILS</p><h2 id="order-detail-title">#{{ order.order_id }}</h2><time>{{ formatDate(order.order_date) }}</time></div>
+          <div class="detail-actions">
+            <span class="payment-pill" [class.payment-paid]="paymentTone(order) === 'paid'" [class.payment-pending]="paymentTone(order) === 'pending'" [class.payment-cancelled]="paymentTone(order) === 'cancelled'">{{ order.payment_method === 'UPI' ? 'UPI' : 'COD' }} · {{ paymentLabel(order) }}</span>
+            <button type="button" class="download-pdf-button" (click)="downloadOrderPdf(order)" [disabled]="downloadingPdf" aria-label="Download order details as PDF">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"></path></svg>
+              {{ downloadingPdf ? 'Preparing…' : 'Download PDF' }}
+            </button>
+          </div>
+        </header>
         <section class="customer-block" aria-labelledby="customer-details-title">
           <div class="customer-heading"><h3 id="customer-details-title">Customer</h3><a class="whatsapp-button" [href]="whatsappUrl(order)" target="_blank" rel="noopener noreferrer">Chat with customer on WhatsApp ↗</a></div>
           @if (copyNotice()) { <p class="copy-notice" role="status">{{ copyNotice() }}</p> }

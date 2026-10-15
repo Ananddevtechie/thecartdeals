@@ -5,6 +5,71 @@ import { ProductApiService } from '../product-details/product-api.service';
 import { OrderTrackingApiService } from '../order-tracking/order-tracking-api.service';
 import { AdminOrders } from './admin-orders';
 
+const pdfMock = vi.hoisted(() => ({
+  textCalls: [] as string[],
+  textAlignments: new Map<string, string | undefined>(),
+  savedFilename: '',
+  addPageCalls: 0,
+  imageAdded: false,
+}));
+
+vi.mock('jspdf', () => ({
+  jsPDF: class {
+    internal = { pageSize: { getWidth: () => 210, getHeight: () => 297 } };
+    setFillColor(..._values: number[]): void {}
+    rect(..._values: number[]): void {}
+    setTextColor(..._values: number[]): void {}
+    setFont(..._values: string[]): void {}
+    setFontSize(..._values: number[]): void {}
+    setCharSpace(..._values: number[]): void {}
+    text(content: string | string[], _x?: number, _y?: number, options?: { align?: string }): void {
+      pdfMock.textCalls.push(...(Array.isArray(content) ? content : [content]));
+      if (typeof content === 'string') pdfMock.textAlignments.set(content, options?.align);
+    }
+    splitTextToSize(content: string): string[] {
+      return [content];
+    }
+    addPage(): void {
+      pdfMock.addPageCalls += 1;
+    }
+    roundedRect(
+      _x: number,
+      _y: number,
+      _width: number,
+      _height: number,
+      _radiusX: number,
+      _radiusY: number,
+      _style: string,
+    ): void {}
+    circle(_x: number, _y: number, _radius: number, _style: string): void {}
+    moveTo(_x: number, _y: number): void {}
+    lineTo(_x: number, _y: number): void {}
+    curveTo(..._values: number[]): void {}
+    close(): void {}
+    fill(): void {}
+    setLineWidth(..._values: number[]): void {}
+    addImage(
+      _imageData: string,
+      _format: string,
+      _x: number,
+      _y: number,
+      _width: number,
+      _height: number,
+    ): void {
+      pdfMock.imageAdded = true;
+    }
+    setDrawColor(..._values: number[]): void {}
+    line(..._values: number[]): void {}
+    getNumberOfPages(): number {
+      return 1;
+    }
+    setPage(): void {}
+    save(filename: string): void {
+      pdfMock.savedFilename = filename;
+    }
+  },
+}));
+
 const order = {
   order_id: 'ORD-QA-001',
   product_title: 'Test product',
@@ -33,7 +98,7 @@ const order = {
   shipping: '0.00',
   tax: '0.00',
   cod_fee: '0.00',
-  payment_reference: null,
+  payment_reference: 'pay_TnrQdJWLdc1P2j',
   meesho_url: 'https://www.meesho.com/test-product/p/123',
 };
 
@@ -45,11 +110,19 @@ describe('AdminOrders', () => {
     delivery_status: deliveryStatus,
     estimated_delivery_date: estimatedDeliveryDate,
   }));
-  afterEach(() => fixture?.destroy());
+  afterEach(() => {
+    fixture?.destroy();
+    vi.restoreAllMocks();
+  });
 
   beforeEach(async () => {
     listAdminOrders.mockClear();
     updateAdminOrder.mockClear();
+    pdfMock.textCalls.length = 0;
+    pdfMock.textAlignments.clear();
+    pdfMock.savedFilename = '';
+    pdfMock.addPageCalls = 0;
+    pdfMock.imageAdded = false;
     await TestBed.configureTestingModule({
       imports: [AdminOrders],
       providers: [
@@ -155,6 +228,50 @@ describe('AdminOrders', () => {
     expect(detailText).toContain('COD fee');
     expect(detailText).toContain('Total');
     expect(detailText).toContain('14/10/2026, 00:00 UTC');
+  });
+
+  it('downloads a formatted order PDF without Meesho links or payment references', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(new Blob(['logo']), { status: 200 }),
+    );
+    const row = fixture.nativeElement.querySelector('.order-row') as HTMLButtonElement;
+    row.click();
+    fixture.componentInstance.selectOrder({ ...order, estimated_delivery_date: '2026-10-20' });
+    fixture.detectChanges();
+
+    const downloadButton = fixture.nativeElement.querySelector('.download-pdf-button') as HTMLButtonElement;
+    expect(downloadButton).not.toBeNull();
+    downloadButton.click();
+    await vi.waitFor(() => expect(fixture.componentInstance.downloadingPdf).toBe(false));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.error).toBe('');
+    const pdfText = pdfMock.textCalls.join(' ');
+    expect(pdfMock.savedFilename).toBe('TheCart-order-ORD-QA-001.pdf');
+    expect(pdfMock.addPageCalls).toBe(0);
+    expect(pdfMock.imageAdded).toBe(true);
+    expect(pdfText).toContain('THE CART');
+    expect(pdfText).toContain('EVERYDAY, ELEVATED');
+    expect(pdfText).toContain('Customer details');
+    expect(pdfText).toContain('Delivery address');
+    expect(pdfText).toContain('Product details');
+    expect(pdfText).toContain('Delivery information');
+    expect(pdfText).toContain('Payment summary');
+    expect(pdfText).toContain('Expected delivery date');
+    expect(pdfText).toContain('Cash on delivery · COD · Pending');
+    expect(pdfText).toContain('INR 399.00');
+    expect(pdfText).toContain('INR 199.00');
+    expect(pdfText).toContain('20 Oct 2026');
+    expect(pdfText).toContain('14/10/2026, 05:30 AM IST');
+    expect(pdfMock.textAlignments.get('#ORD-QA-001')).toBe('right');
+    expect(pdfMock.textAlignments.get('Placed 14/10/2026, 05:30 AM IST')).toBe('right');
+    expect(pdfText).not.toMatch(/\b0[1-3]\b/);
+    expect(pdfText).not.toContain('TITLE TEXT');
+    expect(pdfText).not.toContain('Delivery status');
+    expect(pdfText).not.toContain('TEST-001');
+    expect(pdfText).not.toContain('https://www.meesho.com');
+    expect(pdfText).not.toContain('pay_TnrQdJWLdc1P2j');
+    expect(pdfText).not.toContain('Payment reference');
   });
 
   it('renders each delivery address field as a visible row with its own copy action', () => {
