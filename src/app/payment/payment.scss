@@ -110,6 +110,11 @@
 .session-alert button { padding: 0; border: 0; background: none; color: #f0c979; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
 .loading-state { align-items: center; }
 .loading-spinner { width: 26px; height: 26px; flex: 0 0 26px; border: 2px solid rgba(240,201,121,.25); border-top-color: #f0c979; border-radius: 50%; animation: payment-spin .8s linear infinite; }
+.cod-order-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(10, 22, 16, .72); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+.cod-order-dialog { width: min(360px, 100%); display: grid; justify-items: center; padding: 30px 24px 27px; border: 1px solid rgba(240, 201, 121, .35); border-radius: 16px; background: linear-gradient(145deg, #294437, #1c3026); box-shadow: 0 24px 70px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .08); text-align: center; }
+.cod-order-spinner { width: 42px; height: 42px; margin-bottom: 18px; border: 3px solid rgba(240, 201, 121, .22); border-top-color: #f0c979; border-right-color: #a9dfbd; border-radius: 50%; animation: payment-spin .8s linear infinite; }
+.cod-order-dialog h2 { margin: 0; color: #f5f4ee; font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+.cod-order-dialog p { margin: 8px 0 0; color: #c1ccc2; font-size: 11px; line-height: 1.6; }
 @keyframes payment-spin { to { transform: rotate(360deg); } }
 .cod-consent { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 10px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.13); border-radius: 9px; background: rgba(255,255,255,.035); color: #c7d1c8; font-size: 9px; line-height: 1.6; cursor: pointer; }
 .cod-consent input { width: 17px; height: 17px; flex: 0 0 17px; margin: 0; accent-color: #f0b95d; }
@@ -196,6 +201,10 @@
   .payment-footer .trust-row i { font-size: 10px; }
   .mobile-payment-bar { padding-right: 11px; padding-left: 11px; }
   .mobile-payment-bar button { padding: 0 9px; font-size: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cod-order-spinner { animation-duration: 1.8s; }
 }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }

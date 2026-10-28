@@ -81,7 +81,13 @@ a { color: inherit; }
 .save-pill { display: inline-flex; align-items: center; min-height: 22px; padding: 0 9px; border-radius: 20px; background: #eaf5f0; color: #287657; font-size: 8px; font-weight: 800; letter-spacing: .06em; }
 .offer-copy { margin: 8px 0 0; color: #30364a; font-size: 11px; font-weight: 650; }
 .offer-copy span { margin-right: 4px; color: #b27e28; }
-.offer-footnote { margin: 5px 0 0 15px; color: #9297a5; font-size: 9px; }
+.offer-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 7px 12px; margin: 5px 0 0 15px; }
+.offer-footnote { margin: 0; color: #9297a5; font-size: 9px; }
+.cod-availability { --cod-badge-fill: #eaf5f0; position: relative; display: inline-flex; align-items: center; overflow: hidden; padding: 10px 17px; border: 1px solid rgba(40,118,87,.2); border-radius: 24px; background: var(--cod-badge-fill); color: #287657; font-size: 14px; white-space: nowrap; }
+.cod-availability::after { position: absolute; z-index: 1; inset: 1px; border-radius: inherit; background: rgba(40,118,87,.16); content: ''; pointer-events: none; -webkit-mask-image: repeating-linear-gradient(120deg, #000 0 8px, transparent 8px 18px); mask-image: repeating-linear-gradient(120deg, #000 0 8px, transparent 8px 18px); -webkit-mask-size: 36px 100%; mask-size: 36px 100%; animation: cod-mask-sweep 1.8s linear infinite; }
+.cod-availability strong { position: relative; z-index: 2; color: inherit; font-size: 15px; font-weight: 800; letter-spacing: .01em; }
+@keyframes cod-mask-sweep { to { -webkit-mask-position: 36px 0; mask-position: 36px 0; } }
+@media (prefers-reduced-motion: reduce) { .cod-availability::after { display: none; } }
 .primary-button { min-height: 55px; display: flex; justify-content: space-between; align-items: center; padding: 0 19px; border: 0; border-radius: 11px; background: var(--purple); color: #fff; font-size: 13px; font-weight: 720; cursor: pointer; box-shadow: 0 8px 17px rgba(98,84,223,.19); transition: background .2s, transform .2s, box-shadow .2s; }
 .primary-button:hover { background: var(--purple-dark); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(98,84,223,.24); }
 .primary-button:active { transform: translateY(0) scale(.99); }
@@ -555,6 +561,8 @@ a { color: inherit; }
 .storefront .price-now { color: #fff8e8; }
 .storefront .price-mrp, .storefront .price-mrp s, .storefront .offer-footnote { color: #a8b4aa; }
 .storefront .save-pill { background: rgba(139,196,162,.17); color: #a9dfbd; }
+.storefront .cod-availability { --cod-badge-fill: #25372a; border-color: rgba(169,223,189,.32); background: rgba(139,196,162,.18); color: #a9dfbd; }
+.storefront .cod-availability::after { background: rgba(169,223,189,.18); }
 .storefront .offer-copy { color: #e7ece4; }
 .storefront .offer-copy span { color: #f0b95d; }
 .storefront .primary-button { background: #f0b95d; color: #1d2a21; box-shadow: 0 9px 24px rgba(5, 18, 11, .25); }

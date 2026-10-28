@@ -84,6 +84,7 @@ describe('ProductDetails', () => {
   it('renders the product after its asynchronous data load', () => {
     expect(fixture.nativeElement.querySelector('.product-state')).toBeNull();
     expect(fixture.nativeElement.querySelector('#product-title')?.textContent).toContain(product.title);
+    expect(fixture.nativeElement.querySelector('.cod-availability')?.textContent.trim()).toBe('COD available');
   });
 
   it('loads the selected review page while retaining the total review count', async () => {

@@ -64,4 +64,14 @@
   </section>
 
   @if (checkout && product) { <div class="mobile-payment-bar"><div><strong>{{ product.currency }}{{ previewTotal }}</strong><small>{{ selectedMethod === 'cod' ? 'ESTIMATED COD TOTAL' : 'UPI PAYMENT' }}</small></div><button type="button" (click)="submitOrder()" [disabled]="isSubmitting()">{{ isSubmitting() ? 'PLACING…' : selectedMethod === 'online' ? 'CONTINUE' : 'PLACE COD' }} <span>→</span></button></div> }
+
+  @if (isSubmitting()) {
+    <div class="cod-order-overlay">
+      <section class="cod-order-dialog" role="dialog" aria-modal="true" aria-labelledby="cod-order-title" aria-describedby="cod-order-description">
+        <span class="cod-order-spinner" aria-hidden="true"></span>
+        <h2 id="cod-order-title" role="status" aria-live="polite">Placing your COD order</h2>
+        <p id="cod-order-description">Please wait while we securely confirm your order.</p>
+      </section>
+    </div>
+  }
 </main>

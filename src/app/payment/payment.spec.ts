@@ -113,6 +113,34 @@ describe('Payment', () => {
     expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
+  it('shows a centered COD order loader while the order request is pending', async () => {
+    vi.stubGlobal('fetch', fetchMock);
+    let resolveFetch!: (response: { ok: boolean; json: () => Promise<{ detail: string }> }) => void;
+    fetchMock.mockReturnValue(new Promise((resolve) => {
+      resolveFetch = resolve;
+    }));
+
+    const placingOrder = component.placeCodOrder();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('.cod-order-dialog') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.querySelector('[role="status"]')?.textContent).toContain('Placing your COD order');
+    expect(dialog.querySelector('.cod-order-spinner')).not.toBeNull();
+    expect((fixture.nativeElement.querySelector('.payment-cta') as HTMLButtonElement).disabled).toBe(true);
+
+    resolveFetch({
+      ok: false,
+      json: async () => ({ detail: 'Could not place order.' }),
+    });
+    await placingOrder;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.cod-order-dialog')).toBeNull();
+    expect(component.notice()).toBe('Could not place order.');
+  });
+
   it('does not send a valid-looking order when checkout details are missing', async () => {
     component.checkout = null;
     vi.stubGlobal('fetch', fetchMock);

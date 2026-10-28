@@ -66,7 +66,10 @@
         <div class="price-block">
           <div class="price-row"><span class="price-now">{{ product.currency }}{{ product.price }}</span><span class="price-mrp">MRP <s>{{ product.currency }}{{ product.mrp }}</s></span><span class="save-pill">SAVE {{ product.currency }}{{ savings }}</span></div>
           <p class="offer-copy"><span>✳</span> A little upgrade for a little less.</p>
-          <p class="offer-footnote">Introductory offer · Price may change</p>
+          <div class="offer-meta">
+            <p class="offer-footnote">Introductory offer · Price may change</p>
+            <span class="cod-availability"><strong>COD available</strong></span>
+          </div>
         </div>
 
         <div class="hero-purchase-actions">
