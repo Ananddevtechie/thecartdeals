@@ -1,0 +1,51 @@
+@if (isOpen()) {
+  <div class="cod-popup-backdrop" (click)="close()">
+    <section
+      class="cod-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cod-popup-title"
+      aria-describedby="cod-popup-description"
+      (click)="$event.stopPropagation()"
+    >
+      <button #closeButton class="cod-popup-close" type="button" aria-label="Close cash on delivery offer" (click)="close()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18"></path>
+        </svg>
+      </button>
+
+      <div class="cod-popup-art" aria-hidden="true">
+        <span class="cod-popup-orbit cod-popup-orbit-one"></span>
+        <span class="cod-popup-orbit cod-popup-orbit-two"></span>
+        <svg class="cod-popup-truck" viewBox="0 0 92 70" fill="none">
+          <path d="M8 17.5A5.5 5.5 0 0 1 13.5 12h42a5.5 5.5 0 0 1 5.5 5.5V48H8V17.5Z" fill="#F5F0E4"></path>
+          <path d="M61 27h13.4a5 5 0 0 1 4.1 2.1l7.2 10.1a5 5 0 0 1 .9 2.9V48H61V27Z" fill="#E8DFC9"></path>
+          <path d="M67 31h6.2l6 8H67v-8Z" fill="#D9E7DD"></path>
+          <path d="M8 47h78v5H8z" fill="#1E5945"></path>
+          <circle cx="25" cy="52" r="7" fill="#163D30" stroke="#F5F0E4" stroke-width="3"></circle>
+          <circle cx="71" cy="52" r="7" fill="#163D30" stroke="#F5F0E4" stroke-width="3"></circle>
+          <circle cx="36" cy="29" r="11" fill="#E9B85F"></circle>
+          <path d="M38.8 24.9c-.5-.8-1.6-1.3-3-1.3-1.8 0-3.1.9-3.1 2.3 0 3.8 7.3 1.4 7.3 5.5 0 1.7-1.6 2.9-4 2.9-1.9 0-3.5-.7-4.3-2" stroke="#173D30" stroke-width="1.8" stroke-linecap="round"></path>
+          <path d="M36 21v16" stroke="#173D30" stroke-width="1.8" stroke-linecap="round"></path>
+          <path d="M16 20h15M16 25h8" stroke="#D8CEB8" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+        <span class="cod-popup-art-spark cod-popup-art-spark-one">✦</span>
+        <span class="cod-popup-art-spark cod-popup-art-spark-two">✧</span>
+      </div>
+
+      <p class="cod-popup-kicker">A little more peace of mind</p>
+      <h2 id="cod-popup-title"><span>FREE CASH ON</span><span class="cod-popup-shimmer">DELIVERY AVAILABLE!</span></h2>
+      <p id="cod-popup-description" class="cod-popup-subtitle">Enjoy shopping without paying upfront.</p>
+
+      <ul class="cod-popup-benefits">
+        <li><span class="cod-popup-check" aria-hidden="true">✓</span>Pay only when your order arrives.</li>
+        <li><span class="cod-popup-check" aria-hidden="true">✓</span>No advance payment required.</li>
+        <li><span class="cod-popup-check" aria-hidden="true">✓</span>Easy and secure ordering.</li>
+        <li><span class="cod-popup-check" aria-hidden="true">✓</span>Available across eligible delivery locations in India.</li>
+      </ul>
+
+      <button class="cod-popup-cta" type="button" (click)="close()">CONTINUE SHOPPING</button>
+      <p class="cod-popup-trust"><span aria-hidden="true">✦</span> Shop with confidence <span aria-hidden="true">•</span> Pay at your doorstep</p>
+    </section>
+  </div>
+}

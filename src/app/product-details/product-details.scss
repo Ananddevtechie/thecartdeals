@@ -44,8 +44,8 @@ a { color: inherit; }
 .gallery-topline { display: flex; justify-content: space-between; align-items: center; margin: 0 3px 13px; color: #9398a8; font-size: 8px; font-weight: 750; letter-spacing: .13em; }
 .gallery-count { color: #43485b; font-size: 9px; letter-spacing: .08em; }
 .gallery-count i { padding: 0 5px; color: #b5b7c2; font-style: normal; }
-.main-image { position: relative; display: block; width: 100%; height: clamp(380px, 43vw, 508px); overflow: hidden; padding: 0; border: 0; border-radius: 12px; background: #eeedf1; cursor: zoom-in; }
-.main-image img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .4s; }
+.main-image { position: relative; display: block; width: 100%; height: auto; aspect-ratio: 1; overflow: hidden; padding: 0; border: 0; border-radius: 12px; background: #eeedf1; cursor: zoom-in; }
+.main-image img { display: block; width: 100%; height: 100%; object-fit: contain; transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .4s; }
 .main-image:hover img { transform: scale(1.025); }
 .main-image.is-zoomed { cursor: zoom-out; }
 .main-image.is-zoomed img { transform: scale(1.45); }
@@ -300,7 +300,6 @@ a { color: inherit; }
 @media (max-width: 1000px) {
   .section-wrap, .site-header, .trust-inner { width: min(100% - 52px, 850px); }
   .hero { grid-template-columns: minmax(0, 1fr) minmax(330px, .88fr); gap: 37px; padding-top: 43px; }
-  .main-image { height: clamp(340px, 45vw, 450px); }
   .product-copy h1 { font-size: clamp(36px, 5vw, 48px); }
   .comparison-inner { grid-template-columns: .65fr 1.35fr; gap: 35px; }
   .compare-card { padding: 21px 17px; }
@@ -334,7 +333,7 @@ a { color: inherit; }
   .hero { display: flex; flex-direction: column; align-items: stretch; gap: 28px; padding-top: 21px; padding-bottom: 39px; }
   .gallery-card { padding: 10px; border-radius: 15px; box-shadow: 0 10px 30px rgba(27,28,54,.055); }
   .gallery-topline { margin-bottom: 9px; font-size: 7px; }
-  .main-image { height: min(98vw, 420px); border-radius: 10px; }
+  .main-image { aspect-ratio: 4 / 5; border-radius: 10px; }
   .thumbnail-row { gap: 7px; margin-top: 8px; }
   .thumbnail, .video-thumb { height: 60px; border-radius: 7px; }
   .video-thumb { gap: 5px; font-size: 7px; }

@@ -1,8 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { FreeCodPopup } from './free-cod-popup/free-cod-popup';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [FreeCodPopup, RouterOutlet],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
