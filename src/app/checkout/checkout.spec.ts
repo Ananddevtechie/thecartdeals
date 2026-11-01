@@ -60,6 +60,131 @@ describe('Checkout', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('fills available address fields from location without overwriting entered values', async () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    const existingCity = form.elements.namedItem('city') as HTMLInputElement;
+    existingCity.value = 'Already entered city';
+    const getCurrentPosition = vi.fn((success: PositionCallback) => {
+      success({
+        coords: { latitude: 12.9716, longitude: 77.5946 } as GeolocationCoordinates,
+      } as GeolocationPosition);
+    });
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
+      ok: true,
+      json: async () => ({
+        display_name: 'Hadosiddapura, Bangalore East, Bengaluru Urban, Karnataka, 560035, India',
+        address: {
+          building: 'Tower A',
+          house_number: '12',
+          road: 'MG Road',
+          suburb: 'Central',
+          postcode: '560001',
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          amenity: 'City Library',
+        },
+      }),
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await component.useCurrentLocation(form);
+    fixture.detectChanges();
+
+    expect(getCurrentPosition).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls[0][0]).toContain('nominatim.openstreetmap.org/reverse');
+    expect((form.elements.namedItem('addressLine1') as HTMLInputElement).value).toBe('Tower A 12');
+    expect((form.elements.namedItem('addressLine2') as HTMLInputElement).value)
+      .toBe('Hadosiddapura, Bangalore East, Bengaluru Urban, Karnataka, 560035, India');
+    expect((form.elements.namedItem('pin') as HTMLInputElement).value).toBe('560001');
+    expect(existingCity.value).toBe('Already entered city');
+    expect((form.elements.namedItem('state') as HTMLSelectElement).value).toBe('Karnataka');
+    expect((form.elements.namedItem('landmark') as HTMLInputElement).value).toBe('City Library');
+    expect((form.elements.namedItem('fullName') as HTMLInputElement).value).toBe('');
+    expect((form.elements.namedItem('mobile') as HTMLInputElement).value).toBe('');
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent)
+      .toContain('Please review the details and enter your name and mobile number');
+  });
+
+  it('explains when location permission is denied', async () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    const getCurrentPosition = vi.fn((_success: PositionCallback, error: PositionErrorCallback) => {
+      error({ code: 1, message: 'Permission denied' } as GeolocationPositionError);
+    });
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+
+    await component.useCurrentLocation(form);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent)
+      .toContain('Location permission was denied');
+  });
+
+  it('retries unavailable location with high accuracy before showing an error', async () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    const getCurrentPosition = vi.fn((
+      success: PositionCallback,
+      error: PositionErrorCallback,
+      options?: PositionOptions,
+    ) => {
+      if (getCurrentPosition.mock.calls.length === 1) {
+        error({ code: 2, message: 'Position unavailable' } as GeolocationPositionError);
+        return;
+      }
+      success({
+        coords: { latitude: 12.9716, longitude: 77.5946 } as GeolocationCoordinates,
+      } as GeolocationPosition);
+    });
+    vi.stubGlobal('navigator', { geolocation: { getCurrentPosition } });
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ address: { city: 'Bengaluru', state: 'Karnataka', postcode: '560001' } }),
+    })));
+
+    await component.useCurrentLocation(form);
+    fixture.detectChanges();
+
+    expect(getCurrentPosition).toHaveBeenCalledTimes(2);
+    expect(getCurrentPosition.mock.calls[0][2]).toMatchObject({ enableHighAccuracy: false });
+    expect(getCurrentPosition.mock.calls[1][2]).toMatchObject({
+      enableHighAccuracy: true,
+      maximumAge: 300_000,
+    });
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent)
+      .toContain('Filled 3 address fields');
+  });
+
+  it('reminds the customer when location lookup cannot fill the house or building name', async () => {
+    const form = fixture.nativeElement.querySelector('form') as HTMLFormElement;
+    vi.stubGlobal('navigator', {
+      geolocation: {
+        getCurrentPosition: (success: PositionCallback) => success({
+          coords: { latitude: 12.9004363, longitude: 77.7055349 } as GeolocationCoordinates,
+        } as GeolocationPosition),
+      },
+    });
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        display_name: 'Hadosiddapura, Bangalore East, Bengaluru Urban, Karnataka, 560035, India',
+        address: {
+          city_district: 'Hadosiddapura',
+          county: 'Bangalore East',
+          state: 'Karnataka',
+          postcode: '560035',
+        },
+      }),
+    })));
+
+    await component.useCurrentLocation(form);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent)
+      .toContain('Filled 4 address fields. Please review the details and enter your name and mobile number. House no. / building name is still required.');
+  });
+
   it('prevents whitespace-only fields and mirrors backend text limits', () => {
     const fullName = fixture.nativeElement.querySelector('[name="fullName"]') as HTMLInputElement;
     const addressLine1 = fixture.nativeElement.querySelector('[name="addressLine1"]') as HTMLInputElement;

@@ -29,10 +29,20 @@
 .step-label i { padding: 0 5px; color: #829388; font-style: normal; }
 .card-heading h2 { margin: 8px 0 0; color: #f0f3ed; font-size: 18px; font-weight: 600; letter-spacing: -.03em; }
 .lock-icon { width: 37px; height: 37px; display: grid; place-items: center; border: 1px solid rgba(240,185,93,.2); border-radius: 11px; background: rgba(240,185,93,.12); color: #f0c979; font-size: 18px; }
+.location-lookup { display: grid; justify-items: start; gap: 7px; padding: 15px 0 0; }
+.location-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 13px; border: 1px solid rgba(240,185,93,.48); border-radius: 8px; background: rgba(240,185,93,.1); color: #f4d58c; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .2s, border-color .2s, transform .2s; }
+.location-button:hover { transform: translateY(-1px); border-color: rgba(240,185,93,.8); background: rgba(240,185,93,.17); }
+.location-button:focus-visible { outline: 2px solid #f0c979; outline-offset: 3px; }
+.location-button:disabled { opacity: .7; cursor: wait; }
+.location-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; }
+.location-attribution { color: #bdc9be; font-size: 9px; text-decoration: underline; text-underline-offset: 2px; }
+.location-message { margin: 2px 0 0; color: #f2dda9; font-size: 11px; line-height: 1.5; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px 14px; padding: 20px 0 22px; }
 .form-field { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .field-wide { grid-column: 1 / -1; }
 .form-field > span:first-child { color: #e1e9e1; font-size: 11px; font-weight: 650; }
+.address-line1-label { animation: address-label-appear .6s ease-out both; }
+@keyframes address-label-appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .form-field > span:first-child small { color: #b4c0b5; font-size: 10px; font-weight: 450; }
 .required-mark { margin-left: 3px; color: #f0c979; font-size: 13px; font-weight: 800; }
 .form-field input, .form-field textarea, .form-field select { box-sizing: border-box; width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid rgba(255,255,255,.16); border-radius: 8px; outline: none; background: rgba(10,24,17,.32); color: #edf2eb; font: inherit; font-size: 12px; transition: border-color .2s, box-shadow .2s; }
@@ -99,4 +109,7 @@
   .state-field, .quantity-field { grid-column: 1 / -1; }
 }
 
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; }
+  .address-line1-label { animation: none; }
+}
