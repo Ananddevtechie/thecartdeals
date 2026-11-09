@@ -95,6 +95,7 @@ interface ProductResponse {
   faqs: StoreProduct['faqs'];
   cost_price?: number | string;
   is_active?: boolean;
+  order_now_clicks?: number;
 }
 
 interface AdminLoginResponse {
@@ -165,6 +166,17 @@ export class ProductApiService {
       return await request;
     } finally {
       if (this.productRequests.get(slug) === request) this.productRequests.delete(slug);
+    }
+  }
+
+  async recordOrderNowClick(slug: string): Promise<void> {
+    const response = await fetch(`/api/products/${encodeURIComponent(slug)}/order-click`, {
+      method: 'POST',
+      keepalive: true,
+    });
+    if (!response.ok) {
+      const result = await response.json() as { detail?: string };
+      throw new Error(result.detail ?? 'Could not record this product click.');
     }
   }
 
@@ -289,7 +301,12 @@ export class ProductApiService {
     return result;
   }
 
-  async listAdminProducts(username: string, password: string): Promise<(StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string })[]> {
+  async listAdminProducts(username: string, password: string): Promise<(StoreProduct & {
+    costPrice: number;
+    isActive: boolean;
+    meeshoUrl: string;
+    orderNowClicks: number;
+  })[]> {
     const response = await fetch('/api/admin/products', { headers: this.adminHeaders(username, password) });
     const result = await response.json() as ProductResponse[] | { detail?: string };
     if (!response.ok || !Array.isArray(result)) {
@@ -300,6 +317,7 @@ export class ProductApiService {
       costPrice: Number(product.cost_price ?? 0),
       isActive: product.is_active ?? false,
       meeshoUrl: product.meesho_url ?? '',
+      orderNowClicks: product.order_now_clicks ?? 0,
     }));
   }
 

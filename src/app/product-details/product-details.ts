@@ -153,6 +153,9 @@ export class ProductDetails implements OnInit {
   }
 
   navigateToCheckout(): void {
+    void this.productApi.recordOrderNowClick(this.product.id).catch((error: unknown) => {
+      console.error('Could not record Order now click.', error);
+    });
     void this.router.navigate(['/checkout'], { queryParams: { product: this.product.id } });
   }
 

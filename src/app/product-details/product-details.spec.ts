@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { ProductApiService, ProductReview, ProductReviewSummary, StoreProduct } from './product-api.service';
@@ -41,6 +41,7 @@ describe('ProductDetails', () => {
   let fixture: ComponentFixture<ProductDetails>;
   let component: ProductDetails;
   let getProductReviews: ReturnType<typeof vi.fn>;
+  let recordOrderNowClick: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     const firstPage: ProductReviewSummary = {
@@ -53,6 +54,7 @@ describe('ProductDetails', () => {
       reviews: [makeReview('11'), makeReview('12')],
     };
     getProductReviews = vi.fn(async (_slug: string, offset = 0) => offset === 0 ? firstPage : secondPage);
+    recordOrderNowClick = vi.fn(async () => {});
 
     await TestBed.configureTestingModule({
       imports: [ProductDetails],
@@ -68,6 +70,7 @@ describe('ProductDetails', () => {
             listProducts: async () => [product],
             getProduct: async () => product,
             getProductReviews,
+            recordOrderNowClick,
           },
         },
       ],
@@ -85,6 +88,15 @@ describe('ProductDetails', () => {
     expect(fixture.nativeElement.querySelector('.product-state')).toBeNull();
     expect(fixture.nativeElement.querySelector('#product-title')?.textContent).toContain(product.title);
     expect(fixture.nativeElement.querySelector('.cod-availability')?.textContent.trim()).toBe('COD available');
+  });
+
+  it('records an Order now click for the selected product', () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+
+    component.navigateToCheckout();
+
+    expect(recordOrderNowClick).toHaveBeenCalledWith(product.id);
+    expect(navigate).toHaveBeenCalledWith(['/checkout'], { queryParams: { product: product.id } });
   });
 
   it('loads the selected review page while retaining the total review count', async () => {

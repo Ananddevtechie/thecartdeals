@@ -2,7 +2,12 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductApiService, ProductDraft, ProductReviewSummary, StoreProduct } from '../product-details/product-api.service';
 
-type AdminProduct = StoreProduct & { costPrice: number; isActive: boolean; meeshoUrl: string };
+type AdminProduct = StoreProduct & {
+  costPrice: number;
+  isActive: boolean;
+  meeshoUrl: string;
+  orderNowClicks: number;
+};
 
 interface ProductEditorValues {
   title: string;
