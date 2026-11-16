@@ -14,7 +14,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ShoppingCartService, ShoppingCartItem } from '../cart/shopping-cart.service';
-import { displayReviewerName, ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
+import { displayReviewerName, isEbookCategory, ProductApiService, ProductReviewSummary, StoreProduct } from './product-api.service';
 
 interface ProductMedia {
   src: string;
@@ -270,6 +270,10 @@ export class ProductDetails implements OnInit {
         return;
       }
       this.product = await this.productApi.getProduct(selected.id);
+      if (isEbookCategory(this.product.category) && !this.router.url.startsWith('/product-details/ebook/')) {
+        await this.router.navigate(['/product-details/ebook', this.product.id], { replaceUrl: true });
+        return;
+      }
       this.loadProductReviews(this.product);
       this.relatedProducts = this.catalog
         .filter((item) => item.id !== selected.id)

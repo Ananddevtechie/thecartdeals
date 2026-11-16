@@ -11,10 +11,17 @@ import { OrderTrackingPage } from './order-tracking/order-tracking';
 import { CancelOrderReview } from './order-success/cancel-order-review';
 import { AdminReviews } from './admin-reviews/admin-reviews';
 import { TheCartDetailsAndPolicy } from './thecartdetailsandpolicy/thecartdetailsandpolicy';
+import { EbookProductDetailsComponent } from './product-details/ebook-product-details/ebook-product-details';
+import { EbookCheckout } from './ebook-checkout/ebook-checkout';
+import { EbookPayment } from './ebook-payment/ebook-payment';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: StorefrontHome, title: 'Shop | TheCart' },
 	{ path: 'product-details', component: ProductDetails, title: 'Product details | TheCart' },
+	{ path: 'product-details/ebook', component: EbookProductDetailsComponent, title: 'eBook details | TheCart' },
+	{ path: 'product-details/ebook/:slug', component: EbookProductDetailsComponent, title: 'eBook details | TheCart' },
+	{ path: 'ebook-checkout', component: EbookCheckout, title: 'eBook checkout | TheCart' },
+	{ path: 'ebook-payment', component: EbookPayment, title: 'eBook payment | TheCart' },
 	{ path: 'product-details/:slug', component: ProductDetails, title: 'Product details | TheCart' },
 	{ path: 'admin/products', component: AdminProducts, title: 'Add products | TheCart Admin' },
 	{ path: 'admin/products/add', component: AdminProducts, title: 'Add a product | TheCart Admin' },

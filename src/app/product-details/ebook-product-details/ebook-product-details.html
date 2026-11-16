@@ -1,0 +1,244 @@
+@if (loading()) {
+  <div class="ebook-state" aria-live="polite">
+    <div class="state-card">
+      <span class="loader" aria-hidden="true"></span>
+      <p>Loading your eBook…</p>
+    </div>
+  </div>
+} @else if (error()) {
+  <div class="ebook-state" aria-live="polite">
+    <div class="state-card error-card">
+      <p>{{ error() }}</p>
+      <a routerLink="/" class="text-link">Return home</a>
+    </div>
+  </div>
+} @else if (product(); as product) {
+  <div class="ebook-page">
+    <header class="ebook-header reveal" #revealItem>
+      <a class="brand" routerLink="/" aria-label="TheCart home">
+        <img class="brand-mark" src="/app-icon-display.png" alt="" />
+        <span class="brand-copy">
+          <strong>TheCart</strong>
+          <small>PREMIUM DIGITAL EBOOKS</small>
+        </span>
+      </a>
+      <div class="header-badges" aria-label="Store trust indicators">
+        <span class="header-badge"><i>◉</i> Secure checkout</span>
+        <span class="header-badge"><i>↗</i> Instant access</span>
+      </div>
+      <a class="support-link" href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20help%20with%20the%20digital%20book." target="_blank" rel="noopener noreferrer">Support</a>
+    </header>
+
+    <main class="ebook-main">
+      <section class="hero section-wrap">
+        <div class="hero-copy reveal" #revealItem>
+          <span class="eyebrow-badge">DIGITAL EBOOK</span>
+          <p class="eyebrow-text">{{ product.eyebrow || product.title }}</p>
+          <h1>{{ product.title }}</h1>
+          <p class="hero-description">{{ product.description }}</p>
+
+          <ul class="hero-points" aria-label="Key product benefits">
+            <li>300+ Questions &amp; Answers</li>
+            <li>Beginner to Advanced</li>
+            <li>Real-world scenarios</li>
+            <li>Instant PDF access</li>
+          </ul>
+
+          <div class="pricing-card">
+            <div class="price-row">
+              <span class="mrp-label">{{ formattedOriginalPrice }}</span>
+              <span class="offer-price">{{ formattedOfferPrice }}</span>
+              <span class="save-chip">Save {{ discountPercent }}%</span>
+            </div>
+            <div class="pricing-meta">
+              <span>One-time payment</span>
+              <span>Secure online checkout</span>
+              <span>Instant download</span>
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <button type="button" class="primary-cta" (click)="purchase()">
+              <span>GET INSTANT ACCESS</span>
+              <strong>{{ formattedOfferPrice }}</strong>
+            </button>
+          </div>
+
+          <div class="trust-row" aria-label="Offer details">
+            <span>✔ Secure payment</span>
+            <span>✔ No shipping</span>
+            <span>✔ Digital PDF format</span>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal" #revealItem>
+          <div class="visual-stage">
+            <div class="orb orb-one"></div>
+            <div class="orb orb-two"></div>
+            <div class="book-scene">
+              <div class="book-spine"></div>
+              <div class="book-cover">
+                <img [src]="primaryImage" [alt]="product.title" />
+              </div>
+              <div class="floating-tag tag-one">300+ Q&amp;A</div>
+              <div class="floating-tag tag-two">Top MNC Prep</div>
+              <div class="floating-tag tag-three">Instant PDF</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="offer-strip reveal" #revealItem>
+        <div class="offer-content">
+          <div class="offer-text">
+            <span class="strike">{{ formattedOriginalPrice }}</span>
+            <strong>{{ formattedOfferPrice }}</strong>
+          </div>
+          <div class="offer-copy">
+            <span class="offer-pill">SPECIAL OFFER</span>
+            <p>One-time payment · Instant digital access · Secure checkout</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="benefits section-wrap reveal" #revealItem>
+        <div class="section-heading">
+          <span class="section-kicker">WHAT YOU WILL GET</span>
+          <h2>Everything you need to crack your next Angular interview.</h2>
+        </div>
+
+        <div class="benefit-grid">
+          @for (benefit of product.benefits; track benefit.title) {
+            <article class="benefit-card" #revealItem>
+              <span class="benefit-icon">{{ benefit.icon || '✦' }}</span>
+              <h3>{{ benefit.title }}</h3>
+              @if (benefit.copy) {
+                <p>{{ benefit.copy }}</p>
+              }
+            </article>
+          }
+        </div>
+      </section>
+
+      @if (product.features?.length) {
+        <section class="feature-grid section-wrap reveal" #revealItem>
+          <div class="section-heading">
+            <span class="section-kicker">PRODUCT FEATURES</span>
+            <h2>Built for serious interview prep.</h2>
+          </div>
+          <div class="feature-list">
+            @for (feature of product.features; track feature) {
+              <div class="feature-item" #revealItem>
+                <span class="feature-dot">✦</span>
+                <p>{{ feature }}</p>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (product.specifications?.length) {
+        <section class="coverage section-wrap reveal" #revealItem>
+          <div class="section-heading">
+            <span class="section-kicker">TOP MNC INTERVIEW COVERAGE</span>
+            <h2>Practice the questions hiring teams actually ask.</h2>
+          </div>
+          <div class="company-grid">
+            @for (spec of product.specifications; track spec.label) {
+              <div class="company-card" #revealItem>
+                <span>{{ spec.label.replace(/^-\s*/, '') }}</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="audience section-wrap reveal" #revealItem>
+        <div class="section-heading">
+          <span class="section-kicker">WHO SHOULD BUY THIS?</span>
+          <h2>Made for developers preparing for real interviews.</h2>
+        </div>
+        <div class="audience-grid">
+          @for (persona of audienceCards; track persona.title; let index = $index) {
+            <article class="audience-card" #revealItem>
+              <span class="persona-index">0{{ index + 1 }}</span>
+              <h3>{{ persona.title }}</h3>
+              <p>{{ persona.text }}</p>
+            </article>
+          }
+        </div>
+      </section>
+
+      @if (product.faqs?.length) {
+        <section class="faq section-wrap reveal" #revealItem>
+          <div class="section-heading">
+            <span class="section-kicker">FAQ</span>
+            <h2>Quick answers before you buy.</h2>
+          </div>
+
+          <div class="faq-list">
+            @for (faq of product.faqs; track faq.question; let index = $index) {
+              <article class="faq-item" [class.is-open]="openFaq === index" #revealItem>
+                <button type="button" class="faq-question" (click)="toggleFaq(index)" [attr.aria-expanded]="openFaq === index">
+                  <span>{{ faq.question }}</span>
+                  <span class="faq-chevron">+</span>
+                </button>
+                @if (openFaq === index) {
+                  <div class="faq-answer">
+                    <p>{{ faq.answer }}</p>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="final-purchase section-wrap reveal" #revealItem>
+        <div class="final-card">
+          <div class="final-visual">
+            <img [src]="primaryImage" [alt]="product.title" />
+          </div>
+          <div class="final-copy">
+            <span class="section-kicker">YOUR NEXT INTERVIEW STARTS HERE</span>
+            <h2>{{ product.title }}</h2>
+            <div class="final-price-row">
+              <span class="original">{{ formattedOriginalPrice }}</span>
+              <strong>{{ formattedOfferPrice }}</strong>
+            </div>
+            <ul>
+              <li>Instant digital access</li>
+              <li>Secure online payment</li>
+              <li>Download-ready PDF</li>
+            </ul>
+            <button type="button" class="primary-cta" (click)="purchase()">
+              <span>BUY NOW – GET INSTANT ACCESS</span>
+              <strong>{{ formattedOfferPrice }}</strong>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer reveal" #revealItem>
+      <div class="footer-links">
+        <a href="https://wa.me/918590786095?text=Hi%2C%20I%27d%20like%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer">Customer support</a>
+        <a routerLink="/thecartdetailsandpolicy">Privacy Policy</a>
+        <a routerLink="/thecartdetailsandpolicy">Terms &amp; Conditions</a>
+        <a routerLink="/thecartdetailsandpolicy">Refund Policy</a>
+        <a routerLink="/thecartdetailsandpolicy">Digital Product Information</a>
+      </div>
+      <p>© TheCart. Digital products are delivered securely after successful payment verification.</p>
+    </footer>
+
+    <div class="sticky-cta reveal" #revealItem>
+      <div class="sticky-price">
+        <span class="sticky-label">Offer</span>
+        <strong>{{ formattedOfferPrice }}</strong>
+      </div>
+      <button type="button" class="primary-cta" (click)="purchase()">
+        <span>BUY NOW</span>
+      </button>
+    </div>
+  </div>
+}

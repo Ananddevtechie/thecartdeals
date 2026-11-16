@@ -1,0 +1,92 @@
+<main class="ebook-flow-page">
+  <header class="ebook-flow-header">
+    <a class="ebook-flow-brand" routerLink="/" aria-label="TheCart home">
+      <img src="/app-icon-display.png" alt="" />
+      <span><strong>TheCart</strong><small>PREMIUM DIGITAL EBOOKS</small></span>
+    </a>
+    <span class="ebook-flow-secure"><span aria-hidden="true">⌑</span> Secure payment</span>
+  </header>
+
+  <section class="ebook-flow-shell" aria-labelledby="ebook-payment-title" aria-live="polite">
+    <nav class="ebook-flow-steps" aria-label="Checkout progress">
+      <span class="is-done"><b>✓</b> Your details</span><i aria-hidden="true">→</i>
+      <span class="is-current"><b>02</b> Online payment</span><i aria-hidden="true">→</i>
+      <span><b>03</b> Instant access</span>
+    </nav>
+
+    @if (!stateResolved()) {
+      <div class="ebook-flow-card ebook-flow-loading" role="status"><span class="ebook-flow-spinner" aria-hidden="true"></span>Preparing secure payment…</div>
+    } @else if (screen() === 'pay' && (!buyer() || !product())) {
+      <article class="ebook-flow-card ebook-flow-result" role="alert">
+        <span class="ebook-flow-kicker">CHECKOUT DETAILS</span>
+        <h1 id="ebook-payment-title">Your payment session expired</h1>
+        <p>Return to checkout and enter your contact details again to continue securely.</p>
+        <button class="ebook-flow-primary" type="button" (click)="backToCheckout()"><span>Return to eBook checkout</span><span aria-hidden="true">→</span></button>
+      </article>
+    } @else if (screen() === 'pay' && buyer() && product(); as product) {
+      <article class="ebook-flow-card ebook-payment-card">
+        <div class="ebook-flow-heading">
+          <span class="ebook-flow-kicker">SECURE ONLINE PAYMENT</span>
+          <h1 id="ebook-payment-title">One quick step to your eBook.</h1>
+          <p>Pay securely through Razorpay. Choose an available UPI app in the hosted checkout.</p>
+        </div>
+
+        <section class="ebook-payment-method" aria-label="Payment method">
+          <span class="ebook-upi-icon" aria-hidden="true">↗</span>
+          <div><strong>UPI payment</strong><span>Secure payment powered by Razorpay</span></div>
+          <span class="ebook-payment-check" aria-label="Selected">✓</span>
+        </section>
+
+        <div class="ebook-payment-total">
+          <span>One-time payment</span>
+          <strong>{{ product.currency }} {{ formattedTotal }}</strong>
+        </div>
+
+        <div class="ebook-buyer-summary">
+          <span class="ebook-flow-kicker">ACCESS DETAILS</span>
+          <strong>{{ buyer()?.fullName }}</strong>
+          <span>{{ buyer()?.email }}</span>
+          <span>+91 {{ buyer()?.mobile }}</span>
+          <button type="button" (click)="backToCheckout()">Edit details</button>
+        </div>
+
+        @if (notice()) { <p class="ebook-flow-error" role="alert">{{ notice() }}</p> }
+
+        <button class="ebook-flow-primary" type="button" (click)="payNow()" [disabled]="submitting()">
+          <span>{{ submitting() ? 'Preparing secure payment…' : 'Pay ' + product.currency + ' ' + formattedTotal }}</span>
+          @if (submitting()) { <span class="ebook-flow-spinner ebook-button-spinner" aria-hidden="true"></span> } @else { <span aria-hidden="true">→</span> }
+        </button>
+        <p class="ebook-flow-assurance"><span aria-hidden="true">⌑</span> Payment is confirmed only after secure backend verification.</p>
+      </article>
+    } @else if (screen() === 'pending') {
+      <article class="ebook-flow-card ebook-flow-result">
+        <span class="ebook-flow-spinner" aria-hidden="true"></span>
+        <span class="ebook-flow-kicker">PAYMENT STATUS</span>
+        <h1 id="ebook-payment-title">Confirming your payment</h1>
+        <p>Please don’t pay again while we check the payment provider’s confirmation.</p>
+        @if (notice()) { <p class="ebook-flow-error" role="status">{{ notice() }}</p> }
+        <button class="ebook-flow-primary" type="button" (click)="checkPaymentStatus()"><span>Check payment status</span><span aria-hidden="true">↻</span></button>
+      </article>
+    } @else if (screen() === 'failed') {
+      <article class="ebook-flow-card ebook-flow-result">
+        <span class="ebook-flow-kicker">PAYMENT STATUS</span>
+        <h1 id="ebook-payment-title">Payment not completed</h1>
+        <p>No payment is confirmed unless the provider successfully verifies it. You can try again securely.</p>
+        @if (notice()) { <p class="ebook-flow-error" role="alert">{{ notice() }}</p> }
+        <button class="ebook-flow-primary" type="button" (click)="tryAgain()"><span>Try payment again</span><span aria-hidden="true">→</span></button>
+        <button class="ebook-flow-secondary" type="button" (click)="backToCheckout()">← Edit checkout details</button>
+      </article>
+    } @else {
+      <article class="ebook-flow-card ebook-flow-result ebook-payment-success">
+        <span class="ebook-success-mark" aria-hidden="true">✓</span>
+        <span class="ebook-flow-kicker">PAYMENT CONFIRMED</span>
+        <h1 id="ebook-payment-title">Your eBook order is confirmed.</h1>
+        <strong class="ebook-success-amount">{{ paidOrder()?.currency ?? 'INR' }} {{ formattedTotal }}</strong>
+        <p>Order reference: <strong>{{ paidOrder()?.order_id }}</strong></p>
+        <p>Your payment has been verified. Keep your order reference for support.</p>
+        <button class="ebook-flow-primary" type="button" (click)="viewOrder()"><span>View order confirmation</span><span aria-hidden="true">→</span></button>
+        <button class="ebook-flow-secondary" type="button" (click)="continueShopping()">Continue shopping</button>
+      </article>
+    }
+  </section>
+</main>

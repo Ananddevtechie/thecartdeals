@@ -15,6 +15,14 @@ export interface PaymentOrderRequest {
   landmark: string;
 }
 
+export interface EbookPaymentOrderRequest {
+  product_id: string;
+  quantity: 1;
+  full_name: string;
+  customer_email: string;
+  mobile: string;
+}
+
 export interface RazorpayOrderResult {
   order_id: string;
   key_id: string;
@@ -57,6 +65,14 @@ export interface PaymentStatusResult extends Omit<PaidOrderResult, 'order_status
 
 @Injectable({ providedIn: 'root' })
 export class PaymentApiService {
+  async createEbookOrder(request: EbookPaymentOrderRequest): Promise<RazorpayOrderResult> {
+    return this.request<RazorpayOrderResult>('/api/payments/razorpay/digital-orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+  }
+
   async createOrder(request: PaymentOrderRequest): Promise<RazorpayOrderResult> {
     return this.request<RazorpayOrderResult>('/api/payments/razorpay/orders', {
       method: 'POST',

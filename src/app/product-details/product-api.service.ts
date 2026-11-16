@@ -64,6 +64,10 @@ export function displayReviewerName(name: string): string {
   return /meesho/i.test(name) ? ' ' : name;
 }
 
+export function isEbookCategory(category: string | null | undefined): boolean {
+  return typeof category === 'string' && ['book', 'ebook'].includes(category.trim().toLowerCase());
+}
+
 export interface ProductReviewImportResult {
   imported_count: number;
   skipped_count: number;

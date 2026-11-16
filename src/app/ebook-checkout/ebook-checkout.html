@@ -1,0 +1,71 @@
+<main class="ebook-flow-page">
+  <header class="ebook-flow-header">
+    <a class="ebook-flow-brand" routerLink="/" aria-label="TheCart home">
+      <img src="/app-icon-display.png" alt="" />
+      <span><strong>TheCart</strong><small>PREMIUM DIGITAL EBOOKS</small></span>
+    </a>
+    <span class="ebook-flow-secure"><span aria-hidden="true">⌑</span> Secure checkout</span>
+  </header>
+
+  <section class="ebook-flow-shell" aria-labelledby="ebook-checkout-title">
+    <nav class="ebook-flow-steps" aria-label="Checkout progress">
+      <span class="is-current"><b>01</b> Your details</span><i aria-hidden="true">→</i>
+      <span><b>02</b> Online payment</span><i aria-hidden="true">→</i>
+      <span><b>03</b> Instant access</span>
+    </nav>
+
+    @if (loading()) {
+      <div class="ebook-flow-card ebook-flow-loading" role="status"><span class="ebook-flow-spinner" aria-hidden="true"></span>Loading your eBook…</div>
+    } @else if (error() && !product()) {
+      <article class="ebook-flow-card ebook-flow-result" role="alert">
+        <span class="ebook-flow-kicker">CHECKOUT</span>
+        <h1 id="ebook-checkout-title">Checkout unavailable</h1>
+        <p>{{ error() }}</p>
+        <a class="ebook-flow-secondary" routerLink="/">Return to the store</a>
+      </article>
+    } @else if (product(); as product) {
+      <div class="ebook-checkout-layout">
+        <section class="ebook-flow-card ebook-checkout-form-card">
+          <div class="ebook-flow-heading">
+            <span class="ebook-flow-kicker">A QUICK, SECURE CHECKOUT</span>
+            <h1 id="ebook-checkout-title">Where should we send your eBook?</h1>
+            <p>Enter your contact details, then pay securely online. No shipping address needed.</p>
+          </div>
+
+          <form class="ebook-buyer-form" (submit)="continueToPayment($event)">
+            <label class="ebook-field">
+              <span>Full name</span>
+              <input name="fullName" autocomplete="name" placeholder="Your name" required minlength="2" maxlength="120" pattern=".*\S.*" title="Enter your name" />
+            </label>
+            <label class="ebook-field">
+              <span>Email address</span>
+              <input name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254" />
+              <small>Use an email address you can access.</small>
+            </label>
+            <label class="ebook-field">
+              <span>Mobile number</span>
+              <span class="ebook-phone-input"><b>+91</b><input name="mobile" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="10-digit mobile number" required pattern="[6-9][0-9]{9}" title="Enter a valid 10-digit Indian mobile number" /></span>
+            </label>
+
+            @if (error()) { <p class="ebook-flow-error" role="alert">{{ error() }}</p> }
+
+            <button class="ebook-flow-primary" type="submit" [disabled]="submitting()">
+              <span>{{ submitting() ? 'Continuing…' : 'Continue to secure payment' }}</span><span aria-hidden="true">→</span>
+            </button>
+            <p class="ebook-flow-assurance"><span aria-hidden="true">✓</span> Your details are only used to process this purchase.</p>
+          </form>
+        </section>
+
+        <aside class="ebook-flow-card ebook-order-card" aria-label="eBook order summary">
+          <span class="ebook-flow-kicker">YOUR EBOOK</span>
+          <div class="ebook-order-product">
+            <img [src]="product.imageUrl" [alt]="product.title" />
+            <div><h2>{{ product.title }}</h2><span>Digital eBook · Instant access</span></div>
+          </div>
+          <div class="ebook-order-price"><span>One-time payment</span><strong>{{ product.currency }} {{ product.price }}</strong></div>
+          <div class="ebook-order-note"><span aria-hidden="true">↗</span><p>Online payment only. Your payment is confirmed securely by Razorpay.</p></div>
+        </aside>
+      </div>
+    }
+  </section>
+</main>

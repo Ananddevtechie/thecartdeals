@@ -19,7 +19,7 @@
       <div class="success-card missing-order" role="alert"><span class="success-mark">!</span><h1 id="success-title">Order details unavailable</h1><p>We could not find this confirmation in this browser session. Please check your email or contact support with your order reference.</p><button type="button" (click)="continueShopping()">Continue shopping</button></div>
     } @else {
       <article class="success-card">
-        <aside class="email-note" role="status" aria-live="polite"><span>DELIVERY UPDATE</span><strong>Delivery details and tracking link will be shared on WhatsApp</strong></aside>
+        <aside class="email-note" role="status" aria-live="polite"><span>{{ order.expected_delivery_range === 'Instant digital access' ? 'DIGITAL ORDER' : 'DELIVERY UPDATE' }}</span><strong>{{ order.expected_delivery_range === 'Instant digital access' ? 'Your eBook order is confirmed for instant digital access.' : 'Delivery details and tracking link will be shared on WhatsApp' }}</strong></aside>
         <div class="success-check" aria-hidden="true">✓</div>
         <span class="eyebrow">ORDER CONFIRMED</span>
         <h1 id="success-title">Order placed successfully</h1>
@@ -35,7 +35,9 @@
           <div class="detail-row"><span>Expected delivery</span><strong>{{ order.expected_delivery_range }}</strong></div>
         </div>
 
-        @if (delivery) {
+        @if (delivery && order.expected_delivery_range === 'Instant digital access') {
+          <section class="delivery-card"><div class="delivery-heading"><strong>Purchase contact</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p>@if (delivery.email) { <p>{{ delivery.email }}</p> }</section>
+        } @else if (delivery) {
           <section class="delivery-card"><div class="delivery-heading"><strong>Delivery address</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p><p>{{ delivery.addressLine1 }}, {{ delivery.addressLine2 }}{{ delivery.landmark ? ', near ' + delivery.landmark : '' }}, {{ delivery.city }}, {{ delivery.state }} {{ delivery.pin }}</p></section>
         }
 

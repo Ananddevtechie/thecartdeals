@@ -2,6 +2,18 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
   {
+    path: 'ebook-checkout',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'ebook-payment',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'product-details/ebook/:slug',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'product-details/:slug',
     renderMode: RenderMode.Client,
   },

@@ -22,6 +22,7 @@ interface OrderConfirmation {
 interface DeliverySummary {
   [key: string]: FormDataEntryValue | number | undefined;
   fullName?: string;
+  email?: string;
   mobile?: string;
   addressLine1?: string;
   addressLine2?: string;
