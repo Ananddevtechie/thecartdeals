@@ -50,6 +50,15 @@ describe('FreeCodPopup', () => {
     expect(document.body.style.overflow).toBe('hidden');
   });
 
+  it('does not open on eBook product details pages', () => {
+    routeUrl = '/product-details/ebook/angular-interview-question-bundle';
+    fixture = TestBed.createComponent(FreeCodPopup);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
+    expect(document.body.style.overflow).toBe('');
+  });
+
   it('does not open on the storefront landing page', () => {
     fixture = TestBed.createComponent(FreeCodPopup);
     fixture.detectChanges();

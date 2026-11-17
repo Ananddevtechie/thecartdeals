@@ -87,7 +87,11 @@ export class FreeCodPopup implements OnInit {
   private syncRoute(url: string): void {
     const path = url.split(/[?#]/, 1)[0].replace(/\/+$/, '') || '/';
     const isEligibleRoute = path === '/product-details' || path.startsWith('/product-details/');
-    const shouldOpen = isEligibleRoute && sessionStorage.getItem(dismissedStorageKey) !== 'true';
+    const isEbookRoute = path === '/product-details/ebook' || path.startsWith('/product-details/ebook/');
+    const shouldOpen =
+      isEligibleRoute &&
+      !isEbookRoute &&
+      sessionStorage.getItem(dismissedStorageKey) !== 'true';
 
     if (shouldOpen && !this.isOpen()) {
       this.isOpen.set(true);
