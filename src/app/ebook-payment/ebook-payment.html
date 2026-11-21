@@ -84,6 +84,16 @@
         <strong class="ebook-success-amount">{{ paidOrder()?.currency ?? 'INR' }} {{ formattedTotal }}</strong>
         <p>Order reference: <strong>{{ paidOrder()?.order_id }}</strong></p>
         <p>Your payment has been verified. Keep your order reference for support.</p>
+        @if (downloadUrl()) {
+          <a class="ebook-flow-primary" [href]="downloadUrl()"><span>Download your eBook</span><span aria-hidden="true">↓</span></a>
+        } @else if (notice()) {
+          <p class="ebook-flow-error" role="alert">{{ notice() }}</p>
+          <button class="ebook-flow-secondary" type="button" (click)="prepareDownloadLink()" [disabled]="preparingDownload()">
+            <span>{{ preparingDownload() ? 'Preparing secure link…' : 'Try preparing the download link again' }}</span>
+          </button>
+        } @else {
+          <p role="status">{{ preparingDownload() ? 'Preparing your secure download link…' : 'Check your email for the secure download link.' }}</p>
+        }
         <button class="ebook-flow-primary" type="button" (click)="viewOrder()"><span>View order confirmation</span><span aria-hidden="true">→</span></button>
         <button class="ebook-flow-secondary" type="button" (click)="continueShopping()">Continue shopping</button>
       </article>

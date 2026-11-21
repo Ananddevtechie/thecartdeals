@@ -1,17 +1,25 @@
-<main class="success-page">
+<main class="success-page" [class.ebook-success-page]="isBookOrder">
   <div class="success-decoration" aria-hidden="true"></div>
   <header class="success-header">
-    <a class="success-brand" routerLink="/product-details" aria-label="TheCart home"><img class="brand-mark" src="/app-icon-display.png" alt="" /><span><strong>TheCart</strong><small>EVERYDAY, ELEVATED</small></span></a>
-    <a class="secure-label" routerLink="/product-details"><span aria-hidden="true">⌑</span> Secure checkout</a>
+    <a class="success-brand" routerLink="/product-details" aria-label="TheCart home"><img class="brand-mark" src="/app-icon-display.png" alt="" /><span><strong>TheCart</strong><small>{{ isBookOrder ? 'PREMIUM DIGITAL EBOOKS' : 'EVERYDAY, ELEVATED' }}</small></span></a>
+    <a class="secure-label" routerLink="/product-details"><span aria-hidden="true">⌑</span> {{ isBookOrder ? 'Secure digital delivery' : 'Secure checkout' }}</a>
   </header>
 
   <section class="success-content" aria-labelledby="success-title">
-    <nav class="progress-steps" aria-label="Checkout progress">
-      <span class="step-done"><b>✓</b> Details</span><i aria-hidden="true">→</i>
-      <span class="step-done"><b>✓</b> Delivery</span><i aria-hidden="true">→</i>
-      <span class="step-done"><b>✓</b> Payment</span><i aria-hidden="true">→</i>
-      <span class="step-current" aria-current="step"><b>4</b> Confirmation</span>
-    </nav>
+    @if (isBookOrder) {
+      <nav class="progress-steps book-progress-steps" aria-label="Checkout progress">
+        <span class="step-done"><b>✓</b> Your details</span><i aria-hidden="true">→</i>
+        <span class="step-done"><b>✓</b> Payment</span><i aria-hidden="true">→</i>
+        <span class="step-current" aria-current="step"><b>3</b> Book ready</span>
+      </nav>
+    } @else {
+      <nav class="progress-steps" aria-label="Checkout progress">
+        <span class="step-done"><b>✓</b> Details</span><i aria-hidden="true">→</i>
+        <span class="step-done"><b>✓</b> Delivery</span><i aria-hidden="true">→</i>
+        <span class="step-done"><b>✓</b> Payment</span><i aria-hidden="true">→</i>
+        <span class="step-current" aria-current="step"><b>4</b> Confirmation</span>
+      </nav>
+    }
 
     @if (!stateResolved) {
       <div class="success-card loading-state" role="status"><span class="success-spinner" aria-hidden="true"></span><strong>Loading your order confirmation…</strong></div>
@@ -19,30 +27,40 @@
       <div class="success-card missing-order" role="alert"><span class="success-mark">!</span><h1 id="success-title">Order details unavailable</h1><p>We could not find this confirmation in this browser session. Please check your email or contact support with your order reference.</p><button type="button" (click)="continueShopping()">Continue shopping</button></div>
     } @else {
       <article class="success-card">
-        <aside class="email-note" role="status" aria-live="polite"><span>{{ order.expected_delivery_range === 'Instant digital access' ? 'DIGITAL ORDER' : 'DELIVERY UPDATE' }}</span><strong>{{ order.expected_delivery_range === 'Instant digital access' ? 'Your eBook order is confirmed for instant digital access.' : 'Delivery details and tracking link will be shared on WhatsApp' }}</strong></aside>
+        @if (isBookOrder) {
+          <aside class="email-note book-email-note" role="status" aria-live="polite">
+            <span>YOUR DIGITAL BOOK</span>
+            <strong>Your payment is confirmed. We’re sending the PDF to {{ delivery?.email || 'the email address you entered at checkout' }}.</strong>
+          </aside>
+        } @else {
+          <aside class="email-note" role="status" aria-live="polite"><span>DELIVERY UPDATE</span><strong>Delivery details and tracking link will be shared on WhatsApp</strong></aside>
+        }
         <div class="success-check" aria-hidden="true">✓</div>
-        <span class="eyebrow">ORDER CONFIRMED</span>
-        <h1 id="success-title">Order placed successfully</h1>
-        <p class="success-lead">{{ order.payment_method === 'UPI' ? 'Your UPI payment has been received.' : 'Please keep the payable amount ready when it arrives.' }}</p>
+        <span class="eyebrow">{{ isBookOrder ? 'PAYMENT CONFIRMED' : 'ORDER CONFIRMED' }}</span>
+        <h1 id="success-title">{{ isBookOrder ? 'Your book is ready.' : 'Order placed successfully' }}</h1>
+        <p class="success-lead">{{ isBookOrder ? 'Your payment has been verified. Keep your order reference for support.' : order.payment_method === 'UPI' ? 'Your UPI payment has been received.' : 'Please keep the payable amount ready when it arrives.' }}</p>
 
         <div class="order-reference"><span>ORDER ID</span><strong>{{ order.order_id }}</strong></div>
         <div class="order-details">
           <div class="detail-row"><span>Product</span><strong>{{ order.product_title }} × {{ order.quantity }}</strong></div>
-          <div class="detail-row"><span>SKU</span><strong>{{ order.product_sku }}</strong></div>
+          @if (!isBookOrder) { <div class="detail-row"><span>SKU</span><strong>{{ order.product_sku }}</strong></div> }
           <div class="detail-row"><span>Payment method</span><strong>{{ order.payment_method === 'UPI' ? 'UPI' : 'Cash on Delivery' }}</strong></div>
-          <div class="detail-row"><span>Payment status</span><strong class="pending-status">{{ order.payment_status }}</strong></div>
-          <div class="detail-row"><span>Amount payable</span><strong class="amount">{{ order.currency }} {{ formatMoney(order.total) }}</strong></div>
-          <div class="detail-row"><span>Expected delivery</span><strong>{{ order.expected_delivery_range }}</strong></div>
+          <div class="detail-row"><span>Payment status</span><strong class="pending-status">{{ isBookOrder ? 'PAID' : order.payment_status }}</strong></div>
+          <div class="detail-row"><span>{{ isBookOrder ? 'Amount paid' : 'Amount payable' }}</span><strong class="amount">{{ order.currency }} {{ formatMoney(order.total) }}</strong></div>
+          @if (!isBookOrder) { <div class="detail-row"><span>Expected delivery</span><strong>{{ order.expected_delivery_range }}</strong></div> }
         </div>
 
-        @if (delivery && order.expected_delivery_range === 'Instant digital access') {
+        @if (delivery && isBookOrder) {
           <section class="delivery-card"><div class="delivery-heading"><strong>Purchase contact</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p>@if (delivery.email) { <p>{{ delivery.email }}</p> }</section>
-        } @else if (delivery) {
+        } @else if (delivery && !isBookOrder) {
           <section class="delivery-card"><div class="delivery-heading"><strong>Delivery address</strong></div><strong>{{ delivery.fullName }}</strong><p>+91 {{ delivery.mobile }}</p><p>{{ delivery.addressLine1 }}, {{ delivery.addressLine2 }}{{ delivery.landmark ? ', near ' + delivery.landmark : '' }}, {{ delivery.city }}, {{ delivery.state }} {{ delivery.pin }}</p></section>
         }
 
         <div class="success-actions">
-          <button type="button" class="continue-button" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button>
+          @if (order.download_url) {
+            <a class="continue-button book-download-button" [href]="order.download_url">Download your eBook <span aria-hidden="true">↓</span></a>
+          }
+          <button type="button" class="continue-button" [class.book-secondary-action]="isBookOrder" (click)="continueShopping()">Continue shopping <span aria-hidden="true">→</span></button>
         </div>
         <div class="cancel-order-area">
           @if (canCancelOrder) {

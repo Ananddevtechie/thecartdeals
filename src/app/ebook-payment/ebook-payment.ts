@@ -40,6 +40,9 @@ export class EbookPayment implements OnDestroy {
   readonly activeOrderId = signal('');
   readonly paidOrder = signal<PaidOrderResult | null>(null);
   readonly confirmedAmount = signal(0);
+  readonly downloadUrl = signal('');
+  readonly preparingDownload = signal(false);
+  private readonly downloadAccessToken = signal('');
 
   constructor() {
     afterNextRender(() => { void this.resolvePaymentState(); });
@@ -79,6 +82,7 @@ export class EbookPayment implements OnDestroy {
       };
       const order = await this.paymentApi.createEbookOrder(request);
       this.activeOrderId.set(order.order_id);
+      this.downloadAccessToken.set(order.download_access_token ?? '');
       this.confirmedAmount.set(order.amount / 100);
       const checkout = new window.Razorpay({
         key: order.key_id,
@@ -128,9 +132,17 @@ export class EbookPayment implements OnDestroy {
     this.notice.set('');
     this.activeOrderId.set('');
     this.paidOrder.set(null);
+    this.downloadUrl.set('');
+    this.downloadAccessToken.set('');
     void this.router.navigateByUrl(
       `/ebook-payment?product=${encodeURIComponent(this.product()?.id ?? '')}`,
-      { replaceUrl: true, state: { ebookBuyer: this.buyer() } },
+      {
+        replaceUrl: true,
+        state: {
+          ebookBuyer: this.buyer(),
+          downloadAccessToken: this.downloadAccessToken(),
+        },
+      },
     );
   }
 
@@ -146,8 +158,28 @@ export class EbookPayment implements OnDestroy {
     const order = this.paidOrder();
     if (!order) return;
     void this.router.navigateByUrl('/order/success', {
-      state: { order, checkout: this.buyer() },
+      state: {
+        order: { ...order, download_url: this.downloadUrl() },
+        checkout: this.buyer(),
+      },
     });
+  }
+
+  async prepareDownloadLink(): Promise<void> {
+    const order = this.paidOrder();
+    const accessToken = this.downloadAccessToken();
+    if (!order || !accessToken || this.preparingDownload()) return;
+
+    this.preparingDownload.set(true);
+    this.notice.set('');
+    try {
+      const result = await this.paymentApi.createEbookDownloadLink(order.order_id, accessToken);
+      this.downloadUrl.set(result.download_url);
+    } catch {
+      this.notice.set('Your secure download link could not be prepared. Check your email and try again.');
+    } finally {
+      this.preparingDownload.set(false);
+    }
   }
 
   continueShopping(): void {
@@ -158,6 +190,8 @@ export class EbookPayment implements OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     const navigationBuyer = this.router.getCurrentNavigation()?.extras.state?.['ebookBuyer'] as EbookBuyer | undefined;
     const historyBuyer = window.history.state?.['ebookBuyer'] as EbookBuyer | undefined;
+    const downloadAccessToken = window.history.state?.['downloadAccessToken'];
+    if (typeof downloadAccessToken === 'string') this.downloadAccessToken.set(downloadAccessToken);
     const buyer = navigationBuyer ?? historyBuyer ?? null;
     this.buyer.set(buyer);
     const productId = this.route.snapshot.queryParamMap.get('product') ?? buyer?.productId;
@@ -205,7 +239,13 @@ export class EbookPayment implements OnDestroy {
     if (!window.location.search.includes(encodeURIComponent(orderId))) {
       void this.router.navigateByUrl(
         `/ebook-payment?product=${encodeURIComponent(this.product()?.id ?? '')}&orderId=${encodeURIComponent(orderId)}`,
-        { replaceUrl: true, state: { ebookBuyer: this.buyer() } },
+        {
+          replaceUrl: true,
+          state: {
+            ebookBuyer: this.buyer(),
+            downloadAccessToken: this.downloadAccessToken(),
+          },
+        },
       );
     }
     void this.refreshPaymentStatus(orderId);
@@ -236,6 +276,9 @@ export class EbookPayment implements OnDestroy {
     this.paidOrder.set(order);
     this.confirmedAmount.set(Number(order.total));
     this.screen.set('success');
+    this.notice.set('');
+    this.downloadUrl.set('');
+    void this.prepareDownloadLink();
     this.changeDetector.detectChanges();
   }
 }

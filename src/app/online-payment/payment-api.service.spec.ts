@@ -52,6 +52,28 @@ describe('PaymentApiService', () => {
     }));
   });
 
+  it('uses the checkout handoff token to request a paid eBook download link', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        download_url: 'https://api.example.test/api/ebooks/download/secure-token',
+        expires_at: '2026-11-24T00:00:00Z',
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(new PaymentApiService().createEbookDownloadLink('ORD-BOOK-1', 'checkout-secret'))
+      .resolves.toMatchObject({ expires_at: '2026-11-24T00:00:00Z' });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/payments/razorpay/orders/ORD-BOOK-1/download-link',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { Authorization: 'Bearer checkout-secret' },
+      }),
+    );
+  });
+
   it('returns a readable message for non-JSON gateway failures', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: false,

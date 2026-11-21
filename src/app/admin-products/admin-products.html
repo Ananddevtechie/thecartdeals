@@ -34,7 +34,7 @@
           <h2>{{ editingProduct ? 'Edit product information' : 'Product information' }}</h2>
           <div class="form-grid">
             <label class="field span-two">Product name<input name="title" [value]="editValues?.title ?? ''" required maxlength="255" (input)="updateSlug($event)" /></label>
-            <label class="field">Category<input name="category" [value]="editValues?.category ?? ''" required maxlength="80" placeholder="Home &amp; Living" /></label>
+            <label class="field">Category<input name="category" [value]="editValues?.category ?? ''" required maxlength="80" placeholder="Home &amp; Living" (input)="updateCategory($event)" /></label>
             <label class="field">URL slug<input name="slug" [value]="editingProduct?.id ?? slug" readonly required /></label>
             <label class="field">SKU<input name="sku" [value]="editValues?.sku ?? ''" required maxlength="100" /></label>
             <label class="field span-two">Short description<textarea name="description" [value]="editValues?.description ?? ''" rows="3" required></textarea></label>
@@ -50,6 +50,14 @@
               }
             </div>
             <label class="field span-two">Meesho product link<input name="meeshoUrl" [value]="editValues?.meeshoUrl ?? ''" type="url" placeholder="https://www.meesho.com/…" /></label>
+            @if (isBookCategory) {
+              <div class="field span-two">
+                <label class="device-images-label" for="ebookPdf">Book PDF for secure delivery</label>
+                <input #ebookPdfInput id="ebookPdf" type="file" accept="application/pdf,.pdf" (change)="selectEbookPdf($event)" />
+                <small>{{ ebookPdfFile?.name ?? (editValues?.ebookStoragePath ? 'Current private PDF: ' + editValues.ebookStoragePath + '. Select another PDF to replace it.' : 'Required for Book products. PDF up to 50 MB; uploaded privately to Supabase.') }}</small>
+                @if (ebookPdfFile) { <button class="clear-selected-image" type="button" (click)="clearEbookPdf(ebookPdfInput)">Remove selected PDF</button> }
+              </div>
+            }
           </div>
 
           <h2>Price and stock</h2>

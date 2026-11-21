@@ -30,6 +30,7 @@ export interface ProductDraft {
   eyebrow: string;
   image_url: string;
   meesho_url: string | null;
+  ebook_storage_path: string | null;
   currency: 'INR';
   cost_price: number;
   selling_price: number;
@@ -65,7 +66,7 @@ export function displayReviewerName(name: string): string {
 }
 
 export function isEbookCategory(category: string | null | undefined): boolean {
-  return typeof category === 'string' && ['book', 'ebook'].includes(category.trim().toLowerCase());
+  return typeof category === 'string' && category.trim().toLowerCase() === 'book';
 }
 
 export interface ProductReviewImportResult {
@@ -86,6 +87,7 @@ interface ProductResponse {
   eyebrow: string;
   image_url: string | null;
   meesho_url?: string | null;
+  ebook_storage_path?: string | null;
   currency: string;
   selling_price: number | string;
   mrp: number | string;
@@ -309,6 +311,7 @@ export class ProductApiService {
     costPrice: number;
     isActive: boolean;
     meeshoUrl: string;
+    ebookStoragePath: string;
     orderNowClicks: number;
   })[]> {
     const response = await fetch('/api/admin/products', { headers: this.adminHeaders(username, password) });
@@ -321,6 +324,7 @@ export class ProductApiService {
       costPrice: Number(product.cost_price ?? 0),
       isActive: product.is_active ?? false,
       meeshoUrl: product.meesho_url ?? '',
+      ebookStoragePath: product.ebook_storage_path ?? '',
       orderNowClicks: product.order_now_clicks ?? 0,
     }));
   }
@@ -377,11 +381,13 @@ export class ProductApiService {
     draft: ProductDraft,
     mainImage: File | null,
     additionalImages: File[],
+    ebookPdf: File | null,
   ): Promise<StoreProduct> {
     const form = new FormData();
     form.set('product_data', JSON.stringify(draft));
     if (mainImage) form.set('main_image', mainImage, mainImage.name);
     for (const image of additionalImages) form.append('additional_images', image, image.name);
+    if (ebookPdf) form.set('ebook_pdf', ebookPdf, ebookPdf.name);
 
     const response = await fetch('/api/admin/products/save', {
       method: 'POST',

@@ -17,6 +17,7 @@ interface OrderConfirmation {
   expected_delivery_range: string;
   notification_status: 'PENDING' | 'SENDING' | 'SENT' | 'FAILED';
   notification_message: string;
+  download_url?: string;
 }
 
 interface DeliverySummary {
@@ -57,6 +58,10 @@ export class OrderSuccess {
 
   formatMoney(amount: number | string): string {
     return Number(amount).toFixed(2);
+  }
+
+  get isBookOrder(): boolean {
+    return this.order?.expected_delivery_range === 'Instant digital access';
   }
 
   get canCancelOrder(): boolean {

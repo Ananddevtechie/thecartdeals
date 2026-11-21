@@ -607,8 +607,12 @@
 
   .ebook-order-card {
     position: static;
-    grid-row: 1;
+    grid-row: 2;
     padding: 22px;
+  }
+
+  .ebook-checkout-form-card {
+    grid-row: 1;
   }
 
   .ebook-payment-card {
@@ -619,7 +623,11 @@
     padding: 25px 20px;
   }
 
-  .ebook-flow-heading h1 {
+  .ebook-checkout-form-card .ebook-flow-heading h1 {
+    font-size: clamp(1.65rem, 7vw, 2.1rem);
+  }
+
+  .ebook-payment-card .ebook-flow-heading h1 {
     font-size: clamp(2rem, 10vw, 2.7rem);
   }
 }

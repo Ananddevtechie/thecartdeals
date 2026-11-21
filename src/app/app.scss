@@ -49,14 +49,10 @@
 
 @media (max-width: 767px) {
 	.whatsapp-link {
-		top: auto;
+		top: max(12px, env(safe-area-inset-top));
 		right: max(12px, env(safe-area-inset-right));
-		bottom: max(12px, env(safe-area-inset-bottom));
+		bottom: auto;
 		min-height: 38px;
 		padding: 0 11px;
-	}
-
-	:host(:has(.mobile-sticky-cta)) .whatsapp-link {
-		bottom: calc(67px + max(12px, env(safe-area-inset-bottom)));
 	}
 }

@@ -34,6 +34,12 @@ export interface RazorpayOrderResult {
   customer_name: string;
   customer_mobile: string;
   customer_email?: string | null;
+  download_access_token?: string | null;
+}
+
+export interface EbookDownloadLinkResult {
+  download_url: string;
+  expires_at: string;
 }
 
 export interface RazorpayPaymentResponse {
@@ -97,6 +103,16 @@ export class PaymentApiService {
   async getPaymentStatus(orderId: string): Promise<PaymentStatusResult> {
     return this.request<PaymentStatusResult>(
       `/api/payments/razorpay/orders/${encodeURIComponent(orderId)}/status`,
+    );
+  }
+
+  async createEbookDownloadLink(orderId: string, accessToken: string): Promise<EbookDownloadLinkResult> {
+    return this.request<EbookDownloadLinkResult>(
+      `/api/payments/razorpay/orders/${encodeURIComponent(orderId)}/download-link`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
     );
   }
 

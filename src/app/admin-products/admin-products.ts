@@ -6,6 +6,7 @@ type AdminProduct = StoreProduct & {
   costPrice: number;
   isActive: boolean;
   meeshoUrl: string;
+  ebookStoragePath: string;
   orderNowClicks: number;
 };
 
@@ -17,6 +18,7 @@ interface ProductEditorValues {
   eyebrow: string;
   imageUrl: string;
   meeshoUrl: string;
+  ebookStoragePath: string;
   gallery: string;
   costPrice: number;
   sellingPrice: number;
@@ -65,6 +67,8 @@ export class AdminProducts implements OnInit {
   reviewImages: File[] = [];
   mainImageFile: File | null = null;
   additionalImageFiles: File[] = [];
+  ebookPdfFile: File | null = null;
+  isBookCategory = false;
   reviewBusy = false;
   reviewError = '';
   readonly reviewRatings = [1, 2, 3, 4, 5];
@@ -139,11 +143,18 @@ export class AdminProducts implements OnInit {
       .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
   }
 
+  updateCategory(event: Event): void {
+    this.isBookCategory = this.isBook((event.currentTarget as HTMLInputElement).value);
+    if (!this.isBookCategory) this.ebookPdfFile = null;
+  }
+
   editProduct(product: AdminProduct): void {
     this.editingProduct = product;
     this.mainImageFile = null;
     this.additionalImageFiles = [];
+    this.ebookPdfFile = null;
     this.slug = product.id;
+    this.isBookCategory = this.isBook(product.category);
     this.editValues = {
       title: product.title,
       category: product.category,
@@ -152,6 +163,7 @@ export class AdminProducts implements OnInit {
       eyebrow: product.eyebrow,
       imageUrl: product.imageUrl,
       meeshoUrl: product.meeshoUrl,
+      ebookStoragePath: product.ebookStoragePath,
       gallery: product.gallery.filter((image) => image.src !== product.imageUrl).map((image) => image.src).join('\n'),
       costPrice: product.costPrice,
       sellingPrice: product.price,
@@ -175,6 +187,8 @@ export class AdminProducts implements OnInit {
     this.slug = '';
     this.mainImageFile = null;
     this.additionalImageFiles = [];
+    this.ebookPdfFile = null;
+    this.isBookCategory = false;
     this.error = '';
     this.notice = '';
   }
@@ -227,6 +241,25 @@ export class AdminProducts implements OnInit {
 
   removeAdditionalImage(index: number): void {
     this.additionalImageFiles = this.additionalImageFiles.filter((_, fileIndex) => fileIndex !== index);
+  }
+
+  selectEbookPdf(event: Event): void {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) return;
+    if (!this.isValidEbookPdf(file)) {
+      this.ebookPdfFile = null;
+      this.error = 'Choose a PDF file up to 50 MB.';
+      input.value = '';
+      return;
+    }
+    this.ebookPdfFile = file;
+    this.error = '';
+  }
+
+  clearEbookPdf(input: HTMLInputElement): void {
+    this.ebookPdfFile = null;
+    input.value = '';
   }
 
   async openProductReviews(product: AdminProduct): Promise<void> {
@@ -352,12 +385,17 @@ export class AdminProducts implements OnInit {
         return;
       }
       const draft = this.buildDraft(values);
+      if (this.isBookCategory && !this.ebookPdfFile && !draft.ebook_storage_path) {
+        this.error = 'Choose the eBook PDF before saving a Book product.';
+        return;
+      }
       await this.productApi.saveProductWithImages(
         this.username,
         this.password,
         draft,
         mainImageFile,
         this.additionalImageFiles,
+        this.ebookPdfFile,
       );
       this.products = await this.productApi.listAdminProducts(this.username, this.password);
       const wasEditing = this.editingProduct !== null;
@@ -369,6 +407,8 @@ export class AdminProducts implements OnInit {
       this.slug = '';
       this.mainImageFile = null;
       this.additionalImageFiles = [];
+      this.ebookPdfFile = null;
+      this.isBookCategory = false;
       this.notice = wasEditing ? 'Product updated.' : 'Product added to the storefront.';
     } catch (error) {
       this.error = error instanceof Error ? error.message : 'Could not save this product.';
@@ -398,6 +438,7 @@ export class AdminProducts implements OnInit {
       eyebrow: this.value(values, 'eyebrow'),
       image_url: imageUrl,
       meesho_url: this.value(values, 'meeshoUrl') || null,
+      ebook_storage_path: this.isBookCategory ? this.editValues?.ebookStoragePath || null : null,
       currency: 'INR',
       cost_price: Number(values.get('costPrice')),
       selling_price: Number(values.get('sellingPrice')),
@@ -433,5 +474,14 @@ export class AdminProducts implements OnInit {
 
   private isValidProductImage(file: File): boolean {
     return ['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 5 * 1024 * 1024;
+  }
+
+  private isBook(category: string): boolean {
+    return category.trim().toLowerCase() === 'book';
+  }
+
+  private isValidEbookPdf(file: File): boolean {
+    return file.size <= 50 * 1024 * 1024
+      && (file.type === 'application/pdf' || (!file.type && file.name.toLowerCase().endsWith('.pdf')));
   }
 }
