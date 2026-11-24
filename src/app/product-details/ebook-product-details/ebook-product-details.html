@@ -33,7 +33,7 @@
       <section class="hero section-wrap">
         <div class="hero-copy reveal" #revealItem>
           <span class="eyebrow-badge">DIGITAL EBOOK</span>
-          <p class="eyebrow-text">{{ product.eyebrow || product.title }}</p>
+         <p class="eyebrow-text">{{ product.eyebrow || product.title }}</p>
           <h1>{{ product.title }}</h1>
           <p class="hero-description">{{ product.description }}</p>
 
@@ -50,6 +50,9 @@
               <span class="offer-price">{{ formattedOfferPrice }}</span>
               <span class="save-chip">Save {{ discountPercent }}%</span>
             </div>
+            @if (isAngularInterviewBook) {
+              <div class="coupon-applied"><span aria-hidden="true">✓</span> Coupon applied for you</div>
+            }
             <div class="pricing-meta">
               <span>One-time payment</span>
               <span>Secure online checkout</span>
@@ -78,7 +81,7 @@
             <div class="book-scene">
               <div class="book-spine"></div>
               <div class="book-cover">
-                <img [src]="primaryImage" [alt]="product.title" />
+                <img [src]="primaryImage" [alt]="displayTitle" />
               </div>
               <div class="floating-tag tag-one">300+ Q&amp;A</div>
               <div class="floating-tag tag-two">Top MNC Prep</div>
@@ -197,11 +200,11 @@
       <section class="final-purchase section-wrap reveal" #revealItem>
         <div class="final-card">
           <div class="final-visual">
-            <img [src]="primaryImage" [alt]="product.title" />
+            <img [src]="primaryImage" [alt]="displayTitle" />
           </div>
           <div class="final-copy">
             <span class="section-kicker">YOUR NEXT INTERVIEW STARTS HERE</span>
-            <h2>{{ product.title }}</h2>
+            <h2>{{ displayTitle }}</h2>
             <div class="final-price-row">
               <span class="original">{{ formattedOriginalPrice }}</span>
               <strong>{{ formattedOfferPrice }}</strong>

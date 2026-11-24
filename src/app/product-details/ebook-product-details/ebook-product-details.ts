@@ -77,17 +77,31 @@ export class EbookProductDetailsComponent implements OnInit, AfterViewInit, OnDe
   }
 
   get discountPercent(): number {
+    if (this.isAngularInterviewBook) return 80;
     const product = this.product();
     if (!product || !product.mrp) return 0;
     return Math.max(0, Math.round(((product.mrp - product.price) / product.mrp) * 100));
   }
 
+  get isAngularInterviewBook(): boolean {
+    const product = this.product();
+    if (!product) return false;
+    return product.id.toLowerCase().includes('angular-interview-question-bundle')
+      || product.title.toLowerCase().includes('angular');
+  }
+
+  get displayTitle(): string {
+    const product = this.product();
+    if (!product) return '';
+    return this.isAngularInterviewBook ? product.title.replace(/₹\s*149\b/, '₹99') : product.title;
+  }
+
   get formattedOriginalPrice(): string {
-    return this.formatPrice(this.product()?.mrp ?? 0);
+    return this.formatPrice(this.isAngularInterviewBook ? 499 : this.product()?.mrp ?? 0);
   }
 
   get formattedOfferPrice(): string {
-    return this.formatPrice(this.product()?.price ?? 0);
+    return this.formatPrice(this.isAngularInterviewBook ? 99 : this.product()?.price ?? 0);
   }
 
   get audienceCards(): Array<{ title: string; text: string }> {
@@ -141,9 +155,10 @@ export class EbookProductDetailsComponent implements OnInit, AfterViewInit, OnDe
 
   private setMetadata(product: StoreProduct): void {
     const description = product.description || 'Premium Angular interview preparation eBook with real-world questions and answers.';
-    this.title.setTitle(`${product.title} | Premium eBook | TheCart`);
+    const displayTitle = this.isAngularInterviewBook ? product.title.replace(/₹\s*149\b/, '₹99') : product.title;
+    this.title.setTitle(`${displayTitle} | Premium eBook | TheCart`);
     this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ property: 'og:title', content: `${product.title} | TheCart` });
+    this.meta.updateTag({ property: 'og:title', content: `${displayTitle} | TheCart` });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
     const primaryImage = this.primaryImage;

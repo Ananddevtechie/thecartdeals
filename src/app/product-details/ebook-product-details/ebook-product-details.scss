@@ -244,6 +244,31 @@ button {
   text-transform: uppercase;
 }
 
+.coupon-applied {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(31, 159, 106, 0.2);
+  border-radius: 12px;
+  background: #eaf8f0;
+  color: #167447;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.coupon-applied span {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #1f9f6a;
+  color: white;
+  font-size: 0.7rem;
+}
+
 .pricing-meta {
   display: flex;
   flex-wrap: wrap;
